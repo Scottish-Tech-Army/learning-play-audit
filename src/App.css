@@ -28,6 +28,23 @@
   color: #61dafb;
 }
 
+.commentbox-hidden {
+    display: none;
+}
+
+.commentbox {
+    padding-top: 1em;
+}
+.count-badge {
+    margin-right: 15px;
+}
+
+.question {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border-top: 1px solid grey;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
