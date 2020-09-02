@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import Box from "@material-ui/core/Box";
 import QuestionSelectWithComment from "./QuestionSelectWithComment";
+import QuestionText from "./QuestionText";
+import QuestionTextWithYear from "./QuestionTextWithYear";
 import CommentIcon from "@material-ui/icons/Comment";
 import Badge from "@material-ui/core/Badge";
-import DoneIcon from "@material-ui/icons/Done";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import MuiAccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Tooltip from "@material-ui/core/Tooltip";
+import { SCALE_WITH_COMMENT, TEXT, TEXT_WITH_YEAR, TEXT_INLINE_LABEL } from "./QuestionTypes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,12 +32,6 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     textAlign: "start",
   },
-  // root: {
-  //   flexGrow: 1,
-  // },
-  // menuButton: {
-  //   marginRight: theme.spacing(2),
-  // },
   title: {
     flexGrow: 1,
   },
@@ -45,34 +41,76 @@ const useStyles = makeStyles((theme) => ({
   sectionContent: {
     width: "100%",
   },
+  countBadge: {
+    marginRight: "15px",
+  },
 }));
 
 function Section({ section, expanded, handleAccordionChange }) {
   const classes = useStyles();
-  const totalQuestions = section.questions.length;
 
   const sectionId = section.id;
 
   const answerCounts = useSelector((state) => state.answerCounts[sectionId]);
 
-  console.log("answerCounts");
-  console.log(answerCounts);
+  const sectionContent = () => {
+    var questionIndex = 0;
+    function addQuestion(type, id, text) {
+      questionIndex += 1;
 
-  console.log("Render section " + section.title);
-  function sectionContent() {
+      if (SCALE_WITH_COMMENT === type) {
+        return (
+          <QuestionSelectWithComment
+            key={sectionId + "-" + id}
+            sectionId={sectionId}
+            question={{ id: id, text: text }}
+            questionNumber={questionIndex}
+          />
+        );
+      }
+
+      if (TEXT === type || TEXT_INLINE_LABEL === type) {
+        return (
+          <QuestionText
+            key={sectionId + "-" + id}
+            sectionId={sectionId}
+            question={{ id: id, text: text }}
+            questionNumber={questionIndex}
+            inlineLabel={TEXT_INLINE_LABEL === type}
+          />
+        );
+      }
+
+      if (TEXT_WITH_YEAR === type) {
+        return (
+          <QuestionTextWithYear
+            key={sectionId + "-" + id}
+            sectionId={sectionId}
+            question={{ id: id, text: text }}
+            questionNumber={questionIndex}
+          />
+        );
+      }
+
+      throw new Error("unknown question type: " + type);
+    }
+
+    console.log("Render section " + section.title);
     return (
       <Box className={classes.sectionContent} flexDirection="column">
-        {section.questions.map((question, index) => (
-          <QuestionSelectWithComment
-            key={sectionId + "-" + question.id}
-            sectionId={sectionId}
-            question={question}
-            index={index}
-          />
-        ))}
+        {section.content(addQuestion)}
       </Box>
     );
-  }
+  };
+
+  const [totalQuestions, setTotalQuestions] = useState(0);
+
+  // Count total questions
+  useEffect(() => {
+    var questionCount = 0;
+    section.content((type, id) => (questionCount += 1));
+    setTotalQuestions(questionCount);
+  }, [section]);
 
   function CircularProgressWithLabel(props) {
     return (
@@ -112,14 +150,6 @@ function Section({ section, expanded, handleAccordionChange }) {
   })(MuiAccordionSummary);
 
   function sectionSummary() {
-    // <Badge
-    //   className="count-badge"
-    //   badgeContent={answerCount() + "/" + totalQuestions}
-    //   color={answerCount() === totalQuestions ? "primary": "error" }
-    // >
-    //   <DoneIcon />
-    // </Badge>
-
     const progress = (answerCounts.answer * 100) / totalQuestions;
     const answerProgressLabel = answerCounts.answer + "/" + totalQuestions;
     const remainingQuestions =

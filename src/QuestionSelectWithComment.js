@@ -9,33 +9,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "./ActionTypes.js";
 import TextField from "@material-ui/core/TextField";
 import Box from "@material-ui/core/Box";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  question: {
     width: "100%",
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: "33.33%",
-    flexShrink: 0,
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
-    flexGrow: 1,
-    textAlign: "start",
-  },
-  title: {
-    flexGrow: 1,
-  },
-  circularProgressWithLabel: {
-    marginRight: "10px",
+    paddingTop: "1em",
+    paddingBottom: "1em",
+    borderTop: "1px solid grey",
   },
   actionRow: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
+    flexWrap: "wrap",
   },
   questionNumber: {
     position: "absolute",
@@ -43,9 +30,15 @@ const useStyles = makeStyles((theme) => ({
   questionText: {
     marginLeft: "2em",
   },
+  commentboxHidden: {
+    display: "none",
+  },
+  commentbox: {
+    paddingTop: "1em",
+  },
 }));
 
-function QuestionSelectWithComment({ sectionId, question, index }) {
+function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
   const questionId = question.id;
 
   const dispatch = useDispatch();
@@ -87,9 +80,9 @@ function QuestionSelectWithComment({ sectionId, question, index }) {
   };
 
   return (
-    <div className="question">
+    <div className={classes.question}>
       <Box flexDirection="row">
-        <div className={classes.questionNumber}>{index + 1}</div>
+        <div className={classes.questionNumber}>{questionNumber}</div>
         <p className={classes.questionText}>{question.text}</p>
       </Box>
       <Box className={classes.actionRow}>
@@ -123,7 +116,9 @@ function QuestionSelectWithComment({ sectionId, question, index }) {
           )}
         </IconButton>
       </Box>
-      <div className={showComment ? "commentbox" : "commentbox-hidden"}>
+      <div
+        className={showComment ? classes.commentbox : classes.commentboxHidden}
+      >
         <TextField
           id="outlined-multiline-flexible"
           label="Comments / Notes"

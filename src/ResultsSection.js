@@ -3,6 +3,9 @@ import "./App.css";
 import { Radar } from "react-chartjs-2";
 import Box from "@material-ui/core/Box";
 import { useSelector } from "react-redux";
+import Button from "@material-ui/core/Button";
+import { getResultsJson } from "./SurveyModel";
+import { v4 as uuidv4 } from 'uuid';
 
 function ResultsSection() {
   const answers = useSelector((state) => state.answers);
@@ -47,7 +50,6 @@ function ResultsSection() {
     }
     function calcData(sectionAnswers) {
       const vals = Object.values(sectionAnswers);
-      console.log(vals);
       const result =
         (vals.reduce(
           (total, singleAnswer) => total + calcAnswer(singleAnswer.answer),
@@ -64,7 +66,6 @@ function ResultsSection() {
       calcData(answers.sustainability),
       calcData(answers.community),
     ];
-    console.log(result);
     return result;
   }
 
@@ -96,38 +97,76 @@ function ResultsSection() {
     );
   }
 
+  async function uploadResults() {
+    console.log("Results:");
+    console.log(JSON.stringify(answers));
+
+    const request = {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, *cors, same-origin
+      // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      // credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify({ uuid: uuidv4(), survey: answers }), // body data type must match "Content-Type" header
+    };
+
+    fetch("https://apie9w47jf.execute-api.eu-west-2.amazonaws.com/dev", request)
+      .then((res) => res.text())
+      .then((text) => {
+        console.log(text);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   return (
-    <Box flexDirection="column">
-      {drawRadar(
-        [
-          "for learning",
-          "for play",
-          "for wellbeing",
-          "for sustainability",
-          "for community & participation",
-        ],
-        {
-          data: radarDataAnswers(),
-          backgroundColor: "rgb(0, 128, 0, 0.2)",
-          borderColor: "green",
-          label: "How good is our outdoor space?",
-        }
-      )}
-      {drawRadar(
-        [
-          "for accessibility",
-          "for wildlife",
-          "for learning and play",
-          "for ease of change",
-        ],
-        {
-          data: radarDataGreenspaceAnswers(),
-          backgroundColor: "rgb(0, 0, 128, 0.2)",
-          borderColor: "blue",
-          label: "How good is our local greenspace?",
-        }
-      )}
-    </Box>
+    <>
+      <Box flexDirection="column">
+        <Box flexDirection="row">
+          <Button variant="outlined" color="primary">
+            Print
+          </Button>
+          <Button variant="outlined" color="primary" onClick={uploadResults}>
+            Upload...
+          </Button>
+        </Box>
+        {drawRadar(
+          [
+            "for learning",
+            "for play",
+            "for wellbeing",
+            "for sustainability",
+            "for community & participation",
+          ],
+          {
+            data: radarDataAnswers(),
+            backgroundColor: "rgb(0, 128, 0, 0.2)",
+            borderColor: "green",
+            label: "How good is our outdoor space?",
+          }
+        )}
+        {drawRadar(
+          [
+            "for accessibility",
+            "for wildlife",
+            "for learning and play",
+            "for ease of change",
+          ],
+          {
+            data: radarDataGreenspaceAnswers(),
+            backgroundColor: "rgb(0, 0, 128, 0.2)",
+            borderColor: "blue",
+            label: "How good is our local greenspace?",
+          }
+        )}
+      </Box>
+    </>
   );
 }
 
