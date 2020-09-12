@@ -1,5 +1,5 @@
 import React from "react";
-import "./App.css";
+import "../App.css";
 import Box from "@material-ui/core/Box";
 import QuestionSelectWithComment from "./QuestionSelectWithComment";
 import CommentIcon from "@material-ui/icons/Comment";

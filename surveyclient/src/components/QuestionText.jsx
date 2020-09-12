@@ -1,7 +1,7 @@
 import React from "react";
-import "./App.css";
+import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_ANSWER } from "./ActionTypes.js";
+import { SET_ANSWER } from "../model/ActionTypes.js";
 import TextField from "@material-ui/core/TextField";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";

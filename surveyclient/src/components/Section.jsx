@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
+import "../App.css";
 import Box from "@material-ui/core/Box";
 import QuestionSelectWithComment from "./QuestionSelectWithComment";
 import QuestionText from "./QuestionText";
 import QuestionTextWithYear from "./QuestionTextWithYear";
+import QuestionUserSelect from "./QuestionUserSelect";
 import CommentIcon from "@material-ui/icons/Comment";
 import Badge from "@material-ui/core/Badge";
 import Accordion from "@material-ui/core/Accordion";
@@ -15,7 +16,13 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { useSelector } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Tooltip from "@material-ui/core/Tooltip";
-import { SCALE_WITH_COMMENT, TEXT, TEXT_WITH_YEAR, TEXT_INLINE_LABEL } from "./QuestionTypes";
+import {
+  SCALE_WITH_COMMENT,
+  TEXT,
+  TEXT_WITH_YEAR,
+  TEXT_INLINE_LABEL,
+  USER_TYPE_WITH_COMMENT,
+} from "../model/QuestionTypes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,6 +68,17 @@ function Section({ section, expanded, handleAccordionChange }) {
       if (SCALE_WITH_COMMENT === type) {
         return (
           <QuestionSelectWithComment
+            key={sectionId + "-" + id}
+            sectionId={sectionId}
+            question={{ id: id, text: text }}
+            questionNumber={questionIndex}
+          />
+        );
+      }
+
+      if (USER_TYPE_WITH_COMMENT === type) {
+        return (
+          <QuestionUserSelect
             key={sectionId + "-" + id}
             sectionId={sectionId}
             question={{ id: id, text: text }}

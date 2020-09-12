@@ -1,8 +1,18 @@
 import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
-import { SET_ANSWER, RESET_STATE } from "./ActionTypes.js";
-import { sectionsContent, SURVEY_VERSION } from "./content";
+import { SET_ANSWER, REFRESH_STATE, RESET_STATE } from "./ActionTypes.js";
+import { sectionsContent, SURVEY_VERSION } from "./Content";
 import { TEXT_WITH_YEAR } from "./QuestionTypes";
+import localforage from "localforage";
+
+localforage.config({
+  // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
+  name: "learning-play-audit",
+  version: 1.0,
+  // size        : 4980736, // Size of database, in bytes. WebSQL-only for now.
+  storeName: "surveyanswers", // Should be alphanumeric, with underscores.
+  description: "survey answers",
+});
 
 function createEmptyAnswers() {
   return sectionsContent.reduce(
@@ -45,16 +55,54 @@ function initialState() {
 export function surveyReducer(state = initialState(), action) {
   switch (action.type) {
     case SET_ANSWER:
-      return setAnswer(state, action);
+      console.log("SET_ANSWER");
+      var newState = setAnswer(state, action);
+      writeAnswers(newState);
+      return newState;
 
     case RESET_STATE:
-      return initialState();
+      console.log("RESET_STATE");
+      newState = initialState();
+      writeAnswers(newState);
+      return newState;
+
+    case REFRESH_STATE:
+      console.log("REFRESH_STATE");
+      return action.state;
 
     default:
       console.log("Unknown action: " + safeJson(action));
       return state;
   }
 }
+
+export function refreshState() {
+  return function (dispatch, getState) {
+    readAnswers()
+      .then((oldState) => {
+        console.log("readAnswers");
+        console.log(oldState);
+        if (oldState !== null) {
+          dispatch({
+            type: REFRESH_STATE,
+            state: oldState,
+          });
+        } else {
+          const state = getState();
+          console.log("writeAnswers");
+          console.log(state);
+          writeAnswers(state);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+}
+
+const writeAnswers = (data) => localforage.setItem("answers", data);
+const readAnswers = () => localforage.getItem("answers");
+
+// removeData = key => localforage.removeItem(key)
+// clear = () => localforage.clear()
 
 function setAnswer(state, { sectionId, questionId, field, value }) {
   const previousValue = state.answers[sectionId][questionId][field];

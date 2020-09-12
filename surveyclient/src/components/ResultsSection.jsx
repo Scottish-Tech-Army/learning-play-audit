@@ -1,10 +1,9 @@
 import React from "react";
-import "./App.css";
+import "../App.css";
 import { Radar } from "react-chartjs-2";
 import Box from "@material-ui/core/Box";
 import { useSelector } from "react-redux";
 import Button from "@material-ui/core/Button";
-import { getResultsJson } from "./SurveyModel";
 import { v4 as uuidv4 } from 'uuid';
 
 function ResultsSection() {

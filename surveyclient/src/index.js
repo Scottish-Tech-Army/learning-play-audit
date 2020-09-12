@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { Provider } from "react-redux";
-import surveyDataStore from "./SurveyModel";
+import surveyDataStore from "./model/SurveyModel";
 
 ReactDOM.render(
   <Provider store={surveyDataStore}>

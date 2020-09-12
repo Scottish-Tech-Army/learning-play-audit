@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
-import { sectionsContent, introduction } from "./content";
+import { sectionsContent, introduction } from "./model/Content";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import MuiAccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import ResultsSection from "./ResultsSection";
-import Section from "./Section";
+import ResultsSection from "./components/ResultsSection";
+import Section from "./components/Section";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
+import { useDispatch } from "react-redux";
+import { refreshState } from "./model/SurveyModel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,6 +37,13 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState("introduction");
+
+  const dispatch = useDispatch();
+
+  // Restore locally stored answers if existing
+  useEffect(() => {
+    dispatch(refreshState());
+  }, [dispatch]);
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);

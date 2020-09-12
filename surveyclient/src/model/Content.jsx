@@ -12,11 +12,11 @@ import {
   TEXT,
   TEXT_INLINE_LABEL,
   TEXT_WITH_YEAR,
+  USER_TYPE_WITH_COMMENT,
 } from "./QuestionTypes";
 
 // Update the version when any changes are made to the survey. Use semantic versioning.
 export const SURVEY_VERSION = "0.9.0";
-
 
 // For each of the sections, provide a content function that takes a addQuestion(SCALE_WITH_COMMENT,id, text) function as an argument.
 // Section uses this to create the React render output for each question, while SurveyModel uses this to gather a list
@@ -32,7 +32,7 @@ export const sectionsContent = [
         {addQuestion(TEXT_INLINE_LABEL, "school", "School")}
         {addQuestion(TEXT_INLINE_LABEL, "localauthority", "Local Authority")}
         {addQuestion(TEXT_INLINE_LABEL, "contactname", "Contact Name")}
-        {addQuestion(TEXT_INLINE_LABEL, "position", "Position")}
+        {addQuestion(USER_TYPE_WITH_COMMENT, "position", "Position")}
         {addQuestion(TEXT_INLINE_LABEL, "telephone", "Telephone")}
         {addQuestion(TEXT_INLINE_LABEL, "email", "Email")}
       </>

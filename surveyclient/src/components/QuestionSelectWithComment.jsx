@@ -1,12 +1,12 @@
 import React from "react";
-import "./App.css";
+import "../App.css";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import CommentIcon from "@material-ui/icons/Comment";
 import CommentOutlinedIcon from "@material-ui/icons/CommentOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_ANSWER } from "./ActionTypes.js";
+import { SET_ANSWER } from "../model/ActionTypes.js";
 import TextField from "@material-ui/core/TextField";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
