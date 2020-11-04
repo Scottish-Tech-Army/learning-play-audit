@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "api": {
+      "ltlsurvey": [
+        "create"
+      ]
+    },
+    "storage": {
+      "surveyphotos": [
+        "create"
+      ],
+      "SurveyResponse:@model(appsync)": [
+        "create"
+      ],
+      "Photo:@model(appsync)": [
+        "create"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}

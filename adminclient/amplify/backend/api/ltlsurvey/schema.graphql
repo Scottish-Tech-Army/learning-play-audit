@@ -1,0 +1,48 @@
+type SurveyResponse
+@model
+@auth(rules: [
+  {allow: owner},
+  {allow: private, provider: iam}
+]) {
+    id: ID!
+    surveyVersion: String!
+    surveyResponse: AWSJSON!
+    photos: [Photo!]!
+    schoolName: String!
+    responderName: String!
+    responderEmail: String!
+}
+
+type Photo {
+    bucket: String!
+    description: String
+    fullsize: PhotoS3Info!
+}
+
+type PhotoS3Info {
+    key: String!
+    width: Int!
+    height: Int!
+}
+
+input CreateSurveyResponseInput {
+    id: ID
+    surveyVersion: String!
+    surveyResponse: AWSJSON!
+    photos: [CreatePhotoInput!]!
+    schoolName: String!
+    responderName: String!
+    responderEmail: String!
+}
+
+input CreatePhotoInput {
+	bucket: String!
+    description: String
+	fullsize: PhotoS3InfoInput!
+}
+
+input PhotoS3InfoInput {
+	key: String!
+	width: Int!
+	height: Int!
+}
