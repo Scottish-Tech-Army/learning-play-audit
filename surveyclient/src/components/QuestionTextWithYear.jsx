@@ -24,13 +24,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function QuestionTextWithYear({
-  sectionId,
-  question,
-  questionNumber,
-  inlineLabel = false,
-}) {
+function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   const questionId = question.id;
+  const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -49,89 +45,40 @@ function QuestionTextWithYear({
     });
   };
 
-  if (inlineLabel) {
+  function yearAnswerRow(answerKey, yearKey) {
     return (
-      <div className={classes.question}>
+      <Box className={classes.answerRow}>
         <TextField
-          id="outlined-multiline-flexible"
+          className="text-improvement"
           multiline
           fullWidth
           rowsMax={4}
-          label={question.text}
-          value={questionAnswers.answer}
-          onChange={handleChange}
+          label="Improvement"
+          value={questionAnswers[answerKey]}
+          onChange={(event) => handleChange(event, answerKey)}
           variant="outlined"
         />
-      </div>
+        <TextField
+          className="text-year"
+          fullWidth
+          label="Year"
+          value={questionAnswers[yearKey]}
+          onChange={(event) => handleChange(event, yearKey)}
+          variant="outlined"
+        />
+      </Box>
     );
   }
 
   return (
-    <div className={classes.question}>
+    <div id={id} className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionNumber}>{questionNumber}</div>
         <p className={classes.questionText}>{question.text}</p>
       </Box>
-      <Box className={classes.answerRow}>
-        <TextField
-          id="outlined-multiline-flexible"
-          multiline
-          fullWidth
-          rowsMax={4}
-          label="Improvement"
-          value={questionAnswers.answer1}
-          onChange={(event) => handleChange(event, "answer1")}
-          variant="outlined"
-        />
-        <TextField
-          id="outlined-multiline-flexible"
-          fullWidth
-          label="Year"
-          value={questionAnswers.year1}
-          onChange={(event) => handleChange(event, "year1")}
-          variant="outlined"
-        />
-      </Box>
-      <Box className={classes.answerRow}>
-        <TextField
-          id="outlined-multiline-flexible"
-          multiline
-          fullWidth
-          rowsMax={4}
-          label="Improvement"
-          value={questionAnswers.answer2}
-          onChange={(event) => handleChange(event, "answer2")}
-          variant="outlined"
-        />
-        <TextField
-          id="outlined-multiline-flexible"
-          fullWidth
-          label="Year"
-          value={questionAnswers.year2}
-          onChange={(event) => handleChange(event, "year2")}
-          variant="outlined"
-        />
-      </Box>
-      <Box className={classes.answerRow}>
-        <TextField
-          id="outlined-multiline-flexible"
-          multiline
-          fullWidth
-          rowsMax={4}
-          label="Improvement"
-          value={questionAnswers.answer3}
-          onChange={(event) => handleChange(event, "answer3")}
-          variant="outlined"
-        />
-        <TextField
-          id="outlined-multiline-flexible"
-          fullWidth
-          label="Year"
-          value={questionAnswers.year3}
-          onChange={(event) => handleChange(event, "year3")}
-          variant="outlined"
-        />
-      </Box>
+      {yearAnswerRow("answer1", "year1")}
+      {yearAnswerRow("answer2", "year2")}
+      {yearAnswerRow("answer3", "year3")}
     </div>
   );
 }

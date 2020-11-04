@@ -1,79 +1,156 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import "../App.css";
-import { Radar } from "react-chartjs-2";
 import Box from "@material-ui/core/Box";
 import { useSelector } from "react-redux";
-import Button from "@material-ui/core/Button";
-import { v4 as uuidv4 } from 'uuid';
+import { makeStyles } from "@material-ui/core/styles";
+import Chart from "chart.js";
+import { sectionsContent } from "../model/Content";
+
+const useStyles = makeStyles((theme) => ({
+  resultsChart: {
+    position: "relative",
+    // display: "flex",
+    width: "60vw",
+  },
+}));
 
 function ResultsSection() {
   const answers = useSelector((state) => state.answers);
+  const classes = useStyles();
+  const chartContainer1 = useRef();
+  const chartContainer2 = useRef();
+  const chartContainer3 = useRef();
+  const chartInstance1 = useRef(null);
+  const chartInstance2 = useRef(null);
+  const chartInstance3 = useRef(null);
 
-  function radarDataGreenspaceAnswers() {
-    const answerValues = {
-      a: 1,
-      b: 0.7,
-      c: 0.3,
-      d: 0,
-    };
+  const [answerWeights] = React.useState(createAnswerWeights());
 
-    function calcAnswer(singleAnswer) {
-      if (singleAnswer === null || singleAnswer === "") {
-        return 0;
-      }
-      return answerValues[singleAnswer.answer] * 100;
-    }
-    return [
-      calcAnswer(answers.greenspace["accessible"]),
-      calcAnswer(answers.greenspace["wildlife"]),
-      calcAnswer(answers.greenspace["teaching"]),
-      calcAnswer(answers.greenspace["changes"]),
-    ];
+  function createAnswerWeights() {
+    return sectionsContent.reduce((sections, section) => {
+      var questions = {};
+      sections[section.id] = questions;
+      // Use addQuestion to gather question weights
+      section.content((type, id, text, weight = 1) => (questions[id] = weight));
+      return sections;
+    }, {});
   }
 
-  function radarDataAnswers() {
-    console.log("radarDataAnswers");
+  useEffect(() => {
+    const ANSWER_VALUES = { a: 1, b: 0.7, c: 0.3, d: 0 };
 
-    const answerValues = {
-      a: 1,
-      b: 0.7,
-      c: 0.3,
-      d: 0,
-    };
-
-    function calcAnswer(singleAnswer) {
-      if (singleAnswer === null || singleAnswer === "") {
-        return 0;
+    function getSingleAnswer(answers, answerWeights, sectionId, questionId) {
+      const answer = answers[sectionId][questionId];
+      const answerWeight = answerWeights[sectionId][questionId];
+      var answerValue = 0;
+      if (answer === null || answer === undefined) {
+        throw new Error("Unknown question: " + sectionId + ":" + questionId);
       }
-      return answerValues[singleAnswer];
+      if (
+        answer.answer !== undefined &&
+        ANSWER_VALUES[answer.answer] !== undefined
+      ) {
+        answerValue = ANSWER_VALUES[answer.answer];
+      }
+      return { value: answerValue * answerWeight, maxValue: answerWeight };
     }
-    function calcData(sectionAnswers) {
-      const vals = Object.values(sectionAnswers);
-      const result =
-        (vals.reduce(
-          (total, singleAnswer) => total + calcAnswer(singleAnswer.answer),
-          0
-        ) *
-          100) /
-        vals.length;
-      return result;
-    }
-    const result = [
-      calcData(answers.learning),
-      calcData(answers.play),
-      calcData(answers.wellbeing),
-      calcData(answers.sustainability),
-      calcData(answers.community),
-    ];
-    return result;
-  }
 
-  function drawRadar(labels, dataset) {
-    return (
-      <Radar
-        redraw
-        height={500}
-        options={{
+    function calcMultipleAnswers(
+      answers,
+      answerWeights,
+      sectionId,
+      questionIds
+    ) {
+      var totalValue = 0;
+      var totalMaxValue = 0;
+      questionIds.forEach((questionId) => {
+        const { value, maxValue } = getSingleAnswer(
+          answers,
+          answerWeights,
+          sectionId,
+          questionId
+        );
+        totalValue += value;
+        totalMaxValue += maxValue;
+      });
+      return (totalValue * 100) / totalMaxValue;
+    }
+
+    function calcSectionAnswers(answers, answerWeights, sectionId) {
+      const questionIds = Object.keys(answers[sectionId]);
+      return calcMultipleAnswers(
+        answers,
+        answerWeights,
+        sectionId,
+        questionIds
+      );
+    }
+
+    function calcAnswer(answers, answerWeights, sectionId, questionId) {
+      const { value, maxValue } = getSingleAnswer(
+        answers,
+        answerWeights,
+        sectionId,
+        questionId
+      );
+      return (value * 100) / maxValue;
+    }
+
+    function radarDataGreenspaceAnswers() {
+      return [
+        calcAnswer(answers, answerWeights, "greenspace", "accessible"),
+        calcAnswer(answers, answerWeights, "greenspace", "frequentuse"),
+        calcAnswer(answers, answerWeights, "greenspace", "wildlife"),
+        calcAnswer(answers, answerWeights, "greenspace", "teaching"),
+        calcAnswer(answers, answerWeights, "greenspace", "changes"),
+      ];
+    }
+
+    function radarDataAnswers() {
+      console.log("radarDataAnswers");
+
+      return [
+        calcSectionAnswers(answers, answerWeights, "learning"),
+        calcSectionAnswers(answers, answerWeights, "play"),
+        calcSectionAnswers(answers, answerWeights, "wellbeing"),
+        calcSectionAnswers(answers, answerWeights, "sustainability"),
+        calcSectionAnswers(answers, answerWeights, "community"),
+      ];
+    }
+
+    function radarDataPracticeAnswers() {
+      console.log("radarDataPracticeAnswers");
+      return [
+        calcMultipleAnswers(answers, answerWeights, "practice", [
+          "developingcurriculum",
+          "curriculumtopic",
+          "resources",
+          "outcomes",
+          "principles",
+          "growfood",
+        ]),
+        calcMultipleAnswers(answers, answerWeights, "practice", [
+          "playpolicy",
+          "playrain",
+          "playsnow",
+          "allages",
+          "outofsight",
+          "typesofplay",
+          "monitoring",
+          "skillstraining",
+          "oldersupervising",
+        ]),
+      ];
+    }
+
+    function updateChart(chartContainer, chartInstance, labels, dataset) {
+      if (chartInstance.current !== null) {
+        chartInstance.current.destroy();
+      }
+
+      const configuration = {
+        type: "horizontalBar",
+        options: {
           animation: {
             duration: 0,
           },
@@ -81,92 +158,94 @@ function ResultsSection() {
             animationDuration: 0,
           },
           responsiveAnimationDuration: 0,
-          scale: {
-            ticks: {
-              min: 0,
-              max: 100,
-            },
+          responsive: true,
+          scales: {
+            xAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                  suggestedMin: 0,
+                  suggestedMax: 100,
+                },
+              },
+            ],
           },
-        }}
-        data={{
+        },
+        data: {
           labels: labels,
           datasets: [dataset],
-        }}
-      />
+        },
+      };
+
+      const chartRef = chartContainer.current.getContext("2d");
+      chartInstance.current = new Chart(chartRef, configuration);
+    }
+
+    updateChart(
+      chartContainer1,
+      chartInstance1,
+      [
+        "for learning",
+        "for play",
+        "for wellbeing",
+        "for sustainability",
+        "for community & participation",
+      ],
+      {
+        data: radarDataAnswers(),
+        backgroundColor: "rgb(0, 128, 0, 0.2)",
+        borderColor: "green",
+        label: "Results",
+        // label: "How good is our outdoor space?",
+      }
     );
-  }
-
-  async function uploadResults() {
-    console.log("Results:");
-    console.log(JSON.stringify(answers));
-
-    const request = {
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      mode: "cors", // no-cors, *cors, same-origin
-      // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      // credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: "follow", // manual, *follow, error
-      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify({ uuid: uuidv4(), survey: answers }), // body data type must match "Content-Type" header
-    };
-
-    fetch("https://apie9w47jf.execute-api.eu-west-2.amazonaws.com/dev", request)
-      .then((res) => res.text())
-      .then((text) => {
-        console.log(text);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+    updateChart(
+      chartContainer2,
+      chartInstance2,
+      [
+        "for accessibility",
+        "for frequent use",
+        "for wildlife",
+        "for learning and play",
+        "for ease of change",
+      ],
+      {
+        data: radarDataGreenspaceAnswers(),
+        backgroundColor: "rgb(0, 0, 128, 0.2)",
+        borderColor: "blue",
+        label: "Results",
+      }
+    );
+    updateChart(chartContainer3, chartInstance3, ["learning", "play"], {
+      data: radarDataPracticeAnswers(),
+      backgroundColor: "rgb(128, 0, 0, 0.2)",
+      borderColor: "red",
+      label: "Results",
+    });
+  }, [answers, answerWeights]);
 
   return (
-    <>
-      <Box flexDirection="column">
-        <Box flexDirection="row">
-          <Button variant="outlined" color="primary">
-            Print
-          </Button>
-          <Button variant="outlined" color="primary" onClick={uploadResults}>
-            Upload...
-          </Button>
-        </Box>
-        {drawRadar(
-          [
-            "for learning",
-            "for play",
-            "for wellbeing",
-            "for sustainability",
-            "for community & participation",
-          ],
-          {
-            data: radarDataAnswers(),
-            backgroundColor: "rgb(0, 128, 0, 0.2)",
-            borderColor: "green",
-            label: "How good is our outdoor space?",
-          }
-        )}
-        {drawRadar(
-          [
-            "for accessibility",
-            "for wildlife",
-            "for learning and play",
-            "for ease of change",
-          ],
-          {
-            data: radarDataGreenspaceAnswers(),
-            backgroundColor: "rgb(0, 0, 128, 0.2)",
-            borderColor: "blue",
-            label: "How good is our local greenspace?",
-          }
-        )}
-      </Box>
-    </>
+    <Box display="flex" flexDirection="column" alignItems="stretch">
+      <h2>How good is our outdoor space?</h2>
+      <div className={classes.resultsChart}>
+        <canvas ref={chartContainer1} />
+      </div>
+      <h2>How good is our local greenspace?</h2>
+      <div className={classes.resultsChart}>
+        <canvas ref={chartContainer2} />
+      </div>
+      <h2>How good is our outdoor practice?</h2>
+      <div className={classes.resultsChart}>
+        <canvas ref={chartContainer3} />
+      </div>
+    </Box>
   );
 }
+
+// <Box display="flex" flexDirection="row">
+//   <Button variant="outlined" color="primary">
+//     Print
+//   </Button>
+// </Box>
 
 export default ResultsSection;

@@ -27,6 +27,7 @@ function QuestionText({
   inlineLabel = false,
 }) {
   const questionId = question.id;
+  const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -47,9 +48,8 @@ function QuestionText({
 
   if (inlineLabel) {
     return (
-      <div className={classes.question}>
+      <div id={id} className={classes.question}>
         <TextField
-          id="outlined-multiline-flexible"
           multiline
           fullWidth
           rowsMax={4}
@@ -63,13 +63,12 @@ function QuestionText({
   }
 
   return (
-    <div className={classes.question}>
+    <div id={id} className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionNumber}>{questionNumber}</div>
         <p className={classes.questionText}>{question.text}</p>
       </Box>
         <TextField
-          id="outlined-multiline-flexible"
           multiline
           fullWidth
           rowsMax={4}
@@ -81,10 +80,5 @@ function QuestionText({
   );
 
 }
-
-// <Box flexDirection="row">
-//   <div className={classes.questionNumber}>{questionNumber}</div>
-//   <p className={classes.questionText}>{question.text}</p>
-// </Box>
 
 export default QuestionText;

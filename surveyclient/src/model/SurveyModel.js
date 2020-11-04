@@ -1,9 +1,17 @@
 import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
-import { SET_ANSWER, REFRESH_STATE, RESET_STATE } from "./ActionTypes.js";
+import {
+  SET_ANSWER,
+  REFRESH_STATE,
+  RESET_STATE,
+  ADD_PHOTO,
+  DELETE_PHOTO,
+  UPDATE_PHOTO_DESCRIPTION,
+} from "./ActionTypes.js";
 import { sectionsContent, SURVEY_VERSION } from "./Content";
 import { TEXT_WITH_YEAR } from "./QuestionTypes";
 import localforage from "localforage";
+import { v4 as uuidv4 } from "uuid";
 
 localforage.config({
   // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
@@ -40,6 +48,15 @@ function createEmptyAnswers() {
   );
 }
 
+function listQuestionIds() {
+  sectionsContent.forEach((section, i) => {
+    // Use addQuestion to gather question ids
+    section.content((type, id) =>
+      console.log(section.id + "-" + id + "   " + type)
+    );
+  });
+}
+
 function createAnswerCounts() {
   return sectionsContent.reduce((sections, section) => {
     sections[section.id] = { answer: 0, comments: 0 };
@@ -48,15 +65,22 @@ function createAnswerCounts() {
 }
 
 function initialState() {
-  return { answers: createEmptyAnswers(), answerCounts: createAnswerCounts() };
+  // listQuestionIds();
+  return {
+    answers: createEmptyAnswers(),
+    answerCounts: createAnswerCounts(),
+    photos: {},
+    photoDetails: {},
+  };
 }
 
 // Exported for unit tests only
 export function surveyReducer(state = initialState(), action) {
+  let newState;
   switch (action.type) {
     case SET_ANSWER:
       console.log("SET_ANSWER");
-      var newState = setAnswer(state, action);
+      newState = setAnswer(state, action);
       writeAnswers(newState);
       return newState;
 
@@ -70,58 +94,215 @@ export function surveyReducer(state = initialState(), action) {
       console.log("REFRESH_STATE");
       return action.state;
 
+    case ADD_PHOTO:
+      console.log("ADD_PHOTO");
+      newState = addPhoto(state, action);
+      writePhotos(newState);
+      return newState;
+
+    case DELETE_PHOTO:
+      console.log("DELETE_PHOTO");
+      newState = deletePhoto(state, action);
+      writePhotos(newState);
+      return newState;
+
+    case UPDATE_PHOTO_DESCRIPTION:
+      // console.log("UPDATE_PHOTO_DESCRIPTION");
+      newState = updatePhotoDescription(state, action);
+      writeAnswers(newState);
+      return newState;
+
     default:
       console.log("Unknown action: " + safeJson(action));
       return state;
   }
 }
 
+function addPhoto(state, action) {
+  console.log("addPhoto");
+  console.log(action);
+  const photoId = uuidv4();
+  const result = { ...state };
+  result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
+  result.photoDetails[photoId] = { description: "" };
+  result.photos = state.photos ? { ...state.photos } : {};
+  result.photos[photoId] = { imageData: action.imageData };
+  console.log(state);
+  console.log(result);
+  return result;
+}
+
+export function loadPhoto(file) {
+  console.log("loadPhoto");
+  return function (dispatch) {
+    if (window.FileReader) {
+      return readFileAsync(file)
+        .then((data) => {
+          dispatch({
+            type: ADD_PHOTO,
+            imageData: btoa(data),
+          });
+        })
+        .catch((err) => {
+          console.log("Error");
+          console.log(err);
+          if (err.target.error.name === "NotReadableError") {
+            alert("Cannot read file !");
+          }
+        });
+    } else {
+      alert("FileReader is not supported in this browser.");
+    }
+  };
+}
+
+function readFileAsync(file) {
+  console.log("readFileAsync");
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+
+    reader.onload = () => {
+      console.log("photo loaded");
+      resolve(reader.result);
+    };
+
+    reader.onerror = reject;
+
+    reader.readAsBinaryString(file);
+  });
+}
+
+function deletePhoto(state, action) {
+  console.log("deletePhoto");
+  console.log(action);
+  const result = { ...state };
+  result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
+  delete result.photoDetails[action.photoId];
+  result.photos = state.photos ? { ...state.photos } : {};
+  delete result.photos[action.photoId];
+  return result;
+}
+
+function updatePhotoDescription(state, action) {
+  const result = state;
+  const photo = result.photoDetails[action.photoId];
+  if (photo === undefined) {
+    return result;
+  }
+  photo.description = action.description;
+  return result;
+}
+
+const writePhotos = ({ photos }) => {
+  console.log("writePhotos");
+  console.log({ photos: photos });
+  localforage.setItem("photos", { photos: photos });
+};
+const readPhotos = () => localforage.getItem("photos");
+
 export function refreshState() {
   return function (dispatch, getState) {
     readAnswers()
-      .then((oldState) => {
+      .then((storedState) => {
         console.log("readAnswers");
-        console.log(oldState);
-        if (oldState !== null) {
+        console.log(storedState);
+        const state = getState();
+        if (storedState !== null) {
           dispatch({
             type: REFRESH_STATE,
-            state: oldState,
+            state: { ...state, ...storedState },
           });
         } else {
-          const state = getState();
           console.log("writeAnswers");
           console.log(state);
           writeAnswers(state);
         }
       })
       .catch((err) => console.log(err));
+
+    readPhotos()
+      .then((storedState) => {
+        console.log("readPhotos");
+        console.log(storedState);
+        const state = getState();
+        if (storedState !== null) {
+          dispatch({
+            type: REFRESH_STATE,
+            state: { ...state, ...storedState },
+          });
+        } else {
+          console.log("writePhotos");
+          console.log(state);
+          writePhotos(state);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 }
 
-const writeAnswers = (data) => localforage.setItem("answers", data);
+const writeAnswers = ({ answers, answerCounts, photoDetails }) =>
+  localforage.setItem("answers", {
+    answers: answers,
+    answerCounts: answerCounts,
+    photoDetails: photoDetails,
+  });
 const readAnswers = () => localforage.getItem("answers");
 
 // removeData = key => localforage.removeItem(key)
 // clear = () => localforage.clear()
 
 function setAnswer(state, { sectionId, questionId, field, value }) {
+  if (sectionId === "community" && questionId === "datedImprovements") {
+    // Special case
+    return setDatedImprovementsAnswer(
+      state,
+      sectionId,
+      questionId,
+      field,
+      value
+    );
+  }
+
   const previousValue = state.answers[sectionId][questionId][field];
   const answer = { ...state.answers[sectionId][questionId], [field]: value };
   const result = { ...state };
   result.answers[sectionId][questionId] = answer;
 
-  if (previousValue === null || previousValue.length === 0) {
-    if (value !== null && value.length > 0) {
-      result.answerCounts[sectionId] = { ...result.answerCounts[sectionId] };
-      result.answerCounts[sectionId][field] =
-        result.answerCounts[sectionId][field] + 1;
-    }
-  } else {
-    if (value === null || value.length === 0) {
-      result.answerCounts[sectionId] = { ...result.answerCounts[sectionId] };
-      result.answerCounts[sectionId][field] =
-        result.answerCounts[sectionId][field] - 1;
-    }
+  const hasPreviousValue = previousValue !== null && previousValue.length > 0;
+  const hasCurrentValue = value !== null && value.length > 0;
+
+  if (hasPreviousValue !== hasCurrentValue) {
+    result.answerCounts[sectionId] = { ...result.answerCounts[sectionId] };
+    result.answerCounts[sectionId][field] += hasCurrentValue ? 1 : -1;
+  }
+
+  return result;
+}
+
+function setDatedImprovementsAnswer(
+  state,
+  sectionId,
+  questionId,
+  field,
+  value
+) {
+  const previousValues = state.answers[sectionId][questionId];
+  const answer = { ...state.answers[sectionId][questionId], [field]: value };
+  const result = { ...state };
+  result.answers[sectionId][questionId] = answer;
+
+  const hasPreviousValue =
+    Object.values(previousValues).find(
+      (value) => value !== null && value.length > 0
+    ) !== undefined;
+  const hasCurrentValue =
+    Object.values(answer).find(
+      (value) => value !== null && value.length > 0
+    ) !== undefined;
+
+  if (hasPreviousValue !== hasCurrentValue) {
+    result.answerCounts[sectionId] = { ...result.answerCounts[sectionId] };
+    result.answerCounts[sectionId]["answer"] += hasCurrentValue ? 1 : -1;
   }
   return result;
 }

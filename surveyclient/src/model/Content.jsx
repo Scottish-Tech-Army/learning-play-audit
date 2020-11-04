@@ -1,12 +1,4 @@
 import React from "react";
-import ToggleButton from "@material-ui/lab/ToggleButton";
-import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
-import CommentIcon from "@material-ui/icons/Comment";
-import CommentOutlinedIcon from "@material-ui/icons/CommentOutlined";
-import IconButton from "@material-ui/core/IconButton";
-import TextField from "@material-ui/core/TextField";
-import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core/styles";
 import {
   SCALE_WITH_COMMENT,
   TEXT,
@@ -25,7 +17,7 @@ export const SURVEY_VERSION = "0.9.0";
 export const sectionsContent = [
   {
     number: 1,
-    title: "background information",
+    title: "Background Information",
     id: "background",
     content: (addQuestion) => (
       <>
@@ -41,7 +33,7 @@ export const sectionsContent = [
 
   {
     number: 2,
-    title: "learning in your grounds",
+    title: "Learning in Your Grounds",
     id: "learning",
     content: (addQuestion) => (
       <>
@@ -52,39 +44,62 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "science",
-          "science - e.g. water feature, wild areas, bird feeders & boxes, livestock or poultry pens, polytunnel or greenhouse, food growing area, boulders illustrating different rock types etc. "
+          <>
+            <b>science</b> - e.g. water feature, wild areas, bird feeders &
+            boxes, livestock or poultry pens, polytunnel or greenhouse, food
+            growing area, boulders illustrating different rock types etc.
+          </>
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
           "maths",
-          "maths - e.g. number squares or grids, giant board games, maths trails, themed murals etc. "
+          <>
+            <b>maths</b> - e.g. number squares or grids, giant board games,
+            maths trails, themed murals etc.
+          </>
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
           "languages",
-          "languages - e.g. reading area, themed murals, story telling chair, story trail etc. "
+          <>
+            <b>languages</b> - e.g. reading area, themed murals, story telling
+            chair, story trail etc.
+          </>
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
           "arts",
-          "expressive arts - e.g. stage, amphitheatre, outdoor music, outdoor art etc."
+          <>
+            <b>expressive arts</b> - e.g. stage, amphitheatre, outdoor music,
+            outdoor art etc.
+          </>
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
           "RME",
-          "RME - e.g. sensory garden, reflection area, themed murals, labyrinth etc. "
+          <>
+            <b>RME</b> - e.g. sensory garden, reflection area, themed murals,
+            labyrinth etc.
+          </>
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
           "social",
-          "social studies - e.g. features that reflect local heritage, themed murals, weather station, food garden etc. "
+          <>
+            <b>social studies</b> - e.g. features that reflect local heritage,
+            themed murals, weather station, food garden etc.
+          </>
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
           "technologies",
-          "technologies - e.g. wind turbine, solar pannels, use of different materials, sufaces and finishes, web cam bird box, weather station etc. "
+          <>
+            <b>technologies</b> - e.g. wind turbine, solar pannels, use of
+            different materials, sufaces and finishes, web cam bird box, weather
+            station etc.
+          </>
         )}
-        <p>outdoor classrooms</p>
+        <h2>Outdoor Classrooms</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "classroom",
@@ -111,11 +126,11 @@ export const sectionsContent = [
 
   {
     number: 3,
-    title: "play",
+    title: "Play",
     id: "play",
     content: (addQuestion) => (
       <>
-        <p>active play</p>
+        <h2>Active Play</h2>
         {addQuestion(SCALE_WITH_COMMENT, "climbing", "climbing and scrambling")}
         {addQuestion(SCALE_WITH_COMMENT, "balancing", "balancing")}
         {addQuestion(SCALE_WITH_COMMENT, "swinging", "swinging")}
@@ -145,7 +160,7 @@ export const sectionsContent = [
           "targets",
           "there is a good range of goals, targets and hoops to encourage play and sport"
         )}
-        <p>imaginative play</p>
+        <h2>Imaginative Play</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "grass",
@@ -216,11 +231,12 @@ export const sectionsContent = [
     id: "wellbeing",
     content: (addQuestion) => (
       <>
-        <p>social spaces</p>
+        <h2>Social Spaces</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "seating",
-          "seating is widely available in our grounds"
+          "seating is widely available in our grounds",
+          2
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
@@ -255,9 +271,10 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "socialspaces",
-          "there is a wide range of different social spaces that cater for varying group sizes and activities"
+          "there is a wide range of different social spaces that cater for varying group sizes and activities",
+          2
         )}
-        <p>emotional health</p>
+        <h2>Emotional Health</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "colourful",
@@ -266,7 +283,8 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "quiet",
-          "staff and pupils have access to attractive outdoor spaces designed for quiet and calm."
+          "staff and pupils have access to attractive outdoor spaces designed for quiet and calm.",
+          2
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
@@ -293,7 +311,7 @@ export const sectionsContent = [
     id: "sustainability",
     content: (addQuestion) => (
       <>
-        <p>nature</p>
+        <h2>Nature</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "trees",
@@ -339,7 +357,7 @@ export const sectionsContent = [
           "nature",
           "we encourage nature in our grounds in other ways "
         )}
-        <p>sustainable practices</p>
+        <h2>Sustainable Practices</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "cycle",
@@ -360,7 +378,7 @@ export const sectionsContent = [
           "renewableenergy",
           "we have renewable energy features of some kind"
         )}
-        <p>food</p>
+        <h2>Food</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "growingfood",
@@ -381,7 +399,7 @@ export const sectionsContent = [
     id: "community",
     content: (addQuestion) => (
       <>
-        <p>design and creation</p>
+        <h2>Design and Creation</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "pupilsdesign",
@@ -402,10 +420,10 @@ export const sectionsContent = [
           "datedImprovements",
           "what and when were the 3 most recent playground improvements that pupils have been involved in?"
         )}
-        <p>management</p>
+        <h2>Management</h2>
         <p>
-          pupils are actively involved in managing the following aspects of the
-          grounds:
+          pupils are actively involved in <b>managing</b> the following aspects
+          of the grounds:
         </p>
 
         {addQuestion(
@@ -415,7 +433,7 @@ export const sectionsContent = [
         )}
         {addQuestion(SCALE_WITH_COMMENT, "managelitter", "litter picking")}
         {addQuestion(SCALE_WITH_COMMENT, "manageother", "other")}
-        <p>community use and access</p>
+        <h2>Community Use and Access</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "childrenoutside",
@@ -429,7 +447,8 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "communityoutside",
-          "other community organisations [guides, youth clubs etc.] make good use of our grounds outside of school time"
+          "other community organisations [guides, youth clubs etc.] make good use of our grounds outside of school time",
+          0.5
         )}
         {addQuestion(
           TEXT,
@@ -452,10 +471,12 @@ export const sectionsContent = [
           "What area of nearby local greenspace has the most potential for regular school use for outdoor learning and play?"
         )}
         <p>
-          It will be helpful if you can visit this area with some of your pupils
-          to help you fill in the rest of this section. You might also get some
-          useful ideas or thoughts from parents with relevant expertise or from
-          your local countryside ranger.
+          <b>
+            It will be helpful if you can visit this area with some of your
+            pupils to help you fill in the rest of this section. You might also
+            get some useful ideas or thoughts from parents with relevant
+            expertise or from your local countryside ranger.
+          </b>
         </p>
         {addQuestion(
           SCALE_WITH_COMMENT,
@@ -469,8 +490,13 @@ export const sectionsContent = [
         )}
         {addQuestion(
           SCALE_WITH_COMMENT,
+          "frequentuse",
+          "The school uses this space alot (e.g. at least monthly)"
+        )}
+        {addQuestion(
+          SCALE_WITH_COMMENT,
           "wildlife",
-          "The area is really valuable  for wildlife"
+          "The area is really valuable for wildlife"
         )}
         {addQuestion(
           TEXT,
@@ -503,7 +529,7 @@ export const sectionsContent = [
     id: "practice",
     content: (addQuestion) => (
       <>
-        <p>learning</p>
+        <h2>Learning</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "developingcurriculum",
@@ -530,7 +556,7 @@ export const sectionsContent = [
           "our outdoor learning programme is planned with reference to the CfE principles for curriculum design"
         )}
         {addQuestion(SCALE_WITH_COMMENT, "growfood", "we grow food in school")}
-        <p>play</p>
+        <h2>Play</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "playpolicy",
@@ -582,7 +608,7 @@ export const sectionsContent = [
 
   {
     number: 9,
-    title: "your reflection and feedback",
+    title: "Your Reflection and Feedback",
     id: "reflection",
     content: (addQuestion) => (
       <>
@@ -616,140 +642,12 @@ export const sectionsContent = [
   },
 ];
 
-const useStyles = makeStyles((theme) => ({
-  question: {
-    width: "100%",
-    paddingTop: "1em",
-    paddingBottom: "1em",
-  },
-  actionRow: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    flexWrap: "wrap",
-  },
-  commentboxHidden: {
-    display: "none",
-  },
-  commentbox: {
-    paddingTop: "1em",
-  },
-}));
-
-function ExampleQuestion() {
-  const classes = useStyles();
-
-  function hasComment() {
-    return comment !== null && comment.length > 0;
-  }
-
-  const [showComment, setShowComment] = React.useState(false);
-  const [comment, setComment] = React.useState("");
-  const [answer, setAnswer] = React.useState(null);
-
-  const handleCommentChange = (event) => {
-    setComment(event.target.value);
-  };
-  const handleCommentButtonClick = (event) => {
-    setShowComment((current) => !current || hasComment());
-  };
-  const handleChange = (event, newValue) => {
-    setAnswer(newValue);
-  };
-
-  return (
-    <div className={classes.question}>
-      <Box className={classes.actionRow}>
-        <ToggleButtonGroup
-          value={answer}
-          exclusive
-          onChange={handleChange}
-          aria-label="example question"
-        >
-          <ToggleButton value="a" aria-label="strongly agree">
-            strongly agree
-          </ToggleButton>
-          <ToggleButton value="b" aria-label="tend to agree">
-            tend to agree
-          </ToggleButton>
-          <ToggleButton value="c" aria-label="tend to disagree">
-            tend to disagree
-          </ToggleButton>
-          <ToggleButton value="d" aria-label="strongly disagree">
-            strongly disagree
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <IconButton
-          aria-label="show comment"
-          onClick={handleCommentButtonClick}
-        >
-          {hasComment() ? (
-            <CommentIcon fontSize="inherit" />
-          ) : (
-            <CommentOutlinedIcon fontSize="inherit" />
-          )}
-        </IconButton>
-      </Box>
-      <div
-        className={showComment ? classes.commentbox : classes.commentboxHidden}
-      >
-        <TextField
-          id="outlined-multiline-flexible"
-          label="Comments / Notes"
-          multiline
-          fullWidth
-          rowsMax={4}
-          value={comment}
-          onChange={handleCommentChange}
-          variant="outlined"
-        />{" "}
-      </div>
-    </div>
-  );
+function createSectionsContentMap() {
+  const result = new Map();
+  sectionsContent.forEach((item, i) => {
+    result.set(item.id, item);
+  });
+  return result;
 }
 
-export const introduction = (
-  <div>
-    <img src="ltl-logo.jpg" alt="Learning Through Landscapes logo" />
-    <h1>The Outdoor Learning and Play Audit Tool</h1>
-
-    <p>
-      This audit tool was developed by Grounds for Learning to help you reflect
-      on your current outdoor spaces and practice, so that you can identify
-      priorities for development that might be supported by the School
-      Development Plan, colleagues and yourself.
-    </p>
-
-    <p>
-      You should be able to complete most of the audit in around an hour - using
-      your existing knowledge and without the need to collect any additional
-      information. In a large school you may not yet be aware of all the uses of
-      the outdoor space for learning, and so we suggest you ask for input from
-      all teachers into this. A simple way is to ask everyone to write on a flip
-      chart or 'stickies' what lesson(s) they lead outdoors each academic year.
-    </p>
-
-    <p>
-      If you don't currently make good use of local greenspace for outdoor
-      learning then we suggest that before completing section 7 you should visit
-      your nearest area that has potential for learning and play to get a better
-      feel for the space. Again, you should check with all colleagues in case
-      you are not aware of all the local trips that are happening. Use the same
-      session and tool to ask all staff what local sessions they lead each year.
-    </p>
-
-    <p>
-      Most of the 'questions' you will answer are actually statements - which
-      you have to respond to on the following scale:
-    </p>
-    <ExampleQuestion />
-    <p>
-      Use the comment icon to provide a space for any notes or comments that you
-      want to make.
-    </p>
-    <p>
-      The results of this audit are for you to then use - we hope it sparks
-      thoughts and visits themes you are not aware of.
-    </p>
-  </div>
-);
+export const sectionsContentMap = createSectionsContentMap();

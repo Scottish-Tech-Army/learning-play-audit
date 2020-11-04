@@ -13,6 +13,8 @@
     "@testing-library/user-event": "^7.2.1",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
+    "aws-amplify": "^3.3.4",
+    "aws-amplify-react": "^4.2.8",
     "babel-eslint": "10.1.0",
     "babel-jest": "^24.9.0",
     "babel-loader": "8.1.0",
@@ -74,7 +76,8 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "ftest": "wdio wdio.conf.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -145,5 +148,15 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@babel/register": "^7.12.1",
+    "@wdio/cli": "^6.7.0",
+    "@wdio/local-runner": "^6.7.0",
+    "@wdio/mocha-framework": "^6.7.0",
+    "@wdio/spec-reporter": "^6.7.0",
+    "@wdio/sync": "^6.7.0",
+    "chromedriver": "^86.0.0",
+    "wdio-chromedriver-service": "^6.0.4"
   }
 }

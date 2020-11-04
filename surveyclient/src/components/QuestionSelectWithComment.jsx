@@ -36,10 +36,14 @@ const useStyles = makeStyles((theme) => ({
   commentbox: {
     paddingTop: "1em",
   },
+  label: {
+    color: "rgba(0, 0, 0, 0.87)",
+  },
 }));
 
 function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
   const questionId = question.id;
+  const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -79,8 +83,20 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
     setShowComment((current) => !current || hasComment());
   };
 
+  function toggleButton(value, label) {
+    return (
+      <ToggleButton
+        classes={{ label: classes.label }}
+        value={value}
+        aria-label={label}
+      >
+        {label}
+      </ToggleButton>
+    );
+  }
+
   return (
-    <div className={classes.question}>
+    <div id={id} className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionNumber}>{questionNumber}</div>
         <p className={classes.questionText}>{question.text}</p>
@@ -92,18 +108,10 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
           onChange={handleChange}
           aria-label={questionId}
         >
-          <ToggleButton value="a" aria-label="strongly agree">
-            strongly agree
-          </ToggleButton>
-          <ToggleButton value="b" aria-label="tend to agree">
-            tend to agree
-          </ToggleButton>
-          <ToggleButton value="c" aria-label="tend to disagree">
-            tend to disagree
-          </ToggleButton>
-          <ToggleButton value="d" aria-label="strongly disagree">
-            strongly disagree
-          </ToggleButton>
+          {toggleButton("a", "strongly agree")}
+          {toggleButton("b", "tend to agree")}
+          {toggleButton("c", "tend to disagree")}
+          {toggleButton("d", "strongly disagree")}
         </ToggleButtonGroup>
         <IconButton
           aria-label="show comment"
@@ -120,7 +128,6 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
         className={showComment ? classes.commentbox : classes.commentboxHidden}
       >
         <TextField
-          id="outlined-multiline-flexible"
           label="Comments / Notes"
           multiline
           fullWidth

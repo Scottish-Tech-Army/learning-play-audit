@@ -1,25 +1,40 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import { sectionsContent, introduction } from "./model/Content";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import Accordion from "@material-ui/core/Accordion";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import MuiAccordionSummary from "@material-ui/core/AccordionSummary";
+import { sectionsContentMap, sectionsContent } from "./model/Content";
+import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
+import GallerySection from "./components/GallerySection";
+import SubmitSection from "./components/SubmitSection";
+import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
-import GetAppIcon from "@material-ui/icons/GetApp";
+import DownloadButton from "./components/DownloadButton";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import { useDispatch } from "react-redux";
 import { refreshState } from "./model/SurveyModel";
+import MenuIcon from "@material-ui/icons/Menu";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import BottomNavigation from "@material-ui/core/BottomNavigation";
+import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import {
+  INTRODUCTION,
+  RESULTS,
+  GALLERY,
+  SUBMIT,
+} from "./components/FixedSectionTypes";
+import Amplify from "aws-amplify";
+import awsconfig from "./aws-exports";
+
+Amplify.configure(awsconfig);
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-  },
   heading: {
     fontSize: theme.typography.pxToRem(15),
     flexBasis: "33.33%",
@@ -32,106 +47,165 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+
+  root: {
+    width: "100%",
+    display: "flex",
+  },
+  drawer: {
+    [theme.breakpoints.up("md")]: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+  },
+  appBar: {
+    zIndex: 2000,
+    [theme.breakpoints.up("md")]: {
+      width: "100%",
+    },
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth,
+  },
+  content: {
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      marginLeft: drawerWidth,
+    },
+  },
+  sectionContainer: {
+    padding: "20px",
+    width: "100%",
+  },
 }));
 
 function App() {
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState("introduction");
-
   const dispatch = useDispatch();
+
+  const [currentSection, _setCurrentSection] = React.useState("introduction");
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   // Restore locally stored answers if existing
   useEffect(() => {
     dispatch(refreshState());
   }, [dispatch]);
 
-  const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
-  };
+  function setCurrentSection(sectionId) {
+    _setCurrentSection(sectionId);
+    setMobileOpen(false);
+    window.scrollTo({
+      top: 0,
+    });
+  }
 
-  function createSection(section) {
+  const sections = [];
+  sections.push({ title: "Introduction", id: INTRODUCTION });
+  sectionsContent.forEach((section) =>
+    sections.push({ title: section.title, id: section.id })
+  );
+  sections.push({ title: "Results", id: RESULTS });
+  sections.push({ title: "Photos", id: GALLERY });
+  sections.push({ title: "Submit survey", id: SUBMIT });
+
+  function hasNextSection() {
     return (
-      <Section
-        key={section.id}
-        section={section}
-        expanded={expanded}
-        handleAccordionChange={handleAccordionChange}
-      />
+      sections.findIndex((section) => section.id === currentSection) <
+      sections.length - 1
     );
   }
 
-  const AccordionSummary = withStyles({
-    root: {
-      backgroundColor: "rgba(0, 0, 0, .05)",
-    },
-    content: {
-      alignItems: "center",
-    },
-  })(MuiAccordionSummary);
-
-  function introductionSection() {
-    return (
-      <Accordion
-        expanded={expanded === "introduction"}
-        onChange={handleAccordionChange("introduction")}
-      >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls={"introduction-content"}
-          id={"introduction-header"}
-        >
-          <Typography className={classes.heading}>Introduction</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {expanded === "introduction" && introduction}
-        </AccordionDetails>
-      </Accordion>
-    );
+  function hasPreviousSection() {
+    return sections.findIndex((section) => section.id === currentSection) > 0;
   }
 
-  function resultsSection() {
-    return (
-      <Accordion
-        expanded={expanded === "results"}
-        onChange={handleAccordionChange("results")}
-      >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls={"results-content"}
-          id={"results-header"}
-        >
-          <Typography className={classes.heading}>Results</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {expanded === "results" && <ResultsSection />}
-        </AccordionDetails>
-      </Accordion>
-    );
+  const PREVIOUS_SECTION = 0;
+  const NEXT_SECTION = 1;
+
+  function getCurrentSection() {
+    if (currentSection === INTRODUCTION) {
+      return <IntroductionSection />;
+    }
+    if (currentSection === RESULTS) {
+      return <ResultsSection />;
+    }
+    if (currentSection === GALLERY) {
+      return <GallerySection />;
+    }
+    if (currentSection === SUBMIT) {
+      return <SubmitSection />;
+    }
+    const section = sectionsContentMap.get(currentSection);
+    return <Section key={section.id} section={section} />;
   }
 
   return (
-    <div className="App">
-      <AppBar position="static">
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            className={classes.menuButton}
+          >
+            <MenuIcon />
+          </IconButton>
           <Typography variant="h6" className={classes.title}>
             Learning and Play Audit Tool
           </Typography>
-          <div>
-            <IconButton
-              aria-label="get application"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              color="inherit"
-            >
-              <GetAppIcon />
-            </IconButton>
-          </div>
+          <DownloadButton />
         </Toolbar>
       </AppBar>
-
-      {introductionSection()}
-      {sectionsContent.map(createSection)}
-      {resultsSection()}
+      <main className={classes.content}>
+        <NavDrawer
+          mobileOpen={mobileOpen}
+          handleDrawerToggle={handleDrawerToggle}
+          currentSection={currentSection}
+          setCurrentSection={setCurrentSection}
+        />
+        <div className={classes.toolbar} />
+        <div className={classes.sectionContainer}>{getCurrentSection()}</div>
+        <BottomNavigation
+          showLabels
+          onChange={(event, newValue) => {
+            var index = sections.findIndex(
+              (section) => section.id === currentSection
+            );
+            index += newValue === PREVIOUS_SECTION ? -1 : 1;
+            if (index >= 0 && index < sections.length) {
+              setCurrentSection(sections[index].id);
+            }
+          }}
+        >
+          <BottomNavigationAction
+            disabled={!hasPreviousSection()}
+            label="Previous section"
+            value={PREVIOUS_SECTION}
+            icon={<ArrowBackIosIcon />}
+          />
+          <BottomNavigationAction
+            disabled={!hasNextSection()}
+            value={NEXT_SECTION}
+            label="Next section"
+            icon={<ArrowForwardIosIcon />}
+          />
+        </BottomNavigation>
+      </main>
     </div>
   );
 }

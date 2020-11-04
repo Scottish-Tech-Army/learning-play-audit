@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 function QuestionUserSelect({ sectionId, question, questionNumber }) {
   const questionId = question.id;
+  const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -64,7 +65,7 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
   }
 
   return (
-    <div className={classes.question}>
+    <div id={id} className={classes.question}>
       <span>I&nbsp;am&nbsp;a</span>
       <ToggleButtonGroup
         className={classes.toggleOptions}
@@ -87,7 +88,6 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
         </ToggleButton>
       </ToggleButtonGroup>
       <TextField
-        id="outlined-multiline-flexible"
         label={labelTitle()}
         value={questionAnswers.comments}
         onChange={handleCommentChange}
