@@ -15,6 +15,11 @@ import {
   TextRun,
   Media,
   HeadingLevel,
+  Table,
+  TableRow,
+  TableCell,
+  TableLayoutType,
+  WidthType,
 } from "docx";
 
 export function exportSurveysAsDocx(surveys = []) {
@@ -128,15 +133,15 @@ function questionSelectWithComment(question, questionNumber, responses) {
   function getAnswer(response) {
     switch (response.answer) {
       case "a":
-        return "a - strongly agree";
+        return "strongly agree";
       case "b":
-        return "b - tend to agree";
+        return "tend to agree";
       case "c":
-        return "c - tend to disagree";
+        return "tend to disagree";
       case "d":
-        return "d - strongly disagree";
+        return "strongly disagree";
       case null:
-        return "Not answered";
+        return "";
       default:
         return "unknown: " + response.answer;
     }
@@ -144,19 +149,27 @@ function questionSelectWithComment(question, questionNumber, responses) {
 
   return [
     renderQuestionText(questionNumber, question.text),
-    new Paragraph({
-      children: responses
-        .map((response) => {
-          return [
-            new TextRun({
-              text: getAnswer(response),
+    new Table({
+      layout: TableLayoutType.FIXED,
+      columnWidths: [300, 1600, 7000],
+      rows: responses.map((response, i) => {
+        return new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph("" + (i + 1))],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
             }),
-            new TextRun({
-              text: response.comments,
+            new TableCell({
+              children: [new Paragraph(getAnswer(response))],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
             }),
-          ];
-        })
-        .flat(),
+            new TableCell({
+              children: [new Paragraph(response.comments)],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
+            }),
+          ],
+        });
+      }),
     }),
   ];
 }
@@ -172,6 +185,8 @@ function questionUserSelect(question, questionNumber, responses) {
         return "pupil";
       case "d":
         return "other";
+      case null:
+        return "";
       default:
         return "unknown: " + response.answer;
     }
@@ -190,19 +205,29 @@ function questionUserSelect(question, questionNumber, responses) {
 
   return [
     renderQuestionText(questionNumber, question.text),
-    new Paragraph({
-      children: responses
-        .map((response) => {
-          return [
-            new TextRun({
-              text: getAnswer(response),
+    new Table({
+      layout: TableLayoutType.FIXED,
+      columnWidths: [300, 1600, 7000],
+      rows: responses.map((response, i) => {
+        return new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph("" + (i + 1))],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
             }),
-            new TextRun({
-              text: labelTitle(response) + " - " + response.comments,
+            new TableCell({
+              children: [new Paragraph(getAnswer(response))],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
             }),
-          ];
-        })
-        .flat(),
+            new TableCell({
+              children: [
+                new Paragraph(labelTitle(response) + " - " + response.comments),
+              ],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
+            }),
+          ],
+        });
+      }),
     }),
   ];
 }
@@ -210,44 +235,118 @@ function questionUserSelect(question, questionNumber, responses) {
 function questionText(question, questionNumber, responses) {
   return [
     renderQuestionText(questionNumber, question.text),
-    new Paragraph({
-      children: responses
-        .map((response) => {
-          return [
-            new TextRun({
-              text: response.answer,
+    new Table({
+      layout: TableLayoutType.FIXED,
+      columnWidths: [300, 8600],
+      rows: responses.map((response, i) => {
+        return new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph("" + (i + 1))],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
             }),
-          ];
-        })
-        .flat(),
+            new TableCell({
+              children: [
+                new Paragraph(response.answer != null ? response.answer : ""),
+              ],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
+            }),
+          ],
+        });
+      }),
     }),
   ];
 }
 
 function questionTextWithYear(question, questionNumber, responses) {
-  function yearAnswerRow(response, answerKey, yearKey) {
-    return [
-      new TextRun({
-        text: "Improvement: " + response[answerKey],
-      }),
-      new TextRun({
-        text: "Year: " + response[yearKey],
-      }),
-    ];
+  function yearAnswerRow(response, answerKey, yearKey, index) {
+    const answer = response[answerKey] != null ? response[answerKey] : "";
+    const year = response[yearKey] != null ? response[yearKey] : "";
+
+    return new TableRow({
+      children: [
+        new TableCell({
+          children: [new Paragraph("" + index)],
+          margins: { bottom: 100, top: 100, left: 100, right: 100 },
+        }),
+        new TableCell({
+          children: [new Paragraph(answer)],
+          margins: { bottom: 100, top: 100, left: 100, right: 100 },
+        }),
+        new TableCell({
+          children: [new Paragraph(year)],
+          margins: { bottom: 100, top: 100, left: 100, right: 100 },
+        }),
+      ],
+    });
+  }
+
+  function hasValue(value) {
+    return value != null && value.length > 0;
+  }
+
+  function questionAnswered(response) {
+    return (
+      hasValue(response.answer1) ||
+      hasValue(response.answer2) ||
+      hasValue(response.answer3) ||
+      hasValue(response.year1) ||
+      hasValue(response.year2) ||
+      hasValue(response.year3)
+    );
   }
 
   return [
     renderQuestionText(questionNumber, question.text),
-    new Paragraph({
-      children: responses
-        .map((response) => {
-          return [
-            ...yearAnswerRow(response, "answer1", "year1"),
-            ...yearAnswerRow(response, "answer2", "year2"),
-            ...yearAnswerRow(response, "answer3", "year3"),
-          ];
-        })
-        .flat(),
+    new Table({
+      layout: TableLayoutType.FIXED,
+      columnWidths: [300, 8000, 600],
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph("")],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
+            }),
+            new TableCell({
+              children: [new Paragraph("Improvement")],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
+            }),
+            new TableCell({
+              children: [new Paragraph("Year")],
+              margins: { bottom: 100, top: 100, left: 100, right: 100 },
+            }),
+          ],
+        }),
+        ...responses
+          .map((response, i) => {
+            if (!questionAnswered(response)) {
+              return new TableRow({
+                children: [
+                  new TableCell({
+                    children: [new Paragraph("" + (i + 1))],
+                    margins: { bottom: 100, top: 100, left: 100, right: 100 },
+                  }),
+                  new TableCell({
+                    children: [new Paragraph("")],
+                    margins: { bottom: 100, top: 100, left: 100, right: 100 },
+                  }),
+                  new TableCell({
+                    children: [new Paragraph("")],
+                    margins: { bottom: 100, top: 100, left: 100, right: 100 },
+                  }),
+                ],
+              });
+            }
+
+            return [
+              yearAnswerRow(response, "answer1", "year1", i + 1),
+              yearAnswerRow(response, "answer2", "year2", i + 1),
+              yearAnswerRow(response, "answer3", "year3", i + 1),
+            ];
+          })
+          .flat(),
+      ],
     }),
   ];
 }

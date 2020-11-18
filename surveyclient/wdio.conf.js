@@ -46,8 +46,8 @@ exports.config = {
   logLevel: "warn",
   bail: 0,
   // Set a base URL in order to shorten url command calls. If your `url` parameter starts
-  // baseUrl: "http://localhost:3000",
-  baseUrl: "https://devclient.dqinnnayw97vq.amplifyapp.com/",
+  baseUrl: "http://localhost:3000",
+  // baseUrl: "https://devclient.dqinnnayw97vq.amplifyapp.com/",
   //
   // Default timeout for all waitFor* commands.
   waitforTimeout: 10000,

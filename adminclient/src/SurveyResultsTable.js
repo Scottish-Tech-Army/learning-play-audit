@@ -34,6 +34,8 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
+const MAX_AGGREGATE_SURVEYS = 6;
+
 function TableToolbar({ numChecked, viewMultipleSurveys, exportCsv }) {
   const classes = useToolbarStyles();
 
@@ -44,7 +46,7 @@ function TableToolbar({ numChecked, viewMultipleSurveys, exportCsv }) {
     if (numChecked <= 5) {
       return "View Surveys";
     }
-    return "View Surveys (up to 5 responses)";
+    return "View Surveys (up to " + MAX_AGGREGATE_SURVEYS + " responses)";
   }
   return (
     <Toolbar classes={{ root: classes.root }}>
@@ -64,7 +66,7 @@ function TableToolbar({ numChecked, viewMultipleSurveys, exportCsv }) {
             onClick={viewMultipleSurveys}
             color="primary"
             startIcon={<GetAppIcon />}
-            disabled={numChecked > 5}
+            disabled={numChecked > MAX_AGGREGATE_SURVEYS}
           >
             {viewButtonText()}
           </Button>

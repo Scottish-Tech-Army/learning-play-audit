@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
     },
     "& td.response-no": {
       width: "1em",
-      textAlign: "center"
+      textAlign: "center",
     },
     "& td.scale-value": {
       width: "8em",
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     },
     "& td.year": {
       width: "3em",
-      textAlign: "center"
+      textAlign: "center",
     },
   },
   questionText: {
@@ -86,7 +86,11 @@ function getValue(response) {
 }
 
 function getResponseNumberCell(responses, responseNumber) {
-  return responses.length > 1 ? <td className="response-no">{responseNumber}</td> : <></>;
+  return responses.length > 1 ? (
+    <td className="response-no">{responseNumber}</td>
+  ) : (
+    <></>
+  );
 }
 
 function QuestionSelectWithComment({ question, questionNumber, responses }) {
@@ -121,15 +125,17 @@ function QuestionSelectWithComment({ question, questionNumber, responses }) {
         </div>
       </Box>
       <table className={classes.responsesGrid}>
-        {responses.map((response, i) => {
-          return (
-            <tr>
-              {getResponseNumberCell(responses, i + 1)}
-              <td className="scale-value">{getAnswer(response)}</td>
-              <td>{hasComment(response) ? response.comments : <></>}</td>
-            </tr>
-          );
-        })}
+        <tbody>
+          {responses.map((response, i) => {
+            return (
+              <tr key={"" + i}>
+                {getResponseNumberCell(responses, i + 1)}
+                <td className="scale-value">{getAnswer(response)}</td>
+                <td>{hasComment(response) ? response.comments : <></>}</td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
     </div>
   );
@@ -173,15 +179,17 @@ function QuestionUserSelect({ question, questionNumber, responses }) {
         </div>
       </Box>
       <table className={classes.responsesGrid}>
-        {responses.map((response, i) => {
-          return (
-            <tr>
-              {getResponseNumberCell(responses, i + 1)}
-              <td className="user-type">{getAnswer(response)}</td>
-              <td>{labelTitle(response) ? response.comments : <></>}</td>
-            </tr>
-          );
-        })}
+        <tbody>
+          {responses.map((response, i) => {
+            return (
+              <tr key={"" + i}>
+                {getResponseNumberCell(responses, i + 1)}
+                <td className="user-type">{getAnswer(response)}</td>
+                <td>{labelTitle(response) ? response.comments : <></>}</td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
     </div>
   );
@@ -202,14 +210,16 @@ function QuestionText({ question, questionNumber, responses }) {
         </div>
       </Box>
       <table className={classes.responsesGrid}>
-        {responses.map((response, i) => {
-          return (
-            <tr>
-              {getResponseNumberCell(responses, i + 1)}
-              <td>{getAnswer(response)}</td>
-            </tr>
-          );
-        })}
+        <tbody>
+          {responses.map((response, i) => {
+            return (
+              <tr key={"" + i}>
+                {getResponseNumberCell(responses, i + 1)}
+                <td>{getAnswer(response)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
     </div>
   );
@@ -229,7 +239,7 @@ function QuestionTextWithYear({ question, questionNumber, responses }) {
       return null;
     }
     return (
-      <tr>
+      <tr key={responseNumber + answerKey}>
         {getResponseNumberCell(responses, responseNumber)}
         <td>{getValue(response[answerKey])}</td>
         <td className="year">{getValue(response[yearKey])}</td>
@@ -247,40 +257,42 @@ function QuestionTextWithYear({ question, questionNumber, responses }) {
         </div>
       </Box>
       <table className={classes.responsesGrid}>
-        {responses.map((response, i) => {
-          const result = [];
-          const answer1 = yearAnswerRow(
-            responses,
-            i + 1,
-            response,
-            "answer1",
-            "year1"
-          );
-          const answer2 = yearAnswerRow(
-            responses,
-            i + 1,
-            response,
-            "answer2",
-            "year2"
-          );
-          const answer3 = yearAnswerRow(
-            responses,
-            i + 1,
-            response,
-            "answer3",
-            "year3"
-          );
-          if (answer1 != null) {
-            result.push(answer1);
-          }
-          if (answer2 != null) {
-            result.push(answer2);
-          }
-          if (answer3 != null) {
-            result.push(answer3);
-          }
-          return result;
-        })}
+        <tbody>
+          {responses.map((response, i) => {
+            const result = [];
+            const answer1 = yearAnswerRow(
+              responses,
+              i + 1,
+              response,
+              "answer1",
+              "year1"
+            );
+            const answer2 = yearAnswerRow(
+              responses,
+              i + 1,
+              response,
+              "answer2",
+              "year2"
+            );
+            const answer3 = yearAnswerRow(
+              responses,
+              i + 1,
+              response,
+              "answer3",
+              "year3"
+            );
+            if (answer1 != null) {
+              result.push(answer1);
+            }
+            if (answer2 != null) {
+              result.push(answer2);
+            }
+            if (answer3 != null) {
+              result.push(answer3);
+            }
+            return result;
+          })}
+        </tbody>
       </table>
     </div>
   );
