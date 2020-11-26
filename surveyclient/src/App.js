@@ -28,11 +28,19 @@ import {
   SUBMIT,
 } from "./components/FixedSectionTypes";
 import Amplify from "aws-amplify";
-import awsconfig from "./aws-exports";
+// import awsconfig from "./aws-exports";
+import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+// import Amplify from '@aws-amplify/core'
+// import { Auth } from '@aws-amplify/auth'
+import awsconfig from './aws-exports'
 
-Amplify.configure(awsconfig);
+Amplify.configure(awsconfig)
+// Auth.configure(awsconfig)
+// Amplify.configure(awsconfig);
 
 const drawerWidth = 240;
+// Amplify.Logger.LOG_LEVEL = 'DEBUG';
+window.LOG_LEVEL = 'DEBUG';
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -168,6 +176,7 @@ function App() {
           <Typography variant="h6" className={classes.title}>
             Learning and Play Audit Tool
           </Typography>
+          <AmplifySignOut />
           <DownloadButton />
         </Toolbar>
       </AppBar>
@@ -210,4 +219,13 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthenticator(App, {
+  signUpConfig: {
+    hiddenDefaults: ["phone_number"],
+  },
+  signInConfig: {
+    // headerText: "wibble"
+  },
+});
+
+// export default App;

@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button";
 import { v4 as uuidv4 } from "uuid";
 import { makeStyles } from "@material-ui/core/styles";
 import { API } from "aws-amplify";
+import {Auth} from "aws-amplify";
 
 const useStyles = makeStyles((theme) => ({
   submitSection: {
@@ -32,6 +33,11 @@ function SubmitSection() {
         photos: state.photos,
         photoDetails: state.photoDetails,
       },
+      headers: {
+        Authorization: `Bearer ${(await Auth.currentSession())
+          .getIdToken()
+          .getJwtToken()}`,
+      },
     };
 
     API.post("ltlClientApi", "/survey", request)
@@ -47,7 +53,12 @@ function SubmitSection() {
 
   return (
     <Box className={classes.submitSection}>
-      <Button className="submit-survey" variant="outlined" color="primary" onClick={uploadResults}>
+      <Button
+        className="submit-survey"
+        variant="outlined"
+        color="primary"
+        onClick={uploadResults}
+      >
         Upload...
       </Button>
     </Box>
