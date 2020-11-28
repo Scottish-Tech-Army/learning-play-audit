@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import { sectionsContentMap, sectionsContent } from "./model/Content";
 import { makeStyles } from "@material-ui/core/styles";
@@ -10,6 +10,7 @@ import SubmitSection from "./components/SubmitSection";
 import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
 import DownloadButton from "./components/DownloadButton";
+import AuthSignInOut from "./components/auth/AuthSignInOut";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -28,19 +29,13 @@ import {
   SUBMIT,
 } from "./components/FixedSectionTypes";
 import Amplify from "aws-amplify";
-// import awsconfig from "./aws-exports";
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
-// import Amplify from '@aws-amplify/core'
-// import { Auth } from '@aws-amplify/auth'
-import awsconfig from './aws-exports'
+import awsconfig from "./aws-exports";
+import Authenticator from "./components/auth/Authenticator";
 
-Amplify.configure(awsconfig)
-// Auth.configure(awsconfig)
-// Amplify.configure(awsconfig);
+Amplify.configure(awsconfig);
 
 const drawerWidth = 240;
-// Amplify.Logger.LOG_LEVEL = 'DEBUG';
-window.LOG_LEVEL = 'DEBUG';
+window.LOG_LEVEL = "DEBUG";
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -99,8 +94,8 @@ function App() {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  const [currentSection, _setCurrentSection] = React.useState("introduction");
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [currentSection, _setCurrentSection] = useState("introduction");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -176,7 +171,7 @@ function App() {
           <Typography variant="h6" className={classes.title}>
             Learning and Play Audit Tool
           </Typography>
-          <AmplifySignOut />
+          <AuthSignInOut />
           <DownloadButton />
         </Toolbar>
       </AppBar>
@@ -215,17 +210,9 @@ function App() {
           />
         </BottomNavigation>
       </main>
+      <Authenticator />
     </div>
   );
 }
 
-export default withAuthenticator(App, {
-  signUpConfig: {
-    hiddenDefaults: ["phone_number"],
-  },
-  signInConfig: {
-    // headerText: "wibble"
-  },
-});
-
-// export default App;
+export default App;

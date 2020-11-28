@@ -7,11 +7,15 @@ import {
   ADD_PHOTO,
   DELETE_PHOTO,
   UPDATE_PHOTO_DESCRIPTION,
+  SET_AUTH_STATE,
+  SET_AUTH_ERROR,
+  CLEAR_AUTH_ERROR,
 } from "./ActionTypes.js";
 import { sectionsContent, SURVEY_VERSION } from "./Content";
 import { TEXT_WITH_YEAR } from "./QuestionTypes";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
+import { SIGNED_OUT } from "./AuthStates";
 
 localforage.config({
   // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
@@ -71,6 +75,11 @@ function initialState() {
     answerCounts: createAnswerCounts(),
     photos: {},
     photoDetails: {},
+    authentication: {
+      errorMessage: "",
+      state: SIGNED_OUT,
+      user: undefined,
+    },
   };
 }
 
@@ -111,6 +120,18 @@ export function surveyReducer(state = initialState(), action) {
       newState = updatePhotoDescription(state, action);
       writeAnswers(newState);
       return newState;
+
+    case SET_AUTH_STATE:
+      // console.log("SET_AUTH_STATE");
+      return setAuthState(state, action);
+
+    case SET_AUTH_ERROR:
+      // console.log("SET_AUTH_ERROR");
+      return setAuthError(state, action);
+
+    case CLEAR_AUTH_ERROR:
+      // console.log("CLEAR_AUTH_ERROR");
+      return clearAuthError(state);
 
     default:
       console.log("Unknown action: " + safeJson(action));
@@ -304,6 +325,50 @@ function setDatedImprovementsAnswer(
     result.answerCounts[sectionId] = { ...result.answerCounts[sectionId] };
     result.answerCounts[sectionId]["answer"] += hasCurrentValue ? 1 : -1;
   }
+  return result;
+}
+
+function setAuthState(state, { authState, user }) {
+  console.log("setAuthState", authState);
+
+  if (authState === undefined) {
+    console.error("authState cannot be undefined");
+    return state;
+  }
+
+  const result = { ...state };
+  result.authentication.state = authState;
+  result.authentication.user = user;
+
+  // TODO necessary?
+  // if (authState === SIGNED_IN) {
+  //   try {
+  //     result.authentication.user = await Auth.currentAuthenticatedUser();
+  //   } catch (e) {
+  //     logger.error("User is not authenticated");
+  //   }
+  // }
+
+  return clearAuthError(result);
+}
+
+function setAuthError(state, { message }) {
+  console.log("setAuthError", message);
+  if (state.authentication.errorMessage === message) {
+    return state;
+  }
+  const result = { ...state };
+  result.authentication.errorMessage = message;
+  return result;
+}
+
+function clearAuthError(state) {
+  console.log("clearAuthError");
+  if (state.authentication.errorMessage === "") {
+    return state;
+  }
+  const result = { ...state };
+  result.authentication.errorMessage = "";
   return result;
 }
 
