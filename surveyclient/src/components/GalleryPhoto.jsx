@@ -1,59 +1,13 @@
 import React from "react";
 import "../App.css";
-import { makeStyles } from "@material-ui/core/styles";
 import { DELETE_PHOTO, UPDATE_PHOTO_DESCRIPTION } from "../model/ActionTypes";
 import { useDispatch, useSelector } from "react-redux";
 import TextField from "@material-ui/core/TextField";
 import RemoveCircleOutlineOutlinedIcon from "@material-ui/icons/RemoveCircleOutlineOutlined";
 import IconButton from "@material-ui/core/IconButton";
 
-const useStyles = makeStyles((theme) => ({
-  photo: {
-    maxWidth: "200px",
-    width: "100%",
-    margin: "5px",
-  },
-  question: {
-    width: "100%",
-    paddingTop: "1em",
-    paddingBottom: "1em",
-    borderTop: "1px solid grey",
-  },
-  photoSection: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "stretch",
-    flexWrap: "wrap",
-    paddingTop: "10px",
-    paddingBottom: "10px",
-    borderTop: "grey 2px solid",
-    alignItems: "start",
-  },
-  questionNumber: {
-    position: "absolute",
-  },
-  questionText: {
-    marginLeft: "2em",
-  },
-  commentboxHidden: {
-    display: "none",
-  },
-  commentbox: {
-    paddingTop: "1em",
-  },
-  label: {
-    color: "rgba(0, 0, 0, 0.87)",
-  },
-  photoDescription: {
-    margin: "5px",
-  },
-  deleteButton: {
-    margin: "5px",
-  },
-}));
 
 function GalleryPhoto({ photoId }) {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const imageData = useSelector((state) =>
     state.photos[photoId] ? state.photos[photoId].imageData : ""
@@ -78,9 +32,9 @@ function GalleryPhoto({ photoId }) {
   };
 
   return (
-    <div className={classes.photoSection}>
+    <div className="photoSection">
       <IconButton
-        className={classes.deleteButton}
+        className="deleteButton"
         color="primary"
         aria-label="Delete Photo"
         component="span"
@@ -89,7 +43,7 @@ function GalleryPhoto({ photoId }) {
         <RemoveCircleOutlineOutlinedIcon fontSize="large" />
       </IconButton>
       <img
-        className={classes.photo}
+        className="photo"
         src={"data:image/jpeg;base64," + imageData}
         alt={"survey view"}
       />
@@ -97,7 +51,7 @@ function GalleryPhoto({ photoId }) {
         id="outlined-multiline-flexible"
         label="Description"
         multiline
-        className={"photo-description " + classes.photoDescription}
+        className="photo-description"
         rowsMax={4}
         value={description}
         onChange={(e) => {

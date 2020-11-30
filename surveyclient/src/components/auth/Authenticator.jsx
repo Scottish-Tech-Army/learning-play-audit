@@ -64,7 +64,7 @@ export default function Authenticator() {
     <>
       <AuthErrorAlert />
       {authState === SIGNED_IN || authState === SIGNED_OUT ? null : (
-        <div>{renderAuthComponent()}</div>
+        <div className="authenticator">{renderAuthComponent()}</div>
       )}
     </>
   );

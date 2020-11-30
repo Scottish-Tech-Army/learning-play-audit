@@ -1,24 +1,15 @@
 import React from "react";
 import "../App.css";
-import Box from "@material-ui/core/Box";
 import { useSelector } from "react-redux";
 import Button from "@material-ui/core/Button";
 import { v4 as uuidv4 } from "uuid";
-import { makeStyles } from "@material-ui/core/styles";
 import { API } from "aws-amplify";
-import {Auth} from "aws-amplify";
+import { Auth } from "aws-amplify";
+import { SUBMIT } from "./FixedSectionTypes";
+import SectionBottomNavigation from "./SectionBottomNavigation";
 
-const useStyles = makeStyles((theme) => ({
-  submitSection: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-  },
-}));
-
-function SubmitSection() {
+function SubmitSection({ sections, setCurrentSection }) {
   const state = useSelector((state) => state);
-  const classes = useStyles();
 
   async function uploadResults() {
     console.log("Results:");
@@ -52,7 +43,7 @@ function SubmitSection() {
   }
 
   return (
-    <Box className={classes.submitSection}>
+    <div className="submit-section">
       <Button
         className="submit-survey"
         variant="outlined"
@@ -61,7 +52,12 @@ function SubmitSection() {
       >
         Upload...
       </Button>
-    </Box>
+      <SectionBottomNavigation
+        sections={sections}
+        currentSectionId={SUBMIT}
+        setCurrentSectionId={setCurrentSection}
+      />
+    </div>
   );
 }
 

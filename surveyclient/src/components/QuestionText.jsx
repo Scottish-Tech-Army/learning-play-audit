@@ -3,22 +3,6 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
 import TextField from "@material-ui/core/TextField";
-import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  question: {
-    width: "100%",
-    paddingTop: "0.5em",
-    paddingBottom: "0.5em",
-  },
-  questionNumber: {
-    position: "absolute",
-  },
-  questionText: {
-    marginLeft: "2em",
-  },
-}));
 
 function QuestionText({
   sectionId,
@@ -30,7 +14,6 @@ function QuestionText({
   const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
-  const classes = useStyles();
 
   const questionAnswers = useSelector(
     (state) => state.answers[sectionId][questionId]
@@ -48,7 +31,7 @@ function QuestionText({
 
   if (inlineLabel) {
     return (
-      <div id={id} className={classes.question}>
+      <div id={id} className="question">
         <TextField
           multiline
           fullWidth
@@ -63,22 +46,21 @@ function QuestionText({
   }
 
   return (
-    <div id={id} className={classes.question}>
-      <Box flexDirection="row">
-        <div className={classes.questionNumber}>{questionNumber}</div>
-        <p className={classes.questionText}>{question.text}</p>
-      </Box>
-        <TextField
-          multiline
-          fullWidth
-          rowsMax={4}
-          value={questionAnswers.answer}
-          onChange={handleChange}
-          variant="outlined"
-        />{" "}
+    <div id={id} className="question">
+      <div className="question-line">
+        <div className="questionNumber">{questionNumber}</div>
+        <p className="questionText">{question.text}</p>
+      </div>
+      <TextField
+        multiline
+        fullWidth
+        rowsMax={4}
+        value={questionAnswers.answer}
+        onChange={handleChange}
+        variant="outlined"
+      />
     </div>
   );
-
 }
 
 export default QuestionText;

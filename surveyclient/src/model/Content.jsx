@@ -37,10 +37,10 @@ export const sectionsContent = [
     id: "learning",
     content: (addQuestion) => (
       <>
-        <p>
+        <p><b>
           There is a good range of features in our grounds to help us teach the
           following curriculum areas:
-        </p>
+        </b></p>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "science",
@@ -50,6 +50,7 @@ export const sectionsContent = [
             growing area, boulders illustrating different rock types etc.
           </>
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "maths",
@@ -58,6 +59,7 @@ export const sectionsContent = [
             maths trails, themed murals etc.
           </>
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "languages",
@@ -66,6 +68,7 @@ export const sectionsContent = [
             chair, story trail etc.
           </>
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "arts",
@@ -74,6 +77,7 @@ export const sectionsContent = [
             outdoor art etc.
           </>
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "RME",
@@ -82,6 +86,7 @@ export const sectionsContent = [
             labyrinth etc.
           </>
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "social",
@@ -90,6 +95,7 @@ export const sectionsContent = [
             themed murals, weather station, food garden etc.
           </>
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "technologies",
@@ -99,22 +105,26 @@ export const sectionsContent = [
             station etc.
           </>
         )}
+        <hr className="subsection-divider"/>
         <h2>Outdoor Classrooms</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "classroom",
           "We have an outdoor classroom area that can be used by a whole class"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "seating",
           "We have outdoor seating areas for working in smaller groups"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "sheltered",
           "Outdoor classrooms and seating areas are reasonably sheltered and comfortable to use"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "disturbance",
@@ -132,90 +142,110 @@ export const sectionsContent = [
       <>
         <h2>Active Play</h2>
         {addQuestion(SCALE_WITH_COMMENT, "climbing", "climbing and scrambling")}
+        <hr className="question-divider"/>
         {addQuestion(SCALE_WITH_COMMENT, "balancing", "balancing")}
+        <hr className="question-divider"/>
         {addQuestion(SCALE_WITH_COMMENT, "swinging", "swinging")}
+        <hr className="question-divider"/>
         {addQuestion(SCALE_WITH_COMMENT, "jumping", "jumping off or between")}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "trails",
           "there are good trails or paths to encourage walking or running"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "slopes",
           "there are slopes and dips to encourage running and rolling "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "physical",
           "there are opportunities for physical challenge and for pupils to assess and manage risk in play"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "markings",
           "there is a good range of game markings painted on the playground"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "targets",
           "there is a good range of goals, targets and hoops to encourage play and sport"
         )}
+        <hr className="subsection-divider"/>
         <h2>Imaginative Play</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "grass",
           "areas of uncut grass are accessible for play"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "woodland",
           "if we have areas of woodland or shrubs in school, these are accessible for play"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "bark",
           "children have access to school-grown natural materials for play; berries, cones, bark, twigs, leaves etc."
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "straw",
           "we provide additional natural materials for play; wooden discs, stones, poles, straw etc. "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "soil",
           "children can play in or with soil and mud"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "sand",
           "children can play in or with sand"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "den",
           "children have access to materials and spaces for den-building"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "storage",
           "we have good storage for outdoor play materials"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "trunks",
           "larger tree trunks / logs provide creative play possibilities"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "bushes",
           "bushes, willow tunnels or dens create fun hiding spaces"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "rocks",
           "larger rocks and boulders provide creative play possibilities"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "tyres",
@@ -238,64 +268,76 @@ export const sectionsContent = [
           "seating is widely available in our grounds",
           2
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "seatingsizes",
           "seating areas cater for different sizes and types of group"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "shelterwind",
           "shelter from wind is widely available outside"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "shelterrain",
           "shelter from rain is widely available outside"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "shade",
           "shade from the sun is widely available outside"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "schoolmeals",
           "pupils or staff can eat their school meals outside in good weather"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "packedlunches",
           "there are facilities for pupils or staff to eat their packed lunches outside"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "socialspaces",
           "there is a wide range of different social spaces that cater for varying group sizes and activities",
           2
         )}
+        <hr className="subsection-divider"/>
         <h2>Emotional Health</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "colourful",
           "entrances and signs are colourful, bright, happy and welcoming"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "quiet",
           "staff and pupils have access to attractive outdoor spaces designed for quiet and calm.",
           2
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "attractive",
           "trees, shrubs and flowers are used to create an attractive external environment"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "outdoorart",
           "the grounds display a range of attractive outdoor art such as murals, sculpture and mosaics"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "goodimpression",
@@ -317,73 +359,87 @@ export const sectionsContent = [
           "trees",
           "there is a good number of trees of different species and ages"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "flowers",
           "there is a wide range of flowers to encourage wildlife"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "shrubs",
           "there are good areas of shrubs or hedges to encouarge wildlife"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "meadow",
           "we have significant areas of meadow or longer grass"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "ponds",
           "there are water features such as ponds, streams or wetland"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "deadwood",
           "there are log piles or areas of deadwood to encourage insects"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "birdboxes",
           "birdlife is encouraged through use of bird boxes, tables or baths"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "bughotels",
           "we have other facilities to encourage wildlife, such as bug hotels, hedgehog and bat boxes etc."
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "nature",
           "we encourage nature in our grounds in other ways "
         )}
+        <hr className="subsection-divider"/>
         <h2>Sustainable Practices</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "cycle",
           "there is ample provision for secure cycle storage"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "composting",
           "there are good composting facilities "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "litterbins",
           "there are enough outdoor litter bins located in the right places"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "renewableenergy",
           "we have renewable energy features of some kind"
         )}
+        <hr className="subsection-divider"/>
         <h2>Food</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "growingfood",
           "there are good facilities for growing food in the grounds"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "fruittrees",
@@ -405,21 +461,25 @@ export const sectionsContent = [
           "pupilsdesign",
           "pupils are actively involved in designing and creating playground improvements "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "parentsdesign",
           "parents and other community members are actively involved in designing and creating playground improvements "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "staffdesign",
           "staff members, both teaching and non-teaching, are actively involved in designing and creating playground improvements "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           TEXT_WITH_YEAR,
           "datedImprovements",
           "what and when were the 3 most recent playground improvements that pupils have been involved in?"
         )}
+        <hr className="subsection-divider"/>
         <h2>Management</h2>
         <p>
           pupils are actively involved in <b>managing</b> the following aspects
@@ -431,25 +491,31 @@ export const sectionsContent = [
           "managegrowing",
           "growing and tending"
         )}
+        <hr className="question-divider"/>
         {addQuestion(SCALE_WITH_COMMENT, "managelitter", "litter picking")}
+        <hr className="question-divider"/>
         {addQuestion(SCALE_WITH_COMMENT, "manageother", "other")}
+        <hr className="subsection-divider"/>
         <h2>Community Use and Access</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "childrenoutside",
           "children are welcome to play in the school grounds outside of school time"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "adultsoutside",
           "adults are welcome to walk or play in the school grounds outside of school time"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "communityoutside",
           "other community organisations [guides, youth clubs etc.] make good use of our grounds outside of school time",
           0.5
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           TEXT,
           "othercommunity",
@@ -470,6 +536,7 @@ export const sectionsContent = [
           "namegreenspace",
           "What area of nearby local greenspace has the most potential for regular school use for outdoor learning and play?"
         )}
+        <hr className="subsection-divider"/>
         <p>
           <b>
             It will be helpful if you can visit this area with some of your
@@ -483,37 +550,45 @@ export const sectionsContent = [
           "accessible",
           "This area is readily accessible for regular use by the school"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           TEXT,
           "improveaccessible",
           "How might you be able to improve its accessibility - for example with a gate, clearing a path, bridging a ditch etc?"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "frequentuse",
           "The school uses this space alot (e.g. at least monthly)"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "wildlife",
           "The area is really valuable for wildlife"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           TEXT,
           "improvewildlife",
           "How might you improve the area for wildlife?"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "teaching",
           "As it is, the area is a really useful space for teaching and play"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           TEXT,
           "improveteaching",
           "How could it be made more useful for teaching and play?"
         )}
+        <hr className="question-divider"/>
         {addQuestion(TEXT, "listowner", "Who owns this area of land?")}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "changes",
@@ -535,68 +610,82 @@ export const sectionsContent = [
           "developingcurriculum",
           "the school improvement plan includes developing  curriculum learning and / or play outdoors"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "curriculumtopic",
           "on average, most teachers will teach a curriculum topic outdoors at least once a month. "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "resources",
           "we have pre-prepared resources that we can take outdoors to support a wide range of curriculum learning "
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "outcomes",
           "outdoor lessons have clearly specified curriculum outcomes that we are able to assess"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "principles",
           "our outdoor learning programme is planned with reference to the CfE principles for curriculum design"
         )}
+        <hr className="question-divider"/>
         {addQuestion(SCALE_WITH_COMMENT, "growfood", "we grow food in school")}
+        <hr className="subsection-divider"/>
         <h2>Play</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "playpolicy",
           "our school has a play policy"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "playrain",
           "pupils are allowed to play outside in light rain if they wish"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "playsnow",
           "pupils are allowed to play outide in snowy or icy weather if they wish"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "allages",
           "children of all ages can mix and play together in some areas if they wish"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "outofsight",
           "chidren are allowed to play out of sight of supervisors - for example behind trees or in bushes"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "typesofplay",
           "the playground is zoned to cater for different types of play: active, quiet, creative etc."
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "monitoring",
           "pupils are invovled in agreeing and monitoring playground rules and behaviour"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "skillstraining",
           "playground supervisors have had basic play skills training"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "oldersupervising",
@@ -617,21 +706,25 @@ export const sectionsContent = [
           "groundsadvisor",
           "If there was a school grounds advisor available in this area then would you make use of them in your school?"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "onlineresources",
           "Would it be helpful to have online information and resources on how to develop some of the ideas suggested in this audit?"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "CPD",
           "CPD on how to develop some of the ideas suggested in this audit would be really useful"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "straightforward",
           "Would you say it was fairly straightforward to answer the questions in this audit?"
         )}
+        <hr className="question-divider"/>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "ideas",

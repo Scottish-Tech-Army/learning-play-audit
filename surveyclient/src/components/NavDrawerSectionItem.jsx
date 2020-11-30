@@ -1,11 +1,6 @@
 import React from "react";
 import CircularProgressWithLabel from "./CircularProgressWithLabel";
 import { useSelector } from "react-redux";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import Tooltip from "@material-ui/core/Tooltip";
-import CommentIcon from "@material-ui/icons/Comment";
-import Badge from "@material-ui/core/Badge";
 
 function NavDrawerSectionItem({
   section,
@@ -21,35 +16,23 @@ function NavDrawerSectionItem({
     totalQuestions - answerCounts.answer === 1
       ? "1 question remaining"
       : totalQuestions - answerCounts.answer + " questions remaining";
-  const commentsTooltip =
-    answerCounts.comments === 1
-      ? "1 comment added"
-      : answerCounts.comments + " comments added";
 
   return (
-    <ListItem
-      button
-      selected={currentSection === section.id}
+    <div
       onClick={(event) => setCurrentSection(section.id)}
       key={section.id}
-      className="nav-menu-item"
+      className={
+        "nav-menu-item" + (currentSection === section.id ? " selected" : "")
+      }
     >
-      <ListItemText primary={section.number + " - " + section.title} />
+      <span className="section-number">{section.number}</span>
+      <span className="section-title">{section.title}</span>
       <CircularProgressWithLabel
         value={progress}
         label={answerProgressLabel}
         tooltip={remainingQuestions}
       />
-      <Tooltip title={commentsTooltip} placement="top">
-        <Badge
-          className="count-badge"
-          badgeContent={answerCounts.comments}
-          color="primary"
-        >
-          <CommentIcon />
-        </Badge>
-      </Tooltip>
-    </ListItem>
+    </div>
   );
 }
 

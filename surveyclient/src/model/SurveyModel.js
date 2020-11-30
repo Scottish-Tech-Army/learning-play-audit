@@ -43,8 +43,9 @@ function createEmptyAnswers() {
                   year2: null,
                   answer3: null,
                   year3: null,
+                  photocount: 0,
                 }
-              : { answer: null, comments: "" })
+              : { answer: null, comments: "", photocount: 0 })
       );
       return sections;
     },

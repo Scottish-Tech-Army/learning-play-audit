@@ -1,22 +1,13 @@
 import React, { useRef, useEffect } from "react";
 import "../App.css";
-import Box from "@material-ui/core/Box";
 import { useSelector } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
 import Chart from "chart.js";
 import { sectionsContent } from "../model/Content";
+import { RESULTS } from "./FixedSectionTypes";
+import SectionBottomNavigation from "./SectionBottomNavigation";
 
-const useStyles = makeStyles((theme) => ({
-  resultsChart: {
-    position: "relative",
-    // display: "flex",
-    width: "60vw",
-  },
-}));
-
-function ResultsSection() {
+function ResultsSection({ sections, setCurrentSection }) {
   const answers = useSelector((state) => state.answers);
-  const classes = useStyles();
   const chartContainer1 = useRef();
   const chartContainer2 = useRef();
   const chartContainer3 = useRef();
@@ -225,20 +216,25 @@ function ResultsSection() {
   }, [answers, answerWeights]);
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="stretch">
+    <div className="section">
       <h2>How good is our outdoor space?</h2>
-      <div className={classes.resultsChart}>
+      <div className="resultsChart">
         <canvas ref={chartContainer1} />
       </div>
       <h2>How good is our local greenspace?</h2>
-      <div className={classes.resultsChart}>
+      <div className="resultsChart">
         <canvas ref={chartContainer2} />
       </div>
       <h2>How good is our outdoor practice?</h2>
-      <div className={classes.resultsChart}>
+      <div className="resultsChart">
         <canvas ref={chartContainer3} />
       </div>
-    </Box>
+      <SectionBottomNavigation
+        sections={sections}
+        currentSectionId={RESULTS}
+        setCurrentSectionId={setCurrentSection}
+      />
+    </div>
   );
 }
 

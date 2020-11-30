@@ -1,0 +1,421 @@
+.root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background-image: url(/assets/Background_image.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  font-family: Ubuntu;
+}
+
+.app-bar {
+  z-index: 1100;
+  background-image: url(/assets/LTL_Wood_2_banner.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  box-shadow: 0px 2px 4px;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-direction: row;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 180px;
+  width: 100%;
+}
+
+.app-bar .menu-button {
+  margin-right: 20px;
+  /* [theme.breakpoints.up(md)] { */
+  display: none;
+  /* } */
+}
+
+.app-bar .titleLogo {
+  height: 143px;
+  position: fixed;
+  left: 20px;
+  top: 18px;
+}
+
+.app-bar .title {
+  font-family: Special Elite;
+  font-size: 44px;
+  color: white;
+  text-align: center;
+    font-weight: normal;
+}
+
+.app-bar .auth-signin-signout {
+  position: absolute;
+  right: 30px;
+  top: 60px;
+  width: 100px;
+  height: 40px;
+  background-color: #2d6a89;
+  color: white;
+  font-family: Ubuntu-Regular, Ubuntu;
+  font-size: 12px;
+  font-weight: normal;
+  box-shadow: 1px 1px 4px black;
+  border: none;
+}
+.app-bar .auth-current-user {
+  display: block;
+  position: absolute;
+  right: 30px;
+  top: 110px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.app-bar .auth-current-user .introText {
+  color: #afcd4b;
+}
+
+.app-bar .auth-current-user .email {
+  color: white;
+}
+
+
+.nav-menu-fixed, .nav-menu-popup {
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #fff;
+  top: 0;
+  bottom: 0;
+  z-index: 1200;
+  position: fixed;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  left: 0;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  width: 380px;
+  margin-top: 180px;
+}
+
+.nav-menu-fixed {
+  box-shadow: none;
+  margin-top: 180px;
+}
+
+.nav-menu-popup {
+  box-shadow: 0px 8px 10px;
+  flex: 1 0 auto;
+  outline: 0;
+  transition: transform 300ms;
+  transform: none;
+}
+.nav-menu-popup.hidden {
+  transform: translateX(-380px);
+}
+
+.nav-menu-item {
+  padding: 16px 5px;
+  margin: 8px 28px 8px 8px;
+  border: solid 1px #f6a85c;
+  position: relative;
+  font-size: 18px;
+}
+
+.nav-menu-item.selected {
+  background-color: #f6a85c;
+}
+
+.nav-menu-item.introduction {
+  border-color: black;
+}
+
+.nav-menu-item.results,
+.nav-menu-item.gallery {
+  border-color: #7e354f;
+}
+
+.nav-menu-item.submit {
+  border-color: #2d6a89;
+}
+
+.nav-menu-item .section-number {
+  font-weight: bold;
+  padding-right: 10px;
+}
+
+.nav-menu-item .section-title {
+  font-family: Special Elite;
+}
+
+.nav-menu-item .nav-menu-item-progress {
+  position: absolute;
+  right: -20px;
+  top: 4px;
+  display: inline-flex;
+  font-size: 14px;
+}
+
+.heading {
+  font-size: 15px;
+  flex-basis: 33.33%;
+  flex-shrink: 0;
+}
+.drawer {
+  /* [theme.breakpoints.up(md)] { */
+  width: 380px;
+  flex-shrink: 0;
+  /* } */
+}
+
+.content {
+  width: 100%;
+  /* [theme.breakpoints.up(md)] { */
+  margin-left: 380px;
+  margin-top: 180px;
+  /* } */
+}
+
+.section-container {
+  width: 100%;
+}
+
+
+.section,
+.gallery-section {
+  display: flex;
+  flex-direction: column;
+}
+.submit-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* // INTRODUCTION */
+
+.subsection,
+.section,
+.gallery-section {
+  background-color: white;
+  font-family: Ubuntu;
+  font-size: 1em;
+  padding: 30px 50px;
+  box-shadow: 5px 5px 5px #00000080;
+  margin: 40px;
+}
+
+.subsection .title,
+.section .title,
+.gallery-section .title {
+  font-family: Special Elite;
+  text-align: center;
+}
+.question {
+  width: 100%;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+.actionRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+.commentboxHidden {
+  display: none;
+}
+.commentbox {
+  padding-top: 1em;
+}
+.logo {
+  flex-shrink: 0;
+}
+
+.toggle-button-group {
+  box-shadow: 0px 2px 4px #00000080;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+.toggle-button-group button {
+  background-color: #fafafa;
+  border: 1px solid #cec6c6;
+  color: #404040;
+  cursor: pointer;
+  float: left;
+  text-transform: uppercase;
+  font-family: Ubuntu-Bold, Ubuntu;
+  font-size: 12px;
+  font-weight: bold;
+  width: 157px;
+  height: 37px;
+}
+.toggle-button-group button:hover {
+  background-color: #d7e6a5;
+}
+.toggle-button-group button.selected {
+  background-color: #afcd4b;
+}
+.toggle-button-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+.toggle-button-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.toggle-button-group.userrole button {
+  width: 100px;
+  height: 37px;
+}
+
+.add-note-button,
+.add-photo-button,
+.previous-section-button,
+.next-section-button {
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+.bottom-navigation {
+  width: 100%;
+  position: relative;
+  height: 50px;
+  margin-top: 50px;
+}
+
+.previous-section-button,
+.next-section-button {
+  box-shadow: 0px 2px 4px #00000080;
+  position: absolute;
+  display: flex;
+}
+
+.previous-section-button.hidden,
+.next-section-button.hidden {
+  display: none;
+}
+
+.previous-section-button {
+  left: 50%;
+  margin-left: -160px;
+}
+
+.next-section-button {
+  right: 50%;
+  margin-right: -160px;
+}
+
+.gallery-section {
+  align-items: stretch;
+}
+.gallerySectionHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.photo {
+  maxwidth: 200px;
+  width: 100%;
+  margin: 5px;
+}
+.photoSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: grey 2px solid;
+  align-items: flex-start;
+}
+.photoDescription {
+  margin: 5px;
+}
+.deleteButton {
+  margin: 5px;
+}
+
+.question {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+.question-line {
+  position: relative;
+  width: 100%;
+  padding: 20px 0;
+}
+.question-number {
+  position: absolute;
+}
+.question-text {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.add-note-button {
+  padding-left: 30px;
+}
+
+.answerRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.question-divider {
+  border: 1px solid #afcd4b;
+  border-radius: 1px;
+  width: 50px;
+}
+.subsection-divider {
+  border: 1px solid #f6a85c;
+  border-radius: 1px;
+  width: 200px;
+}
+
+/* // Select with comment */
+.actionRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+.commentboxHidden {
+  display: none;
+}
+.commentbox {
+  padding-top: 1em;
+}
+/* label {
+  color: rgba(0; 0; 0; 0.87);
+} */
+
+/* question user select */
+/* .question {
+  width: 100%;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+} */
+
+/* charts */
+
+.resultsChart {
+  position: relative;
+  width: 60vw;
+}
+
+/* auth    */
+.authenticator {
+  padding: 20px;
+}

@@ -3,33 +3,12 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
 import TextField from "@material-ui/core/TextField";
-import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  question: {
-    width: "100%",
-    paddingTop: "0.5em",
-    paddingBottom: "0.5em",
-  },
-  questionNumber: {
-    position: "absolute",
-  },
-  questionText: {
-    marginLeft: "2em",
-  },
-  answerRow: {
-    display: "flex",
-    flexDirection: "row",
-  },
-}));
 
 function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   const questionId = question.id;
   const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
-  const classes = useStyles();
 
   const questionAnswers = useSelector(
     (state) => state.answers[sectionId][questionId]
@@ -47,7 +26,7 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
 
   function yearAnswerRow(answerKey, yearKey) {
     return (
-      <Box className={classes.answerRow}>
+      <div className="answerRow">
         <TextField
           className="text-improvement"
           multiline
@@ -66,16 +45,16 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
           onChange={(event) => handleChange(event, yearKey)}
           variant="outlined"
         />
-      </Box>
+      </div>
     );
   }
 
   return (
-    <div id={id} className={classes.question}>
-      <Box flexDirection="row">
-        <div className={classes.questionNumber}>{questionNumber}</div>
-        <p className={classes.questionText}>{question.text}</p>
-      </Box>
+    <div id={id} className="question">
+    <div className="question-line">
+        <div className="questionNumber">{questionNumber}</div>
+        <p className="questionText">{question.text}</p>
+      </div>
       {yearAnswerRow("answer1", "year1")}
       {yearAnswerRow("answer2", "year2")}
       {yearAnswerRow("answer3", "year3")}
@@ -84,8 +63,8 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
 }
 
 // <Box flexDirection="row">
-//   <div className={classes.questionNumber}>{questionNumber}</div>
-//   <p className={classes.questionText}>{question.text}</p>
+//   <div className=questionNumber}>{questionNumber}</div>
+//   <p className=questionText}>{question.text}</p>
 // </Box>
 
 export default QuestionTextWithYear;

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
 import { sectionsContentMap, sectionsContent } from "./model/Content";
-import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
 import GallerySection from "./components/GallerySection";
@@ -11,17 +8,11 @@ import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
 import DownloadButton from "./components/DownloadButton";
 import AuthSignInOut from "./components/auth/AuthSignInOut";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
+import AuthCurrentUser from "./components/auth/AuthCurrentUser";
 import IconButton from "@material-ui/core/IconButton";
 import { useDispatch } from "react-redux";
 import { refreshState } from "./model/SurveyModel";
 import MenuIcon from "@material-ui/icons/Menu";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import BottomNavigation from "@material-ui/core/BottomNavigation";
-import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import {
   INTRODUCTION,
   RESULTS,
@@ -31,67 +22,13 @@ import {
 import Amplify from "aws-amplify";
 import awsconfig from "./aws-exports";
 import Authenticator from "./components/auth/Authenticator";
+import "./App.css";
 
 Amplify.configure(awsconfig);
 
-const drawerWidth = 240;
 window.LOG_LEVEL = "DEBUG";
 
-const useStyles = makeStyles((theme) => ({
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: "33.33%",
-    flexShrink: 0,
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
-  },
-  title: {
-    flexGrow: 1,
-  },
-
-  root: {
-    width: "100%",
-    display: "flex",
-  },
-  drawer: {
-    [theme.breakpoints.up("md")]: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-  },
-  appBar: {
-    zIndex: 2000,
-    [theme.breakpoints.up("md")]: {
-      width: "100%",
-    },
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up("md")]: {
-      display: "none",
-    },
-  },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  content: {
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      marginLeft: drawerWidth,
-    },
-  },
-  sectionContainer: {
-    padding: "20px",
-    width: "100%",
-  },
-}));
-
 function App() {
-  const classes = useStyles();
   const dispatch = useDispatch();
 
   const [currentSection, _setCurrentSection] = useState("introduction");
@@ -123,92 +60,75 @@ function App() {
   sections.push({ title: "Photos", id: GALLERY });
   sections.push({ title: "Submit survey", id: SUBMIT });
 
-  function hasNextSection() {
-    return (
-      sections.findIndex((section) => section.id === currentSection) <
-      sections.length - 1
-    );
-  }
-
-  function hasPreviousSection() {
-    return sections.findIndex((section) => section.id === currentSection) > 0;
-  }
-
-  const PREVIOUS_SECTION = 0;
-  const NEXT_SECTION = 1;
-
   function getCurrentSection() {
     if (currentSection === INTRODUCTION) {
       return <IntroductionSection />;
     }
     if (currentSection === RESULTS) {
-      return <ResultsSection />;
+      return (
+        <ResultsSection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     if (currentSection === GALLERY) {
-      return <GallerySection />;
+      return (
+        <GallerySection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     if (currentSection === SUBMIT) {
-      return <SubmitSection />;
+      return (
+        <SubmitSection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     const section = sectionsContentMap.get(currentSection);
-    return <Section key={section.id} section={section} />;
+    return (
+      <Section
+        key={section.id}
+        section={section}
+        sections={sections}
+        setCurrentSection={setCurrentSection}
+      />
+    );
   }
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            className={classes.menuButton}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            Learning and Play Audit Tool
-          </Typography>
-          <AuthSignInOut />
-          <DownloadButton />
-        </Toolbar>
-      </AppBar>
-      <main className={classes.content}>
+    <div className="root">
+      <div className="app-bar">
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+          className="menu-button"
+        >
+          <MenuIcon />
+        </IconButton>
+        <img className="titleLogo" src="./assets/LTL_logo_white.png" alt="" />
+        <h1 className="title">
+          Learning Through Landscapes
+          <br />
+          Learning and Play Audit Survey
+        </h1>
+        <AuthSignInOut />
+        <AuthCurrentUser />
+        <DownloadButton />
+      </div>
+      <main className="content">
         <NavDrawer
           mobileOpen={mobileOpen}
           handleDrawerToggle={handleDrawerToggle}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
         />
-        <div className={classes.toolbar} />
-        <div className={classes.sectionContainer}>{getCurrentSection()}</div>
-        <BottomNavigation
-          showLabels
-          onChange={(event, newValue) => {
-            var index = sections.findIndex(
-              (section) => section.id === currentSection
-            );
-            index += newValue === PREVIOUS_SECTION ? -1 : 1;
-            if (index >= 0 && index < sections.length) {
-              setCurrentSection(sections[index].id);
-            }
-          }}
-        >
-          <BottomNavigationAction
-            disabled={!hasPreviousSection()}
-            label="Previous section"
-            value={PREVIOUS_SECTION}
-            icon={<ArrowBackIosIcon />}
-          />
-          <BottomNavigationAction
-            disabled={!hasNextSection()}
-            value={NEXT_SECTION}
-            label="Next section"
-            icon={<ArrowForwardIosIcon />}
-          />
-        </BottomNavigation>
+        <div className="section-container">{getCurrentSection()}</div>
       </main>
       <Authenticator />
     </div>

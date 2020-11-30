@@ -1,10 +1,11 @@
 import React from "react";
 import "../App.css";
-import Box from "@material-ui/core/Box";
 import QuestionSelectWithComment from "./QuestionSelectWithComment";
 import QuestionText from "./QuestionText";
 import QuestionTextWithYear from "./QuestionTextWithYear";
 import QuestionUserSelect from "./QuestionUserSelect";
+import SectionBottomNavigation from "./SectionBottomNavigation";
+
 import {
   SCALE_WITH_COMMENT,
   TEXT,
@@ -13,10 +14,11 @@ import {
   USER_TYPE_WITH_COMMENT,
 } from "../model/QuestionTypes";
 
-function Section({ section }) {
+function Section({ section, sections, setCurrentSection }) {
   const sectionId = section.id;
 
   var questionIndex = 0;
+
   function addQuestion(type, id, text) {
     questionIndex += 1;
     const key = sectionId + "-" + id;
@@ -72,12 +74,19 @@ function Section({ section }) {
 
   console.log("Render section " + section.title);
   return (
-    <Box flexDirection="column">
-      <h1>
-        Section {section.number} - {section.title}
+    <div className="section">
+      <h1 className="title">
+        {section.number}. {section.title}
       </h1>
       {section.content(addQuestion)}
-    </Box>
+      <hr className="subsection-divider"/>
+
+      <SectionBottomNavigation
+        sections={sections}
+        currentSectionId={sectionId}
+        setCurrentSectionId={setCurrentSection}
+      />
+    </div>
   );
 }
 

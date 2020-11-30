@@ -1,10 +1,9 @@
 import { Auth } from "@aws-amplify/auth";
 import React, { useState, useEffect } from "react";
-import GetAppIcon from "@material-ui/icons/GetApp";
-import Button from "@material-ui/core/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN, SIGNED_OUT, SIGNED_IN } from "../../model/AuthStates";
 import { setAuthError, setAuthState } from "./utils";
+import "../../App.css";
 
 export default function AuthSignInOut() {
   const [signedIn, setSignedIn] = useState(false);
@@ -38,31 +37,15 @@ export default function AuthSignInOut() {
 
   if (!signedIn) {
     return (
-      <Button
-        variant="contained"
-        color="primary"
-        disableElevation={true}
-        startIcon={<GetAppIcon />}
-        aria-label="Install Application"
-        aria-haspopup="true"
-        onClick={signIn}
-      >
-        Sign in
-      </Button>
+      <button aria-label="Log in" onClick={signIn} className="auth-signin-signout">
+        LOG IN
+      </button>
     );
   }
 
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      disableElevation={true}
-      startIcon={<GetAppIcon />}
-      aria-label="Install Application"
-      aria-haspopup="true"
-      onClick={signOut}
-    >
-      Sign out
-    </Button>
+    <button aria-label="Log out" onClick={signOut} className="auth-signin-signout">
+      LOG OUT
+    </button>
   );
 }

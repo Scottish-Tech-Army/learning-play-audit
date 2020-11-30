@@ -1,40 +1,20 @@
 import React from "react";
 import "../App.css";
-import ToggleButton from "@material-ui/lab/ToggleButton";
-import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
 import TextField from "@material-ui/core/TextField";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  question: {
-    width: "100%",
-    paddingTop: "1em",
-    paddingBottom: "1em",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  toggleOptions: {
-    marginLeft: "20px",
-    marginRight: "20px",
-  },
-}));
 
 function QuestionUserSelect({ sectionId, question, questionNumber }) {
   const questionId = question.id;
   const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
-  const classes = useStyles();
 
   const questionAnswers = useSelector(
     (state) => state.answers[sectionId][questionId]
   );
 
-  const handleChange = (event, newValue) => {
-    console.log(newValue);
+  const handleClick = (newValue) => {
     dispatch({
       type: SET_ANSWER,
       sectionId: sectionId,
@@ -64,29 +44,27 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
     }
   }
 
-  return (
-    <div id={id} className={classes.question}>
-      <span>I&nbsp;am&nbsp;a</span>
-      <ToggleButtonGroup
-        className={classes.toggleOptions}
-        value={questionAnswers.answer}
-        exclusive
-        onChange={handleChange}
-        aria-label={questionId}
+  function toggleButton(value, label) {
+    return (
+      <button
+        className={questionAnswers.answer === value ? "selected" : ""}
+        onClick={() => handleClick(value)}
+        aria-label={label}
       >
-        <ToggleButton value="a" aria-label="teacher">
-          teacher
-        </ToggleButton>
-        <ToggleButton value="b" aria-label="parent">
-          parent
-        </ToggleButton>
-        <ToggleButton value="c" aria-label="pupil">
-          pupil
-        </ToggleButton>
-        <ToggleButton value="d" aria-label="other">
-          other
-        </ToggleButton>
-      </ToggleButtonGroup>
+        {label}
+      </button>
+    );
+  }
+
+  return (
+    <div id={id} className="question">
+      <span>I&nbsp;am&nbsp;a</span>
+      <div className="toggle-button-group userrole">
+        {toggleButton("a", "teacher")}
+        {toggleButton("b", "parent")}
+        {toggleButton("c", "pupil")}
+        {toggleButton("d", "other")}
+      </div>
       <TextField
         label={labelTitle()}
         value={questionAnswers.comments}
