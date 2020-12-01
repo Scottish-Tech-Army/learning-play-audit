@@ -57,8 +57,8 @@ export default function RequireNewPassword() {
   }
 
   return (
-    <form onSubmit={completeNewPassword}>
-      <h3>Change Password</h3>
+    <>
+      <h2>Change Password</h2>
 
       <label htmlFor={PASSWORD_ID}>New password</label>
       <input
@@ -70,12 +70,17 @@ export default function RequireNewPassword() {
         placeholder="Enter your new password"
       />
 
-      <button type="submit">
-        {loading ? <amplify-loading-spinner /> : <span>Change</span>}
+      <button onClick={completeNewPassword} disbled={loading}>
+        {loading ? <amplify-loading-spinner /> : <span>CHANGE</span>}
       </button>
-      <button onClick={() => dispatch(setAuthState(SIGN_IN))}>
-        Back to Sign In
-      </button>
-    </form>
+      <div className="question">
+        <button
+          className="inline-action"
+          onClick={() => dispatch(setAuthState(SIGN_IN))}
+        >
+          Back to Sign In
+        </button>
+      </div>
+    </>
   );
 }

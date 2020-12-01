@@ -10,12 +10,13 @@ import {
   SET_AUTH_STATE,
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
+  CONFIRM_WELCOME,
 } from "./ActionTypes.js";
 import { sectionsContent, SURVEY_VERSION } from "./Content";
 import { TEXT_WITH_YEAR } from "./QuestionTypes";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
-import { SIGNED_OUT } from "./AuthStates";
+import { SIGN_UP } from "./AuthStates";
 
 localforage.config({
   // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
@@ -45,7 +46,7 @@ function createEmptyAnswers() {
                   year3: null,
                   photocount: 0,
                 }
-              : { answer: null, comments: "", photocount: 0 })
+              : { answer: "", comments: "", photocount: 0 })
       );
       return sections;
     },
@@ -78,9 +79,10 @@ function initialState() {
     photoDetails: {},
     authentication: {
       errorMessage: "",
-      state: SIGNED_OUT,
+      state: SIGN_UP,
       user: undefined,
     },
+    newUser: true,
   };
 }
 
@@ -88,6 +90,12 @@ function initialState() {
 export function surveyReducer(state = initialState(), action) {
   let newState;
   switch (action.type) {
+    case CONFIRM_WELCOME:
+      console.log("CONFIRM_WELCOME");
+      newState = { ...state, newUser: false };
+      writeAnswers(newState);
+      return newState;
+
     case SET_ANSWER:
       console.log("SET_ANSWER");
       newState = setAnswer(state, action);
@@ -262,11 +270,12 @@ export function refreshState() {
   };
 }
 
-const writeAnswers = ({ answers, answerCounts, photoDetails }) =>
+const writeAnswers = ({ answers, answerCounts, photoDetails, newUser }) =>
   localforage.setItem("answers", {
     answers: answers,
     answerCounts: answerCounts,
     photoDetails: photoDetails,
+    newUser: newUser,
   });
 const readAnswers = () => localforage.getItem("answers");
 

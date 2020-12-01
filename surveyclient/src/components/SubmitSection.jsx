@@ -1,15 +1,17 @@
 import React from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
-import Button from "@material-ui/core/Button";
 import { v4 as uuidv4 } from "uuid";
 import { API } from "aws-amplify";
 import { Auth } from "aws-amplify";
 import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
+import { SIGNED_IN } from "../model/AuthStates";
 
 function SubmitSection({ sections, setCurrentSection }) {
   const state = useSelector((state) => state);
+  const authState = useSelector((state) => state.authentication.state);
+  const user = useSelector((state) => state.authentication.user);
 
   async function uploadResults() {
     console.log("Results:");
@@ -31,6 +33,8 @@ function SubmitSection({ sections, setCurrentSection }) {
       },
     };
 
+    request.body.survey.background.email = { answer: user.attributes.email };
+
     API.post("ltlClientApi", "/survey", request)
       .then((result) => {
         console.log("Success");
@@ -44,14 +48,13 @@ function SubmitSection({ sections, setCurrentSection }) {
 
   return (
     <div className="submit-section">
-      <Button
-        className="submit-survey"
-        variant="outlined"
-        color="primary"
-        onClick={uploadResults}
-      >
-        Upload...
-      </Button>
+      {authState !== SIGNED_IN ? (
+        <p>Login before submitting survey.</p>
+      ) : (
+        <button className="submit-survey-button" onClick={uploadResults}>
+          <span>UPLOAD…</span>
+        </button>
+      )}
       <SectionBottomNavigation
         sections={sections}
         currentSectionId={SUBMIT}

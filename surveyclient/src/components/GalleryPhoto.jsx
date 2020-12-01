@@ -32,9 +32,9 @@ function GalleryPhoto({ photoId }) {
   };
 
   return (
-    <div className="photoSection">
+    <div className="photo-section">
       <IconButton
-        className="deleteButton"
+        className="delete-button"
         color="primary"
         aria-label="Delete Photo"
         component="span"

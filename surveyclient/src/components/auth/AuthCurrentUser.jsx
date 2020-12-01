@@ -12,7 +12,7 @@ export default function AuthSignInOut() {
 
   return (
     <div className="auth-current-user">
-      <span className="introText">Logged in as </span>
+      <span className="intro-text">Logged in as </span>
       <span className="email">{user.attributes.email}</span>
     </div>
   );

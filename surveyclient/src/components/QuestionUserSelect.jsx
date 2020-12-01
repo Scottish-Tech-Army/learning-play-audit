@@ -2,7 +2,6 @@ import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
-import TextField from "@material-ui/core/TextField";
 
 function QuestionUserSelect({ sectionId, question, questionNumber }) {
   const questionId = question.id;
@@ -48,7 +47,9 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
     return (
       <button
         className={questionAnswers.answer === value ? "selected" : ""}
-        onClick={() => handleClick(value)}
+        onClick={() =>
+          handleClick(questionAnswers.answer === value ? null : value)
+        }
         aria-label={label}
       >
         {label}
@@ -57,20 +58,26 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
   }
 
   return (
-    <div id={id} className="question">
-      <span>I&nbsp;am&nbsp;a</span>
-      <div className="toggle-button-group userrole">
-        {toggleButton("a", "teacher")}
-        {toggleButton("b", "parent")}
-        {toggleButton("c", "pupil")}
-        {toggleButton("d", "other")}
+    <div id={id} className="question-user-select">
+      <div className="selection-column">
+        <span>I&nbsp;am&nbsp;a</span>
+        <div className="toggle-button-group userrole">
+          {toggleButton("a", "teacher")}
+          {toggleButton("b", "parent")}
+          {toggleButton("c", "pupil")}
+          {toggleButton("d", "other")}
+        </div>{" "}
       </div>
-      <TextField
-        label={labelTitle()}
-        value={questionAnswers.comments}
-        onChange={handleCommentChange}
-        variant="outlined"
-      />
+      <div className="details-column">
+        <label for={id + "-text"}>{labelTitle()}</label>
+        <input
+          id={id + "-text"}
+          type="text"
+          name={id + "-text"}
+          onChange={handleCommentChange}
+          value={questionAnswers.comments}
+        />
+      </div>
     </div>
   );
 }

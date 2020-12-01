@@ -56,8 +56,8 @@ export default function ForgotPassword() {
   }
 
   return (
-    <form onSubmit={delivery ? submit : send}>
-      <h3>Reset your password</h3>
+    <>
+      <h2>Reset your password</h2>
 
       {delivery ? (
         <>
@@ -93,16 +93,21 @@ export default function ForgotPassword() {
           />
         </>
       )}
-      <button type="submit">
+      <button onClick={delivery ? submit : send} disabled={loading}>
         {loading ? (
           <amplify-loading-spinner />
         ) : (
-          <span>{delivery ? "Submit" : "Send Code"}</span>
+          <span>{delivery ? "SUBMIT" : "SEND CODE"}</span>
         )}
       </button>
-      <button onClick={() => dispatch(setAuthState(SIGN_IN))}>
-        Back to Sign In
-      </button>
-    </form>
+      <div className="question">
+        <button
+          className="inline-action"
+          onClick={() => dispatch(setAuthState(SIGN_IN))}
+        >
+          Back to Sign In
+        </button>
+      </div>
+    </>
   );
 }

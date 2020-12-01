@@ -1,5 +1,6 @@
 import React from "react";
 import "../App.css";
+import { addPhotoSvg } from "./QuestionSelectWithComment";
 
 function ExampleQuestion() {
   const [answer, setAnswer] = React.useState(null);
@@ -8,7 +9,7 @@ function ExampleQuestion() {
     return (
       <button
         className={answer === value ? "selected" : ""}
-        onClick={() => setAnswer(value)}
+        onClick={() => setAnswer(answer === value ? null : value)}
         aria-label={label}
       >
         {label}
@@ -18,7 +19,7 @@ function ExampleQuestion() {
 
   return (
     <div className="question">
-      <div className="actionRow">
+      <div className="action-row">
         <div className="toggle-button-group">
           {toggleButton("a", "strongly agree")}
           {toggleButton("b", "tend to agree")}
@@ -32,7 +33,7 @@ function ExampleQuestion() {
 
 function IntroductionSection() {
   return (
-    <>
+    <div className="introduction">
       <div className="subsection">
         <h1 className="title">Introduction</h1>
         <p>
@@ -74,12 +75,18 @@ function IntroductionSection() {
           which you have to respond to on the following scale:
         </p>
         <ExampleQuestion />
-        <p>
+        <div className="icons-row">
+          <img
+            className="add-note-icon"
+            src={"/assets/add_note.svg"}
+            alt="add note"
+          />
           Use the note icon to add any notes or comments that you want to make.
-        </p>
-        <p>Use the camera icon to attach any photos you would like to add.</p>
+          {addPhotoSvg()}
+          Use the camera icon to attach any photos you would like to add.
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -5,12 +5,13 @@ import QuestionText from "./QuestionText";
 import QuestionTextWithYear from "./QuestionTextWithYear";
 import QuestionUserSelect from "./QuestionUserSelect";
 import SectionBottomNavigation from "./SectionBottomNavigation";
+import { BACKGROUND } from "./FixedSectionTypes";
 
 import {
   SCALE_WITH_COMMENT,
-  TEXT,
+  TEXT_AREA,
   TEXT_WITH_YEAR,
-  TEXT_INLINE_LABEL,
+  TEXT_FIELD,
   USER_TYPE_WITH_COMMENT,
 } from "../model/QuestionTypes";
 
@@ -46,14 +47,14 @@ function Section({ section, sections, setCurrentSection }) {
       );
     }
 
-    if (TEXT === type || TEXT_INLINE_LABEL === type) {
+    if (TEXT_AREA === type || TEXT_FIELD === type) {
       return (
         <QuestionText
           key={key}
           sectionId={sectionId}
           question={question}
           questionNumber={questionIndex}
-          inlineLabel={TEXT_INLINE_LABEL === type}
+          textField={TEXT_FIELD === type}
         />
       );
     }
@@ -74,13 +75,14 @@ function Section({ section, sections, setCurrentSection }) {
 
   console.log("Render section " + section.title);
   return (
-    <div className="section">
+    <div
+      className={section.id === BACKGROUND ? "background-section" : "section"}
+    >
       <h1 className="title">
         {section.number}. {section.title}
       </h1>
       {section.content(addQuestion)}
-      <hr className="subsection-divider"/>
-
+      {section.id !== BACKGROUND && <hr className="subsection-divider" />}
       <SectionBottomNavigation
         sections={sections}
         currentSectionId={sectionId}

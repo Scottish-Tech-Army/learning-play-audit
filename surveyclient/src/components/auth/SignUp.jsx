@@ -51,10 +51,10 @@ export default function SignUp() {
   }
 
   return (
-    <form onSubmit={signUp}>
-      <h3>Create a new account</h3>
+    <>
+      <h2>Register</h2>
 
-      <label htmlFor={EMAIL_ID}>Email Address *</label>
+      <label htmlFor={EMAIL_ID}>Email Address*</label>
       <input
         id={EMAIL_ID}
         type="email"
@@ -62,21 +62,26 @@ export default function SignUp() {
         placeholder="Email"
       />
 
-      <label htmlFor={PASSWORD_ID}>Password *</label>
+      <label htmlFor={PASSWORD_ID}>Password*</label>
       <input
         id={PASSWORD_ID}
         type="password"
         onInput={(event) => setPassword(event.target.value)}
         placeholder="Password"
       />
-      <span>
-        Have an account?{" "}
-        <button onClick={() => dispatch(setAuthState(SIGN_IN))}>Sign in</button>
-      </span>
 
-      <button type="submit">
-        {loading ? <amplify-loading-spinner /> : <span>Create Account</span>}
+      <button onClick={signUp} disabled={loading}>
+        {loading ? <amplify-loading-spinner /> : <span>REGISTER</span>}
       </button>
-    </form>
+      <div className="question">
+        Already have an account?{" "}
+        <button
+          className="inline-action"
+          onClick={() => dispatch(setAuthState(SIGN_IN))}
+        >
+          Sign In
+        </button>
+      </div>
+    </>
   );
 }

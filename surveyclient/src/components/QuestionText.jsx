@@ -2,13 +2,12 @@ import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
-import TextField from "@material-ui/core/TextField";
 
 function QuestionText({
   sectionId,
   question,
   questionNumber,
-  inlineLabel = false,
+  textField = false,
 }) {
   const questionId = question.id;
   const id = sectionId + "-" + questionId;
@@ -29,17 +28,16 @@ function QuestionText({
     });
   };
 
-  if (inlineLabel) {
+  if (textField) {
     return (
       <div id={id} className="question">
-        <TextField
-          multiline
-          fullWidth
-          rowsMax={4}
-          label={question.text}
-          value={questionAnswers.answer}
+        <label for={id + "-text"}>{question.text}</label>
+        <input
+          id={id + "-text"}
+          type="text"
+          name={id + "-text"}
           onChange={handleChange}
-          variant="outlined"
+          value={questionAnswers.answer}
         />
       </div>
     );
@@ -48,17 +46,10 @@ function QuestionText({
   return (
     <div id={id} className="question">
       <div className="question-line">
-        <div className="questionNumber">{questionNumber}</div>
-        <p className="questionText">{question.text}</p>
+        <div className="question-number">{questionNumber}</div>
+        <div className="question-text">{question.text}</div>
       </div>
-      <TextField
-        multiline
-        fullWidth
-        rowsMax={4}
-        value={questionAnswers.answer}
-        onChange={handleChange}
-        variant="outlined"
-      />
+      <textarea onChange={handleChange}>{questionAnswers.answer}</textarea>
     </div>
   );
 }

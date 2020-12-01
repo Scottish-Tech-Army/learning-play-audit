@@ -65,8 +65,8 @@ export default function ConfirmSignUp() {
   }
 
   return (
-    <form onSubmit={confirmSignUp}>
-      <h3>Confirm Sign up</h3>
+    <>
+      <h2>Confirm Sign up</h2>
 
       <label htmlFor={EMAIL_ID}>Email Address *</label>
       <input
@@ -86,16 +86,24 @@ export default function ConfirmSignUp() {
         placeholder="Enter your code"
         min="0"
       />
-      <div>
-        Lost your code? <button onClick={resendConfirmCode}>Resend Code</button>
+      <div className="question">
+        Lost your code?{" "}
+        <button className="inline-action" onClick={resendConfirmCode}>
+          Resend Code
+        </button>
       </div>
 
-      <button type="submit">
-        {loading ? <amplify-loading-spinner /> : <span>Confirm</span>}
+      <button onClick={confirmSignUp} disabled={loading}>
+        {loading ? <amplify-loading-spinner /> : <span>CONFIRM</span>}
       </button>
-      <button onClick={() => dispatch(setAuthState(SIGN_IN))}>
-        Back to Sign In
-      </button>
-    </form>
+      <div className="question">
+        <button
+          className="inline-action"
+          onClick={() => dispatch(setAuthState(SIGN_IN))}
+        >
+          Back to Sign In
+        </button>
+      </div>
+    </>
   );
 }

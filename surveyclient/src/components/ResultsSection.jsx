@@ -218,15 +218,15 @@ function ResultsSection({ sections, setCurrentSection }) {
   return (
     <div className="section">
       <h2>How good is our outdoor space?</h2>
-      <div className="resultsChart">
+      <div className="results-chart">
         <canvas ref={chartContainer1} />
       </div>
       <h2>How good is our local greenspace?</h2>
-      <div className="resultsChart">
+      <div className="results-chart">
         <canvas ref={chartContainer2} />
       </div>
       <h2>How good is our outdoor practice?</h2>
-      <div className="resultsChart">
+      <div className="results-chart">
         <canvas ref={chartContainer3} />
       </div>
       <SectionBottomNavigation

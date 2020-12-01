@@ -2,7 +2,6 @@ import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
-import TextField from "@material-ui/core/TextField";
 
 function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   const questionId = question.id;
@@ -26,34 +25,36 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
 
   function yearAnswerRow(answerKey, yearKey) {
     return (
-      <div className="answerRow">
-        <TextField
-          className="text-improvement"
-          multiline
-          fullWidth
-          rowsMax={4}
-          label="Improvement"
-          value={questionAnswers[answerKey]}
-          onChange={(event) => handleChange(event, answerKey)}
-          variant="outlined"
-        />
-        <TextField
-          className="text-year"
-          fullWidth
-          label="Year"
-          value={questionAnswers[yearKey]}
-          onChange={(event) => handleChange(event, yearKey)}
-          variant="outlined"
-        />
+      <div className="dated-improvement-answer">
+        <div className="improvement">
+          <label for={answerKey + "-text"}>Improvement</label>
+          <input
+            id={answerKey + "-text"}
+            type="text"
+            name={answerKey + "-text"}
+            onChange={(event) => handleChange(event, answerKey)}
+            value={questionAnswers[answerKey]}
+          />
+        </div>
+        <div className="year">
+          <label for={yearKey + "-text"}>Year</label>
+          <input
+            id={yearKey + "-text"}
+            type="text"
+            name={yearKey + "-text"}
+            onChange={(event) => handleChange(event, yearKey)}
+            value={questionAnswers[yearKey]}
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <div id={id} className="question">
-    <div className="question-line">
-        <div className="questionNumber">{questionNumber}</div>
-        <p className="questionText">{question.text}</p>
+      <div className="question-line">
+        <div className="question-number">{questionNumber}</div>
+        <div className="question-text">{question.text}</div>
       </div>
       {yearAnswerRow("answer1", "year1")}
       {yearAnswerRow("answer2", "year2")}

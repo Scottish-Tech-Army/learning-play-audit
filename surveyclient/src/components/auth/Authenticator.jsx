@@ -21,6 +21,10 @@ import { setAuthState } from "./utils";
 
 const logger = new Logger("Authenticator");
 
+export function isAuthenticating(state) {
+  return state !== SIGNED_IN && state !== SIGNED_OUT;
+}
+
 export default function Authenticator() {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.authentication.state);
@@ -63,8 +67,10 @@ export default function Authenticator() {
   return (
     <>
       <AuthErrorAlert />
-      {authState === SIGNED_IN || authState === SIGNED_OUT ? null : (
-        <div className="authenticator">{renderAuthComponent()}</div>
+      {isAuthenticating(authState) && (
+        <div className="authenticator-wrapper">
+          <div className="authenticator">{renderAuthComponent()}</div>
+        </div>
       )}
     </>
   );

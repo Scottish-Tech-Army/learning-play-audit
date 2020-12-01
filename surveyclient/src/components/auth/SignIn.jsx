@@ -11,7 +11,7 @@ export default function SignIn() {
   const authError = useSelector((state) => state.authentication.errorMessage);
 
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
@@ -32,10 +32,10 @@ export default function SignIn() {
   }
 
   return (
-    <form onSubmit={signIn}>
-      <h3>Sign in to your account</h3>
+    <>
+      <h2>Login</h2>
 
-      <label htmlFor={EMAIL_ID}>Email Address *</label>
+      <label htmlFor={EMAIL_ID}>Email address</label>
       <input
         id={EMAIL_ID}
         type="email"
@@ -43,29 +43,34 @@ export default function SignIn() {
         placeholder={"Enter your email address"}
       />
 
-      <label htmlFor={PASSWORD_ID}>Password *</label>
+      <label htmlFor={PASSWORD_ID}>Password</label>
       <input
         id={PASSWORD_ID}
         type="password"
         onInput={(event) => setPassword(event.target.value)}
         placeholder={"Enter your password"}
       />
-      <div>
+      <div className="question">
         Forgot your password?{" "}
-        <button onClick={() => dispatch(setAuthState(FORGOT_PASSWORD))}>
+        <button
+          className="inline-action"
+          onClick={() => dispatch(setAuthState(FORGOT_PASSWORD))}
+        >
           Reset password
         </button>
       </div>
-      <span>
-        No account?{" "}
-        <button onClick={() => dispatch(setAuthState(SIGN_UP))}>
-          Create account
-        </button>
-      </span>
-
-      <button type="submit" disabled={loading}>
-        {loading ? <amplify-loading-spinner /> : <span>Sign In</span>}
+      <button onClick={signIn} disabled={loading || email.length === 0 || password.length === 0 }>
+        {loading ? <amplify-loading-spinner /> : <span>LOGIN</span>}
       </button>
-    </form>
+      <div className="question">
+        Don't have an account?{" "}
+        <button
+          className="inline-action"
+          onClick={() => dispatch(setAuthState(SIGN_UP))}
+        >
+          Register
+        </button>
+      </div>
+    </>
   );
 }

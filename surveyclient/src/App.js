@@ -9,8 +9,9 @@ import Section from "./components/Section";
 import DownloadButton from "./components/DownloadButton";
 import AuthSignInOut from "./components/auth/AuthSignInOut";
 import AuthCurrentUser from "./components/auth/AuthCurrentUser";
+import GetStartedScreen from "./components/GetStartedScreen";
 import IconButton from "@material-ui/core/IconButton";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { refreshState } from "./model/SurveyModel";
 import MenuIcon from "@material-ui/icons/Menu";
 import {
@@ -21,7 +22,9 @@ import {
 } from "./components/FixedSectionTypes";
 import Amplify from "aws-amplify";
 import awsconfig from "./aws-exports";
-import Authenticator from "./components/auth/Authenticator";
+import Authenticator, {
+  isAuthenticating,
+} from "./components/auth/Authenticator";
 import "./App.css";
 
 Amplify.configure(awsconfig);
@@ -30,6 +33,8 @@ window.LOG_LEVEL = "DEBUG";
 
 function App() {
   const dispatch = useDispatch();
+  const authState = useSelector((state) => state.authentication.state);
+  const newUser = useSelector((state) => state.newUser);
 
   const [currentSection, _setCurrentSection] = useState("introduction");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -99,38 +104,55 @@ function App() {
     );
   }
 
+  function preSurvey() {
+    return newUser || isAuthenticating(authState);
+  }
+
   return (
     <div className="root">
-      <div className="app-bar">
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          edge="start"
-          onClick={handleDrawerToggle}
-          className="menu-button"
-        >
-          <MenuIcon />
-        </IconButton>
-        <img className="titleLogo" src="./assets/LTL_logo_white.png" alt="" />
-        <h1 className="title">
-          Learning Through Landscapes
-          <br />
-          Learning and Play Audit Survey
-        </h1>
-        <AuthSignInOut />
-        <AuthCurrentUser />
-        <DownloadButton />
-      </div>
-      <main className="content">
-        <NavDrawer
-          mobileOpen={mobileOpen}
-          handleDrawerToggle={handleDrawerToggle}
-          currentSection={currentSection}
-          setCurrentSection={setCurrentSection}
-        />
-        <div className="section-container">{getCurrentSection()}</div>
-      </main>
-      <Authenticator />
+      <>
+        <div className={"app-bar" + (preSurvey() ? " authenticating" : "")}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            className="menu-button"
+          >
+            <MenuIcon />
+          </IconButton>
+          <img
+            className="title-logo"
+            src="./assets/LTL_logo_white.png"
+            alt=""
+          />
+          <h1 className="title">
+            {preSurvey() && "Welcome to the"} Learning Through Landscapes
+            <br />
+            Learning and Play Audit Survey
+          </h1>
+          {!preSurvey() && (
+            <>
+              <AuthSignInOut />
+              <AuthCurrentUser />
+              <DownloadButton />
+            </>
+          )}
+        </div>
+        {!isAuthenticating(authState) && newUser && <GetStartedScreen />}
+        {!isAuthenticating(authState) && !newUser && (
+          <main className="content">
+            <NavDrawer
+              mobileOpen={mobileOpen}
+              handleDrawerToggle={handleDrawerToggle}
+              currentSection={currentSection}
+              setCurrentSection={setCurrentSection}
+            />
+            <div className="section-container">{getCurrentSection()}</div>
+          </main>
+        )}
+        <Authenticator />
+      </>
     </div>
   );
 }
