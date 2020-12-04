@@ -2,10 +2,8 @@ import React from "react";
 import "../App.css";
 import { DELETE_PHOTO, UPDATE_PHOTO_DESCRIPTION } from "../model/ActionTypes";
 import { useDispatch, useSelector } from "react-redux";
-import TextField from "@material-ui/core/TextField";
 import RemoveCircleOutlineOutlinedIcon from "@material-ui/icons/RemoveCircleOutlineOutlined";
 import IconButton from "@material-ui/core/IconButton";
-
 
 function GalleryPhoto({ photoId }) {
   const dispatch = useDispatch();
@@ -47,18 +45,7 @@ function GalleryPhoto({ photoId }) {
         src={"data:image/jpeg;base64," + imageData}
         alt={"survey view"}
       />
-      <TextField
-        id="outlined-multiline-flexible"
-        label="Description"
-        multiline
-        className="photo-description"
-        rowsMax={4}
-        value={description}
-        onChange={(e) => {
-          handleDescriptionChange(photoId, e);
-        }}
-        variant="outlined"
-      />
+      <textarea onChange={(e) => handleDescriptionChange(photoId, e)}>{description}</textarea>
     </div>
   );
 }

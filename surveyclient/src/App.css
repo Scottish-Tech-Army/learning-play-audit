@@ -6,12 +6,19 @@ body {
   background-attachment: fixed;
 }
 
+.root,
+.add-note-dialog,
+.nav-menu-popup,
+textarea {
+  font-family: Ubuntu;
+  font-size: 18px;
+  color: #404040;
+}
+
 .root {
   width: 100%;
   height: 100%;
   display: flex;
-  font-family: Ubuntu;
-  color: #404040;
 }
 
 .app-bar {
@@ -41,14 +48,29 @@ body {
   box-shadow: none;
 }
 
-.app-bar .menu-button {
+.app-bar .menu-button,
+.nav-menu-popup .menu-button {
   margin-right: 20px;
-  /* [theme.breakpoints.up(md)] { */
-  display: none;
-  /* } */
+  position: fixed;
+  left: 20px;
+  top: 18px;
 }
 
-.app-bar .title-logo {
+.app-bar .menu-button .burger-menu {
+  fill: white;
+}
+
+.nav-menu-popup .menu-button .burger-menu {
+  fill: #f6a85c;
+}
+
+.app-bar .title-logo-small {
+  position: fixed;
+  left: 22px;
+  top: 78px;
+}
+
+.app-bar .title-logo-large {
   height: 143px;
   position: fixed;
   left: 20px;
@@ -71,7 +93,6 @@ body {
   height: 40px;
   background-color: #2d6a89;
   color: white;
-  font-family: Ubuntu-Regular, Ubuntu;
   font-size: 12px;
   font-weight: normal;
   box-shadow: 1px 1px 4px black;
@@ -107,12 +128,9 @@ body {
   bottom: 0;
   z-index: 1200;
   position: fixed;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   left: 0;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
   width: 380px;
-  margin-top: 180px;
 }
 
 .nav-menu-fixed {
@@ -122,13 +140,19 @@ body {
 
 .nav-menu-popup {
   box-shadow: 0px 8px 10px;
-  flex: 1 0 auto;
   outline: 0;
   transition: transform 300ms;
   transform: none;
+  padding-top: 60px;
 }
 .nav-menu-popup.hidden {
   transform: translateX(-380px);
+}
+
+.nav-menu {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100%;
 }
 
 .nav-menu-item {
@@ -173,24 +197,15 @@ body {
   font-size: 14px;
 }
 
-.heading {
-  font-size: 15px;
-  flex-basis: 33.33%;
-  flex-shrink: 0;
-}
 .drawer {
-  /* [theme.breakpoints.up(md)] { */
   width: 380px;
   flex-shrink: 0;
-  /* } */
 }
 
 .content {
   width: 100%;
-  /* [theme.breakpoints.up(md)] { */
   margin-left: 380px;
   margin-top: 180px;
-  /* } */
 }
 
 .section-container {
@@ -209,20 +224,24 @@ body {
   align-items: stretch;
 }
 
-/* // INTRODUCTION */
-
-.introduction .icons-row {
+.introduction .icons-group {
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-left: 100px;
   margin-right: 100px;
   margin-top: 20px;
-  font-size: 18px;
+}
+.introduction .icons-group .icon-description {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.introduction .icons-group .icon-description:not(:first-child) {
+  margin-left: 50px;
 }
 
-.introduction .icons-row .add-photo-icon {
-  margin-left: 50px;
+.introduction .icons-group .icon-description svg {
   flex-grow: 0;
   flex-shrink: 0;
 }
@@ -233,8 +252,6 @@ body {
 .submit-section,
 .background-section {
   background-color: white;
-  font-family: Ubuntu;
-  font-size: 1em;
   box-shadow: 5px 5px 5px #00000080;
   margin: 40px;
 }
@@ -244,7 +261,6 @@ body {
 }
 
 .subsection p {
-  font-size: 18px;
   text-align: justify;
 }
 
@@ -271,12 +287,6 @@ body {
   padding-top: 1em;
   padding-bottom: 1em;
 }
-.action-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
-}
 .commentbox-hidden {
   display: none;
 }
@@ -287,15 +297,33 @@ body {
   flex-shrink: 0;
 }
 
+.action-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.action-row .action-button-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
 .toggle-button-group {
   box-shadow: 0px 2px 4px #00000080;
   flex-grow: 0;
   flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
 }
 .toggle-button-group button {
   background-color: #fafafa;
   border: 1px solid #cec6c6;
-  color: #404040;
   cursor: pointer;
   float: left;
   text-transform: uppercase;
@@ -315,12 +343,6 @@ body {
   border-right: none; /* Prevent double borders */
 }
 
-.toggle-button-group:after {
-  content: "";
-  clear: both;
-  display: table;
-}
-
 .toggle-button-group.userrole button {
   width: 100px;
   height: 37px;
@@ -329,7 +351,8 @@ body {
 .add-note-button,
 .add-photo-button,
 .previous-section-button,
-.next-section-button {
+.next-section-button,
+.menu-button {
   border: none;
   background: none;
   padding: 0;
@@ -441,33 +464,12 @@ body {
   width: 200px;
 }
 
-/* // Select with comment */
-.action-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: nowrap;
-  align-items: center;
-}
 .commentbox-hidden {
   display: none;
 }
 .commentbox {
   padding-top: 1em;
 }
-/* label {
-  color: rgba(0; 0; 0; 0.87);
-} */
-
-/* question user select */
-/* .question {
-  width: 100%;
-  padding-top: 1em;
-  padding-bottom: 1em;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-} */
 
 .background-section .question {
   padding-bottom: 0;
@@ -487,17 +489,19 @@ body {
 }
 
 .add-note-dialog textarea,
-.question textarea {
+.question textarea,
+.photo-section textarea {
   resize: none;
   border: solid 1px black;
   padding: 5px 10px;
-  font-family: Ubuntu;
   margin-left: 50px;
 }
 
 .add-note-dialog textarea,
 .question textarea:hover,
 .question textarea:focus,
+.photo-section textarea:hover,
+.photo-section textarea:focus,
 .question input[type="text"]:hover,
 .question input[type="text"]:focus,
 .question-user-select input[type="text"]:hover,
@@ -521,14 +525,11 @@ body {
   font-size: 46px;
   font-weight: normal;
   margin-top: 0;
-  color: #404040;
 }
 
 .add-note-dialog .question-line {
   padding: 0;
   margin-bottom: 20px;
-  font-size: 18px;
-  color: #404040;
 }
 
 .add-note-dialog .question-text {
@@ -539,7 +540,6 @@ body {
 .add-note-dialog textarea {
   align-self: stretch;
   margin: 0;
-  font-size: 18px;
 }
 
 .add-note-dialog button,
@@ -554,7 +554,6 @@ body {
   font-weight: bold;
   font-size: 12px;
   box-shadow: 0px 2px 4px #00000080;
-  color: #404040;
 }
 
 .add-note-dialog button:active,
@@ -581,11 +580,18 @@ body {
 
 .question .dated-improvement-answer .year {
   margin-left: 5px;
-  width: 200px;
 }
 .question .dated-improvement-answer label {
   padding-top: 5px;
   padding-bottom: 5px;
+}
+.question .dated-improvement-answer .improvement input {
+  width: 100%;
+  height: 51px;
+  box-sizing: border-box;
+}
+.question .dated-improvement-answer .year input {
+  width: 5rem;
 }
 
 .background-section .question-user-select {
@@ -604,11 +610,11 @@ body {
 .background-section .question-user-select .selection-column {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .background-section .question-user-select .toggle-button-group {
   margin-left: 10px;
-  box-shadow: none;
 }
 
 .background-section .question-user-select .title-label {
@@ -666,7 +672,6 @@ body {
   height: 40px;
   background-color: #2d6a89;
   color: white;
-  font-family: Ubuntu-Regular, Ubuntu;
   font-size: 12px;
   font-weight: normal;
   box-shadow: 1px 1px 4px black;
@@ -680,7 +685,6 @@ body {
 }
 
 .authenticator button.inline-action {
-  font-family: Ubuntu-Regular, Ubuntu;
   color: #2d6a89;
   background-color: inherit;
   box-shadow: none;
@@ -717,4 +721,193 @@ body {
   align-self: flex-start;
   margin-left: 20px;
   margin-right: 20px;
+}
+
+.app-bar .menu-button {
+  display: none;
+}
+.nav-menu-popup-modal {
+  display: none;
+}
+.app-bar .title-logo-small {
+  display: none;
+}
+
+@media screen and (max-width: 1320px) {
+  .app-bar .menu-button {
+    display: block;
+  }
+  .app-bar .title-logo-small {
+    display: block;
+  }
+  .app-bar .title-logo-large {
+    display: none;
+  }
+  .nav-menu-popup-modal {
+    display: block;
+  }
+  .nav-menu-fixed {
+    display: none;
+  }
+  .content {
+    margin-left: 0px;
+  }
+}
+
+@media screen and (max-width: 915px) {
+  .root,
+  .add-note-dialog,
+  .nav-menu-popup,
+  textarea {
+    font-size: 14px;
+  }
+
+  .toggle-button-group {
+    flex-direction: column;
+  }
+  .action-row .action-button-group {
+    flex-direction: column;
+  }
+
+  .toggle-button-group button:not(:last-child) {
+    border-bottom: none;
+    border-right: 1px solid #cec6c6;
+  }
+
+  .add-note-button {
+    padding-left: 0;
+  }
+  .action-row .action-button-group {
+    padding-left: 30px;
+  }
+
+  .content {
+    margin-top: 160px;
+  }
+
+  .authenticator-wrapper,
+  .get-started-wrapper {
+    top: 160px;
+  }
+  .action-row .action-button-group {
+    padding-left: 30px;
+  }
+
+  .app-bar {
+    background-position: left;
+    height: 160px;
+  }
+
+  .app-bar .title {
+    font-size: 18px;
+    margin-top: 80px;
+    margin-left: 30px;
+  }
+
+  .app-bar .title-logo-small {
+    left: 10px;
+    top: 77px;
+  }
+
+  .app-bar .menu-button,
+  .nav-menu-popup .menu-button {
+    position: absolute;
+    top: 20px;
+  }
+
+  .app-bar .auth-current-user {
+    right: 20px;
+    top: 20px;
+  }
+
+  .app-bar .auth-signin-signout {
+    right: 20px;
+    top: 40px;
+    width: 75px;
+    height: 30px;
+  }
+  .app-bar.authenticating .title {
+    margin-top: 20px;
+  }
+
+  .app-bar.authenticating .title .ltl-title {
+    color: #afcd4b;
+  }
+
+  .app-bar.authenticating .title-logo-small {
+    top: 10px;
+  }
+
+  .background-section .question-user-select {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .background-section .question-user-select .selection-column {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .background-section .question-user-select .toggle-button-group {
+    margin-left: 0;
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+
+  .background-section .question-user-select .details-column {
+    margin-left: 0;
+    align-self: stretch;
+  }
+
+  .background-section .question {
+    padding-top: 10px;
+  }
+
+  .toggle-button-group.userrole button {
+    width: 150px;
+  }
+
+  .introduction .icons-group {
+    margin-left: 0;
+    margin-right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .introduction .icons-group .icon-description:not(:first-child) {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  .introduction .icons-group .icon-description svg {
+    margin-right: 5px;
+    margin-left: 6px;
+  }
+
+  .add-note-dialog textarea,
+  .question textarea,
+  .photo-section textarea {
+    margin-left: 0;
+  }
+
+  .section,
+  .gallery-section,
+  .submit-section,
+  .background-section {
+    padding: 30px 10px;
+  }
+
+  .question-text {
+    margin-left: 20px;
+    margin-right: 0;
+  }
+
+  .question .dated-improvement-answer {
+    padding-left: 0;
+  }
+
+  .authenticator h2,
+  .get-started h2 {
+    font-size: 24px;
+  }
 }

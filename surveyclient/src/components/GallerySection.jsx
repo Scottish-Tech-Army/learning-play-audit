@@ -3,10 +3,9 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { loadPhoto } from "../model/SurveyModel";
 import GalleryPhoto from "./GalleryPhoto";
-import AddPhotoAlternateOutlinedIcon from "@material-ui/icons/AddPhotoAlternateOutlined";
-import IconButton from "@material-ui/core/IconButton";
 import { GALLERY } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
+import { addPhotoSvg } from "./SvgUtils";
 
 function GallerySection({ sections, setCurrentSection }) {
   const dispatch = useDispatch();
@@ -28,9 +27,7 @@ function GallerySection({ sections, setCurrentSection }) {
           onChange={addPhoto}
         />
         <label htmlFor="icon-button-add-photo">
-          <IconButton color="primary" aria-label="Add Photo" component="span">
-            <AddPhotoAlternateOutlinedIcon fontSize="large" />
-          </IconButton>
+          {addPhotoSvg()}
         </label>
       </div>
 

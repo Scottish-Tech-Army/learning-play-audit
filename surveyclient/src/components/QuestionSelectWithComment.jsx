@@ -3,42 +3,7 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
 import Modal from "@material-ui/core/Modal";
-
-export function addPhotoSvg(count = 0) {
-  return (
-    <svg
-      className="add-photo-icon"
-      width="42px"
-      height="45px"
-      viewBox="0 0 42 45"
-    >
-      <title>add photo</title>
-      <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-        <g transform="translate(0, 10)" fill="#000000">
-          <path
-            d="M30,3.91 L25,3.91 L25,2 C25,0.8954305 24.1045695,0 23,0 L9,0 C7.8954305,0 7,0.8954305 7,2 L7,3.91 L2,3.91 C0.8954305,3.91 0,4.8054305 0,5.91 L0,22.91 C0,24.0145695 0.8954305,24.91 2,24.91 L30,24.91 C31.1045695,24.91 32,24.0145695 32,22.91 L32,5.91 C32,4.8054305 31.1045695,3.91 30,3.91 Z M16,21.91 C11.8578644,21.91 8.5,18.5521356 8.5,14.41 C8.5,10.2678644 11.8578644,6.91 16,6.91 C20.1421356,6.91 23.5,10.2678644 23.5,14.41 C23.5,16.3991237 22.7098237,18.306778 21.3033009,19.7133009 C19.896778,21.1198237 17.9891237,21.91 16,21.91 L16,21.91 Z"
-            id="Shape"
-          ></path>
-          <circle cx="16" cy="14.41" r="5"></circle>
-        </g>
-        {count > 0 && (
-          <g transform="translate(32, 10)">
-            <circle r="10" fill="#39B54A"></circle>
-            <text
-              dominantBaseline="middle"
-              textAnchor="middle"
-              stroke="#fff"
-              fill="#fff"
-              fontSize="12"
-            >
-              {count}
-            </text>
-          </g>
-        )}
-      </g>
-    </svg>
-  );
-}
+import { addPhotoSvg } from "./SvgUtils";
 
 function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
   const questionId = question.id;
@@ -144,8 +109,10 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
           {toggleButton("c", "tend to disagree")}
           {toggleButton("d", "strongly disagree")}
         </div>
-        {addNoteButton()}
-        {addPhotoButton(4)}
+        <div className="action-button-group">
+          {addNoteButton()}
+          {addPhotoButton(4)}
+        </div>
       </div>
 
       <Modal
@@ -155,35 +122,34 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
         keepMounted={true}
         open={showComment}
         onClose={() => setShowComment(false)}
-        style={{display:'flex',alignItems:'center',justifyContent:'center'}}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
-
-
-      <div
-        className="add-note-dialog"
-        aria-labelledby="form-dialog-title"
-      >
-        <h2 className="title">Add Note</h2>
-        <div className="question-line">
-          <div className="question-number">{questionNumber}</div>
-          <div className="question-text">{question.text}</div>
-        </div>
-        <textarea
-          onChange={(event) =>
-            event.target.value !== localComment &&
-            setLocalComment(event.target.value)
-          }
-          placeholder="Add text here…"
-        >
-          {localComment}
-        </textarea>
-        <button
-          className="save-note-button"
-          onClick={() => handleCommentChange()}
-          aria-label="Add To Survey"
-        >
-          Add To Survey
-        </button>
+        <div className="add-note-dialog" aria-labelledby="form-dialog-title">
+          <h2 className="title">Add Note</h2>
+          <div className="question-line">
+            <div className="question-number">{questionNumber}</div>
+            <div className="question-text">{question.text}</div>
+          </div>
+          <textarea
+            onChange={(event) =>
+              event.target.value !== localComment &&
+              setLocalComment(event.target.value)
+            }
+            placeholder="Add text here…"
+          >
+            {localComment}
+          </textarea>
+          <button
+            className="save-note-button"
+            onClick={() => handleCommentChange()}
+            aria-label="Add To Survey"
+          >
+            Add To Survey
+          </button>
         </div>
       </Modal>
     </div>

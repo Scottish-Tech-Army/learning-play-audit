@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { sectionsContent } from "../model/Content";
 import NavDrawerSectionItem from "./NavDrawerSectionItem";
-import Hidden from "@material-ui/core/Hidden";
 import Modal from "@material-ui/core/Modal";
 import { INTRODUCTION, RESULTS, GALLERY, SUBMIT } from "./FixedSectionTypes";
+import { menuButtonSvg } from "./SvgUtils";
 
 export default function NavDrawer({
   mobileOpen,
@@ -62,23 +62,27 @@ export default function NavDrawer({
 
   return (
     <nav className="drawer" aria-label="survey sections">
-      <Hidden mdUp>
-        <Modal
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          container={
-            window !== undefined ? () => window.document.body : undefined
-          }
-          keepMounted={true}
-        >
-          <div className={"nav-menu-popup" + (mobileOpen ? "" : " hidden")}>
-            {drawer}
-          </div>
-        </Modal>
-      </Hidden>
-      <Hidden smDown implementation="css">
-        <div className="nav-menu-fixed">{drawer}</div>
-      </Hidden>
+      <Modal
+        className="nav-menu-popup-modal"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        container={
+          window !== undefined ? () => window.document.body : undefined
+        }
+        keepMounted={true}
+      >
+        <div className={"nav-menu-popup" + (mobileOpen ? "" : " hidden")}>
+          <button
+            aria-label="close drawer"
+            onClick={handleDrawerToggle}
+            className="menu-button"
+          >
+            {menuButtonSvg()}
+          </button>
+          {drawer}
+        </div>
+      </Modal>
+      <div className="nav-menu-fixed">{drawer}</div>
     </nav>
   );
 }

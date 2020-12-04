@@ -1,6 +1,6 @@
 import React from "react";
 import "../App.css";
-import { addPhotoSvg } from "./QuestionSelectWithComment";
+import { addPhotoSvg } from "./SvgUtils";
 
 function ExampleQuestion() {
   const [answer, setAnswer] = React.useState(null);
@@ -75,15 +75,20 @@ function IntroductionSection() {
           which you have to respond to on the following scale:
         </p>
         <ExampleQuestion />
-        <div className="icons-row">
-          <img
-            className="add-note-icon"
-            src={"/assets/add_note.svg"}
-            alt="add note"
-          />
-          Use the note icon to add any notes or comments that you want to make.
-          {addPhotoSvg()}
-          Use the camera icon to attach any photos you would like to add.
+        <div className="icons-group">
+          <div className="icon-description">
+            <img
+              className="add-note-icon"
+              src={"/assets/add_note.svg"}
+              alt="add note"
+            />
+            Use the note icon to add any notes or comments that you want to
+            make.
+          </div>
+          <div className="icon-description">
+            {addPhotoSvg()}
+            Use the camera icon to attach any photos you would like to add.
+          </div>
         </div>
       </div>
     </div>

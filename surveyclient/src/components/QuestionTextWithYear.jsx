@@ -23,11 +23,11 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
     });
   };
 
-  function yearAnswerRow(answerKey, yearKey) {
+  function yearAnswerRow(answerKey, yearKey, answerLabel) {
     return (
       <div className="dated-improvement-answer">
         <div className="improvement">
-          <label for={answerKey + "-text"}>Improvement</label>
+          <label for={answerKey + "-text"}>{answerLabel}</label>
           <input
             id={answerKey + "-text"}
             type="text"
@@ -56,9 +56,9 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>
       </div>
-      {yearAnswerRow("answer1", "year1")}
-      {yearAnswerRow("answer2", "year2")}
-      {yearAnswerRow("answer3", "year3")}
+      {yearAnswerRow("answer1", "year1", "Improvement 1")}
+      {yearAnswerRow("answer2", "year2", "Improvement 2")}
+      {yearAnswerRow("answer3", "year3", "Improvement 3")}
     </div>
   );
 }

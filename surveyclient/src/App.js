@@ -10,10 +10,8 @@ import DownloadButton from "./components/DownloadButton";
 import AuthSignInOut from "./components/auth/AuthSignInOut";
 import AuthCurrentUser from "./components/auth/AuthCurrentUser";
 import GetStartedScreen from "./components/GetStartedScreen";
-import IconButton from "@material-ui/core/IconButton";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshState } from "./model/SurveyModel";
-import MenuIcon from "@material-ui/icons/Menu";
 import {
   INTRODUCTION,
   RESULTS,
@@ -25,6 +23,7 @@ import awsconfig from "./aws-exports";
 import Authenticator, {
   isAuthenticating,
 } from "./components/auth/Authenticator";
+import { menuButtonSvg } from "./components/SvgUtils";
 import "./App.css";
 
 Amplify.configure(awsconfig);
@@ -40,7 +39,7 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setMobileOpen((mobileOpen) => !mobileOpen);
   };
 
   // Restore locally stored answers if existing
@@ -108,29 +107,53 @@ function App() {
     return newUser || isAuthenticating(authState);
   }
 
+  function getTitle() {
+    if (preSurvey()) {
+      return (
+        <h1 className="title">
+          Welcome to the
+          <br />
+          <span className="ltl-title">Learning Through Landscapes</span>
+          <br />
+          Learning and Play Audit Survey{" "}
+        </h1>
+      );
+    }
+
+    return (
+      <h1 className="title">
+        Learning Through Landscapes
+        <br />
+        Learning and Play Audit Survey{" "}
+      </h1>
+    );
+  }
+
   return (
     <div className="root">
       <>
         <div className={"app-bar" + (preSurvey() ? " authenticating" : "")}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            className="menu-button"
-          >
-            <MenuIcon />
-          </IconButton>
+          {!preSurvey() && (
+            <button
+              aria-label="open drawer"
+              onClick={handleDrawerToggle}
+              className="menu-button"
+            >
+              {menuButtonSvg()}
+            </button>
+          )}
+
           <img
-            className="title-logo"
-            src="./assets/LTL_logo_white.png"
+            className="title-logo-small"
+            src="./assets/LTL_logo_small.png"
             alt=""
           />
-          <h1 className="title">
-            {preSurvey() && "Welcome to the"} Learning Through Landscapes
-            <br />
-            Learning and Play Audit Survey
-          </h1>
+          <img
+            className="title-logo-large"
+            src="./assets/LTL_logo_large.png"
+            alt=""
+          />
+          {getTitle()}
           {!preSurvey() && (
             <>
               <AuthSignInOut />

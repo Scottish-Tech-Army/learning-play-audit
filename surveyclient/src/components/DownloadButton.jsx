@@ -78,7 +78,7 @@ function DownloadButton() {
   }
 
   if (deferredInstallEvent == null || appInstalled) {
-    return <></>;
+    return null;
   }
 
   return (
