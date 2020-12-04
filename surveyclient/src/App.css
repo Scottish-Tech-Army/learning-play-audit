@@ -2,7 +2,7 @@ body {
   background-image: url(/assets/Background_image.png);
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: top;
   background-attachment: fixed;
 }
 
@@ -83,6 +83,18 @@ textarea {
   color: white;
   text-align: center;
   font-weight: normal;
+}
+
+.app-bar .title.small {
+  display: none;
+}
+
+.app-bar.authenticating .title.large {
+    margin-left: 75px;
+}
+
+.app-bar.authenticating .title .ltl-title {
+  color: #afcd4b;
 }
 
 .app-bar .auth-signin-signout {
@@ -630,7 +642,7 @@ textarea {
 
 .authenticator-wrapper,
 .get-started-wrapper {
-  position: absolute;
+  position: fixed;
   top: 180px;
   left: 0;
   right: 0;
@@ -743,6 +755,12 @@ textarea {
   .app-bar .title-logo-large {
     display: none;
   }
+  .app-bar.authenticating .title-logo-small {
+    display: none;
+  }
+  .app-bar.authenticating .title-logo-large {
+    display: block;
+  }
   .nav-menu-popup-modal {
     display: block;
   }
@@ -804,6 +822,13 @@ textarea {
     margin-left: 30px;
   }
 
+  .app-bar .title.large {
+    display: none;
+  }
+  .app-bar .title.small {
+    display: block;
+  }
+
   .app-bar .title-logo-small {
     left: 10px;
     top: 77px;
@@ -828,10 +853,6 @@ textarea {
   }
   .app-bar.authenticating .title {
     margin-top: 20px;
-  }
-
-  .app-bar.authenticating .title .ltl-title {
-    color: #afcd4b;
   }
 
   .app-bar.authenticating .title-logo-small {

@@ -110,13 +110,20 @@ function App() {
   function getTitle() {
     if (preSurvey()) {
       return (
-        <h1 className="title">
-          Welcome to the
-          <br />
-          <span className="ltl-title">Learning Through Landscapes</span>
-          <br />
-          Learning and Play Audit Survey{" "}
-        </h1>
+        <>
+          <h1 className="title large">
+            Welcome to the Learning Through Landscapes
+            <br />
+            Learning and Play Audit Survey
+          </h1>
+          <h1 className="title small">
+            Welcome to the
+            <br />
+            <span className="ltl-title">Learning Through Landscapes</span>
+            <br />
+            Learning and Play Audit Survey
+          </h1>
+        </>
       );
     }
 
