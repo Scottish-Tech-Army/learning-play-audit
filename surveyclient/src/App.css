@@ -90,17 +90,16 @@ textarea {
 }
 
 .app-bar.authenticating .title.large {
-    margin-left: 75px;
+  margin-left: 75px;
 }
 
 .app-bar.authenticating .title .ltl-title {
   color: #afcd4b;
 }
 
-.app-bar .auth-signin-signout {
+.app-bar .auth-signin-signout,
+.app-bar .download-button {
   position: absolute;
-  right: 30px;
-  top: 60px;
   width: 100px;
   height: 40px;
   background-color: #2d6a89;
@@ -110,9 +109,17 @@ textarea {
   box-shadow: 1px 1px 4px black;
   border: none;
 }
-
-.app-bar .auth-signin-signout:active {
+.app-bar .auth-signin-signout:active,
+.app-bar .download-button:active {
   box-shadow: none;
+}
+.app-bar .auth-signin-signout {
+  right: 30px;
+  top: 60px;
+}
+.app-bar .download-button {
+  right: 30px;
+  top: 10px;
 }
 
 .app-bar .auth-current-user {
@@ -429,11 +436,30 @@ textarea {
   border-top: grey 2px solid;
   align-items: flex-start;
 }
+.photo-details {
+  display: flex;
+  flex-direction: column;
+  margin-left: 50px;
+  flex-grow: 1;
+}
+.question-id {
+  font-weight: bold;
+}
 .photo-description {
   margin: 5px;
 }
+
 .delete-button {
   margin: 5px;
+  border: 0;
+  background-color: white;
+}
+
+.photo-section textarea {
+  margin-left: 0;
+  margin-top: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .question {
@@ -506,7 +532,6 @@ textarea {
   resize: none;
   border: solid 1px black;
   padding: 5px 10px;
-  margin-left: 50px;
 }
 
 .add-note-dialog textarea,
@@ -519,6 +544,11 @@ textarea {
 .question-user-select input[type="text"]:hover,
 .question-user-select input[type="text"]:focus {
   box-shadow: 0px 2px 4px #00000080;
+}
+
+.add-note-dialog textarea,
+.question textarea {
+  margin-left: 50px;
 }
 
 .add-note-dialog {

@@ -31,7 +31,7 @@ function QuestionText({
   if (textField) {
     return (
       <div id={id} className="question">
-        <label for={id + "-text"}>{question.text}</label>
+        <label htmlFor={id + "-text"}>{question.text}</label>
         <input
           id={id + "-text"}
           type="text"
@@ -49,7 +49,7 @@ function QuestionText({
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>
       </div>
-      <textarea onChange={handleChange}>{questionAnswers.answer}</textarea>
+      <textarea onChange={handleChange} value={questionAnswers.answer} />
     </div>
   );
 }

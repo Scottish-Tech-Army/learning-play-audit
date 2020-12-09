@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import Button from "@material-ui/core/Button";
 
 function DownloadButton() {
   const [deferredInstallEvent, setDeferredInstallEvent] = useState(null);
@@ -82,17 +81,15 @@ function DownloadButton() {
   }
 
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      disableElevation={true}
-      startIcon={<GetAppIcon />}
-      aria-label="Install Application"
+    <button
       aria-haspopup="true"
+      aria-label="Install Application"
       onClick={handleInstall}
+      className="download-button"
     >
-      Install
-    </Button>
+      <GetAppIcon />
+      INSTALL
+    </button>
   );
 }
 

@@ -20,7 +20,6 @@ function NavDrawerSectionItem({
   return (
     <div
       onClick={(event) => setCurrentSection(section.id)}
-      key={section.id}
       className={
         "nav-menu-item" + (currentSection === section.id ? " selected" : "")
       }

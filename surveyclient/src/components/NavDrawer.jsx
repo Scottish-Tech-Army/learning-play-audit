@@ -50,6 +50,7 @@ export default function NavDrawer({
   function createSectionMenuItem(section) {
     return (
       <NavDrawerSectionItem
+        key={section.id}
         section={section}
         currentSection={currentSection}
         setCurrentSection={setCurrentSection}

@@ -20,6 +20,7 @@ import {
   TableCell,
   TableLayoutType,
   WidthType,
+  BorderStyle,
 } from "docx";
 
 export function exportSurveysAsDocx(surveys = []) {
@@ -129,6 +130,13 @@ function renderQuestionText(questionNumber, questionText) {
   });
 }
 
+const GREY_BORDER = {
+  top: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  bottom: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  left: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  right: { color: "bfbfbf", style: BorderStyle.SINGLE },
+};
+
 function questionSelectWithComment(question, questionNumber, responses) {
   function getAnswer(response) {
     switch (response.answer) {
@@ -152,20 +160,24 @@ function questionSelectWithComment(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 1600, 7000],
+      borders: GREY_BORDER,
       rows: responses.map((response, i) => {
         return new TableRow({
           children: [
             new TableCell({
               children: [new Paragraph("" + (i + 1))],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [new Paragraph(getAnswer(response))],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [new Paragraph(response.comments)],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
           ],
         });
@@ -208,22 +220,27 @@ function questionUserSelect(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 1600, 7000],
+      borders: GREY_BORDER,
+
       rows: responses.map((response, i) => {
         return new TableRow({
           children: [
             new TableCell({
               children: [new Paragraph("" + (i + 1))],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [new Paragraph(getAnswer(response))],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [
                 new Paragraph(labelTitle(response) + " - " + response.comments),
               ],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
           ],
         });
@@ -238,18 +255,21 @@ function questionText(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 8600],
+      borders: GREY_BORDER,
       rows: responses.map((response, i) => {
         return new TableRow({
           children: [
             new TableCell({
               children: [new Paragraph("" + (i + 1))],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [
                 new Paragraph(response.answer != null ? response.answer : ""),
               ],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
           ],
         });
@@ -268,14 +288,17 @@ function questionTextWithYear(question, questionNumber, responses) {
         new TableCell({
           children: [new Paragraph("" + index)],
           margins: { bottom: 100, top: 100, left: 100, right: 100 },
+          borders: GREY_BORDER,
         }),
         new TableCell({
           children: [new Paragraph(answer)],
           margins: { bottom: 100, top: 100, left: 100, right: 100 },
+          borders: GREY_BORDER,
         }),
         new TableCell({
           children: [new Paragraph(year)],
           margins: { bottom: 100, top: 100, left: 100, right: 100 },
+          borders: GREY_BORDER,
         }),
       ],
     });
@@ -301,20 +324,24 @@ function questionTextWithYear(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 8000, 600],
+      borders: GREY_BORDER,
       rows: [
         new TableRow({
           children: [
             new TableCell({
               children: [new Paragraph("")],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [new Paragraph("Improvement")],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
             new TableCell({
               children: [new Paragraph("Year")],
               margins: { bottom: 100, top: 100, left: 100, right: 100 },
+              borders: GREY_BORDER,
             }),
           ],
         }),
@@ -326,14 +353,17 @@ function questionTextWithYear(question, questionNumber, responses) {
                   new TableCell({
                     children: [new Paragraph("" + (i + 1))],
                     margins: { bottom: 100, top: 100, left: 100, right: 100 },
+                    borders: GREY_BORDER,
                   }),
                   new TableCell({
                     children: [new Paragraph("")],
                     margins: { bottom: 100, top: 100, left: 100, right: 100 },
+                    borders: GREY_BORDER,
                   }),
                   new TableCell({
                     children: [new Paragraph("")],
                     margins: { bottom: 100, top: 100, left: 100, right: 100 },
+                    borders: GREY_BORDER,
                   }),
                 ],
               });

@@ -33,7 +33,7 @@ function GallerySection({ sections, setCurrentSection }) {
 
       {photoDetails !== undefined &&
         Object.keys(photoDetails).map((photoId) => (
-          <GalleryPhoto photoId={photoId} />
+          <GalleryPhoto key={photoId} photoId={photoId} />
         ))}
       <SectionBottomNavigation
         sections={sections}

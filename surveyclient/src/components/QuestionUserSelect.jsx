@@ -69,7 +69,7 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
         </div>{" "}
       </div>
       <div className="details-column">
-        <label for={id + "-text"}>{labelTitle()}</label>
+        <label htmlFor={id + "-text"}>{labelTitle()}</label>
         <input
           id={id + "-text"}
           type="text"

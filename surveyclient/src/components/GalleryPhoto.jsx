@@ -2,14 +2,14 @@ import React from "react";
 import "../App.css";
 import { DELETE_PHOTO, UPDATE_PHOTO_DESCRIPTION } from "../model/ActionTypes";
 import { useDispatch, useSelector } from "react-redux";
-import RemoveCircleOutlineOutlinedIcon from "@material-ui/icons/RemoveCircleOutlineOutlined";
-import IconButton from "@material-ui/core/IconButton";
+import { deletePhotoSvg } from "./SvgUtils";
 
 function GalleryPhoto({ photoId }) {
   const dispatch = useDispatch();
   const imageData = useSelector((state) =>
     state.photos[photoId] ? state.photos[photoId].imageData : ""
   );
+  const photoDetails = useSelector((state) => state.photoDetails[photoId]);
   const description = useSelector(
     (state) => state.photoDetails[photoId].description
   );
@@ -31,21 +31,28 @@ function GalleryPhoto({ photoId }) {
 
   return (
     <div className="photo-section">
-      <IconButton
-        className="delete-button"
-        color="primary"
-        aria-label="Delete Photo"
-        component="span"
-        onClick={deletePhoto}
-      >
-        <RemoveCircleOutlineOutlinedIcon fontSize="large" />
-      </IconButton>
       <img
         className="photo"
         src={"data:image/jpeg;base64," + imageData}
         alt={"survey view"}
       />
-      <textarea onChange={(e) => handleDescriptionChange(photoId, e)}>{description}</textarea>
+      <div className="photo-details">
+        <div className="question-id">
+          {photoDetails.sectionId} {photoDetails.questionId}
+        </div>
+        <textarea
+          onChange={(e) => handleDescriptionChange(photoId, e)}
+          value={description}
+        />
+      </div>
+      <button
+        aria-haspopup="true"
+        aria-label="Delete Photo"
+        onClick={deletePhoto}
+        className="delete-button"
+      >
+        {deletePhotoSvg()}
+      </button>
     </div>
   );
 }

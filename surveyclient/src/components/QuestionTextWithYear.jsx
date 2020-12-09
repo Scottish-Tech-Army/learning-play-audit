@@ -27,7 +27,7 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
     return (
       <div className="dated-improvement-answer">
         <div className="improvement">
-          <label for={answerKey + "-text"}>{answerLabel}</label>
+          <label htmlFor={answerKey + "-text"}>{answerLabel}</label>
           <input
             id={answerKey + "-text"}
             type="text"
@@ -37,7 +37,7 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
           />
         </div>
         <div className="year">
-          <label for={yearKey + "-text"}>Year</label>
+          <label htmlFor={yearKey + "-text"}>Year</label>
           <input
             id={yearKey + "-text"}
             type="text"

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
 import Modal from "@material-ui/core/Modal";
 import { addPhotoSvg } from "./SvgUtils";
+import { loadPhoto } from "../model/SurveyModel";
 
 function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
   const questionId = question.id;
@@ -49,8 +50,8 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
     setLocalComment(questionAnswers.comments);
     setShowComment(true);
   };
-  const handlePhotoButtonClick = (event) => {
-    // setShowComment((current) => !current || hasComment());
+  const handlePhotoButtonClick = ({ target }) => {
+    dispatch(loadPhoto(target.files[0], sectionId, questionId));
   };
 
   function addNoteButton() {
@@ -74,13 +75,22 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
 
   function addPhotoButton(count) {
     return (
-      <button
-        className="add-photo-button"
-        aria-label="add note"
-        onClick={handlePhotoButtonClick}
-      >
-        {addPhotoSvg(count)}
-      </button>
+      <>
+        <input
+          accept="image/*"
+          style={{ display: "none" }}
+          id="icon-button-add-photo"
+          type="file"
+          onChange={handlePhotoButtonClick}
+        />
+        <label
+          htmlFor="icon-button-add-photo"
+          className="add-photo-button"
+          aria-label="add photo"
+        >
+          {addPhotoSvg(count)}
+        </label>
+      </>
     );
   }
 
@@ -140,9 +150,8 @@ function QuestionSelectWithComment({ sectionId, question, questionNumber }) {
               setLocalComment(event.target.value)
             }
             placeholder="Add text here…"
-          >
-            {localComment}
-          </textarea>
+            value={localComment}
+          />
           <button
             className="save-note-button"
             onClick={() => handleCommentChange()}

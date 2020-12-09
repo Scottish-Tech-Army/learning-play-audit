@@ -8,7 +8,7 @@ export default function CircularProgressWithLabel({ value, tooltip, label }) {
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
   const CIRCLE_INACTIVE_COLOUR = "#807D7D";
-  const CIRCLE_ACTIVE_COLOUR = "#F6A85C";
+  const CIRCLE_ACTIVE_COLOUR = "#afcd4b";
 
   return (
     <div
