@@ -38,12 +38,12 @@ function createEmptyAnswers() {
           (questions[id] =
             type === TEXT_WITH_YEAR
               ? {
-                  answer1: null,
-                  year1: null,
-                  answer2: null,
-                  year2: null,
-                  answer3: null,
-                  year3: null,
+                  answer1: "",
+                  year1: "",
+                  answer2: "",
+                  year2: "",
+                  answer3: "",
+                  year3: "",
                   photocount: 0,
                 }
               : { answer: "", comments: "", photocount: 0 })
@@ -54,14 +54,14 @@ function createEmptyAnswers() {
   );
 }
 
-function listQuestionIds() {
-  sectionsContent.forEach((section, i) => {
-    // Use addQuestion to gather question ids
-    section.content((type, id) =>
-      console.log(section.id + "-" + id + "   " + type)
-    );
-  });
-}
+// function listQuestionIds() {
+//   sectionsContent.forEach((section, i) => {
+//     // Use addQuestion to gather question ids
+//     section.content((type, id) =>
+//       console.log(section.id + "-" + id + "   " + type)
+//     );
+//   });
+// }
 
 function createAnswerCounts() {
   return sectionsContent.reduce((sections, section) => {
@@ -106,26 +106,29 @@ export function surveyReducer(state = initialState(), action) {
       console.log("RESET_STATE");
       newState = initialState();
       writeAnswers(newState);
+      writePhotos(newState);
       return newState;
 
     case REFRESH_STATE:
-      console.log("REFRESH_STATE");
+      console.log("REFRESH_STATE", action.state);
       return action.state;
 
     case ADD_PHOTO:
       console.log("ADD_PHOTO");
       newState = addPhoto(state, action);
+      writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case DELETE_PHOTO:
       console.log("DELETE_PHOTO");
       newState = deletePhoto(state, action);
+      writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case UPDATE_PHOTO_DESCRIPTION:
-      // console.log("UPDATE_PHOTO_DESCRIPTION");
+      // console.log("UPDATE_PHOTO_DESCRIPTION", action);
       newState = updatePhotoDescription(state, action);
       writeAnswers(newState);
       return newState;
@@ -154,7 +157,11 @@ function addPhoto(state, action) {
   const photoId = uuidv4();
   const result = { ...state };
   result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
-  result.photoDetails[photoId] = { description: "" };
+  result.photoDetails[photoId] = {
+    description: "",
+    sectionId: action.sectionId,
+    questionId: action.questionId,
+  };
   result.photos = state.photos ? { ...state.photos } : {};
   result.photos[photoId] = { imageData: action.imageData };
   console.log(state);
@@ -162,7 +169,7 @@ function addPhoto(state, action) {
   return result;
 }
 
-export function loadPhoto(file) {
+export function loadPhoto(file, sectionId = null, questionId = null) {
   console.log("loadPhoto");
   return function (dispatch) {
     if (window.FileReader) {
@@ -171,6 +178,8 @@ export function loadPhoto(file) {
           dispatch({
             type: ADD_PHOTO,
             imageData: btoa(data),
+            sectionId: sectionId,
+            questionId: questionId,
           });
         })
         .catch((err) => {
@@ -223,44 +232,28 @@ function updatePhotoDescription(state, action) {
   return result;
 }
 
-const writePhotos = ({ photos }) => {
-  console.log("writePhotos");
-  console.log({ photos: photos });
-  localforage.setItem("photos", { photos: photos });
-};
-const readPhotos = () => localforage.getItem("photos");
-
 export function refreshState() {
   return function (dispatch, getState) {
-    readAnswers()
-      .then((storedState) => {
-        console.log("readAnswers");
-        console.log(storedState);
+    Promise.all([readAnswers(), readPhotos()])
+      .then(([storedAnswers, storedPhotos]) => {
+        console.log("read local store", storedAnswers, storedPhotos);
         const state = getState();
-        if (storedState !== null) {
+        if (storedAnswers !== null || storedPhotos !== null) {
           dispatch({
             type: REFRESH_STATE,
-            state: { ...state, ...storedState },
+            state: {
+              ...state,
+              ...(storedAnswers !== null ? storedAnswers : {}),
+              ...(storedPhotos !== null ? storedPhotos : {}),
+            },
           });
-        } else {
+        }
+        if (storedAnswers === null) {
           console.log("writeAnswers");
           console.log(state);
           writeAnswers(state);
         }
-      })
-      .catch((err) => console.log(err));
-
-    readPhotos()
-      .then((storedState) => {
-        console.log("readPhotos");
-        console.log(storedState);
-        const state = getState();
-        if (storedState !== null) {
-          dispatch({
-            type: REFRESH_STATE,
-            state: { ...state, ...storedState },
-          });
-        } else {
+        if (storedPhotos === null) {
           console.log("writePhotos");
           console.log(state);
           writePhotos(state);
@@ -278,6 +271,13 @@ const writeAnswers = ({ answers, answerCounts, photoDetails, newUser }) =>
     newUser: newUser,
   });
 const readAnswers = () => localforage.getItem("answers");
+
+const writePhotos = ({ photos }) => {
+  console.log("writeAnswersAndPhotos");
+  console.log({ photos: photos });
+  localforage.setItem("photos", { photos: photos });
+};
+const readPhotos = () => localforage.getItem("photos");
 
 // removeData = key => localforage.removeItem(key)
 // clear = () => localforage.clear()
