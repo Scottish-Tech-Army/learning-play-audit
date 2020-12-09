@@ -8,6 +8,52 @@ import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { SIGNED_IN } from "../model/AuthStates";
 
+function submitSurvey(request) {
+  console.log("POST survey", request);
+  return API.post("ltlClientApi", "/survey", request);
+}
+
+async function uploadPhoto(photoId, uploadUrl, photos) {
+  console.log("uploadPhoto", photoId, uploadUrl);
+
+  const photo = photos[photoId];
+  if (photo === undefined) {
+    return Promise.reject("Photo not found: " + photoId);
+  }
+  const imageData = Buffer.from(photo.imageData, "base64");
+
+  const response = await fetch(uploadUrl, {
+    method: "put",
+    body: imageData,
+    headers: {
+      "Content-Type": "image",
+    },
+  });
+  console.log("uploadPhoto response", response);
+  if (response.ok) {
+    console.log("uploadPhoto succeeded");
+    return Promise.resolve("uploadPhoto succeeded");
+  } else {
+    console.log("uploadPhoto failed");
+    return Promise.reject("uploadPhoto failed");
+  }
+}
+
+function uploadPhotos({ uploadUrls }, photos) {
+  console.log("uploadPhotos", uploadUrls);
+  const photoIds = Object.keys(uploadUrls);
+  console.log("photoIDs", photoIds);
+
+  return Promise.all(
+    photoIds.map((photoId) => uploadPhoto(photoId, uploadUrls[photoId], photos))
+  );
+}
+
+function confirmsurvey(request) {
+  console.log("POST confirmsurvey", request);
+  return API.post("ltlClientApi", "/confirmsurvey", request);
+}
+
 function SubmitSection({ sections, setCurrentSection }) {
   const state = useSelector((state) => state);
   const authState = useSelector((state) => state.authentication.state);
@@ -18,27 +64,45 @@ function SubmitSection({ sections, setCurrentSection }) {
     console.log(JSON.stringify(state.answers));
     console.log(JSON.stringify(state.photoDetails));
 
-    const request = {
+    const authToken = `Bearer ${(await Auth.currentSession())
+      .getIdToken()
+      .getJwtToken()}`;
+
+    const requestTemplate = {
       mode: "cors",
       body: {
         uuid: uuidv4(),
-        survey: state.answers,
-        photos: state.photos,
-        photoDetails: state.photoDetails,
       },
       headers: {
-        Authorization: `Bearer ${(await Auth.currentSession())
-          .getIdToken()
-          .getJwtToken()}`,
+        Authorization: authToken,
       },
     };
 
-    request.body.survey.background.email = { answer: user.attributes.email };
+    const submitRequest = { ...requestTemplate };
+    submitRequest.body = {
+      ...requestTemplate.body,
+      survey: state.answers,
+      // photos: state.photos,
+      photoDetails: state.photoDetails,
+    };
+    submitRequest.body.survey.background.email = {
+      answer: user.attributes.email,
+    };
 
-    API.post("ltlClientApi", "/survey", request)
-      .then((result) => {
-        console.log("Success");
-        console.log(JSON.parse(result.body));
+    const confirmRequest = { ...requestTemplate };
+
+    submitSurvey(submitRequest)
+      .then((response) => {
+        console.log("submitSurvey complete", response);
+        confirmRequest.body.confirmId = response.confirmId;
+        return uploadPhotos(response, state.photos);
+      })
+      .then((response) => {
+        console.log("uploadPhotos complete", response);
+        return confirmsurvey(confirmRequest);
+      })
+      .then((response) => {
+        console.log("confirmsurvey complete", response);
       })
       .catch((err) => {
         console.log("Error");

@@ -1,6 +1,10 @@
 [
-  {
-    "groupName": "ltlsurveyadmins",
-    "precedence": 1
-  }
+    {
+        "groupName": "ltlsurveyadmins",
+        "precedence": 1
+    },
+    {
+        "groupName": "ltlsurveyusers",
+        "precedence": 2
+    }
 ]

@@ -13,6 +13,17 @@
                 ]
             },
             "policyResourceName": "/survey"
+        },
+        {
+            "name": "/confirmsurvey",
+            "lambdaFunction": "confirmSurveyLambda",
+            "privacy": {
+                "userPoolGroups": {
+                    "ltlsurveyusers": [
+                        "/POST"
+                    ]
+                }
+            }
         }
     ],
     "resourceName": "ltlClientApi",
@@ -20,6 +31,9 @@
     "functionArns": [
         {
             "lambdaFunction": "addSurveyLambda"
+        },
+        {
+            "lambdaFunction": "confirmSurveyLambda"
         }
     ],
     "privacy": {
@@ -36,6 +50,30 @@
                 "Name",
                 "Arn"
             ]
+        },
+        {
+            "category": "function",
+            "resourceName": "confirmSurveyLambda",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        },
+        {
+            "category": "auth",
+            "resourceName": "ltlsurvey54099294",
+            "attributes": [
+                "UserPoolId"
+            ]
+        },
+        {
+            "category": "auth",
+            "resourceName": "userPoolGroups",
+            "attributes": [
+                "ltlsurveyusersGroupRole"
+            ]
         }
-    ]
+    ],
+    "uuid": "1509225c",
+    "authResourceName": "ltlsurvey54099294"
 }

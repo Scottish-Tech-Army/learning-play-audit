@@ -20,6 +20,7 @@ type Photo {
 }
 
 type PhotoS3Info {
+    uploadKey: String
     key: String!
     width: Int!
     height: Int!
@@ -42,7 +43,8 @@ input CreatePhotoInput {
 }
 
 input PhotoS3InfoInput {
-	key: String!
+    uploadKey: String
+    key: String!
 	width: Int!
 	height: Int!
 }

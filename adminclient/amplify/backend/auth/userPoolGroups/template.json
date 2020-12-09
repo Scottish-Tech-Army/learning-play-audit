@@ -95,6 +95,60 @@
         },
      
     
+        "ltlsurveyusersGroup": {
+          "Type" : "AWS::Cognito::UserPoolGroup",
+          "Properties" : {
+              "GroupName" : "ltlsurveyusers",
+              "Precedence" : 2,
+              
+              "RoleArn" : {
+                "Fn::GetAtt": [
+                    "ltlsurveyusersGroupRole",
+                    "Arn"
+                ]
+              },
+              
+              "UserPoolId" : {
+                "Ref": "authltlsurvey54099294UserPoolId"
+              } 
+            }
+        },
+        
+        "ltlsurveyusersGroupRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName":{
+                    "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Ref": "authltlsurvey54099294UserPoolId"
+                          },
+                          "-ltlsurveyusersGroupRole"
+                        ]
+                    ]
+                },
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Federated": "cognito-identity.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRoleWithWebIdentity",
+                            "Condition": {
+                              "StringEquals": {"cognito-identity.amazonaws.com:aud": {"Ref":"authltlsurvey54099294IdentityPoolId"}},
+                              "ForAnyValue:StringLike": {"cognito-identity.amazonaws.com:amr": "authenticated"}
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+     
+    
     
         "LambdaExecutionRole": {
             "Type": "AWS::IAM::Role",
@@ -299,6 +353,17 @@
             "Value": {
                 "Fn::GetAtt": [
                     "ltlsurveyadminsGroupRole",
+                    "Arn"
+                ]
+            }
+         
+        },
+        
+      
+        "ltlsurveyusersGroupRole": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "ltlsurveyusersGroupRole",
                     "Arn"
                 ]
             }
