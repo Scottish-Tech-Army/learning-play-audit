@@ -1,0 +1,18 @@
+{
+  "name": "addSurveyLambda",
+  "version": "2.0.0",
+  "description": "CDK AddSurvey Lambda function",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^1.0.0-rc.8",
+    "@aws-sdk/client-s3": "^1.0.0-rc.8",
+    "@aws-sdk/s3-request-presigner": "^1.0.0-rc.8",
+    "@aws-sdk/util-create-request": "^1.0.0-rc.8",
+    "@aws-sdk/util-dynamodb": "^1.0.0-rc.8",
+    "@aws-sdk/util-format-url": "^1.0.0-rc.8",
+    "es6-promise": "^4.2.8",
+    "isomorphic-fetch": "^3.0.0",
+    "uuid": "^8.3.1"
+  }
+}

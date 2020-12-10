@@ -1,0 +1,14 @@
+{
+  "name": "confirmSurveyLambda",
+  "version": "2.0.0",
+  "description": "CDK ConfirmSurvey Lambda function",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^1.0.0-rc.8",
+    "@aws-sdk/client-s3": "^1.0.0-rc.8",
+    "@aws-sdk/util-dynamodb": "^1.0.0-rc.8",
+    "es6-promise": "^4.2.8",
+    "isomorphic-fetch": "^3.0.0"
+  }
+}
