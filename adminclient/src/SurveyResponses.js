@@ -375,12 +375,12 @@ function SurveyResponses({ surveys = [] }) {
 
   if (surveys.length > 0) {
     surveys.forEach((item, i) => {
-      console.log(JSON.parse(item.surveyResponse));
+      console.log(item.surveyResponse);
     });
   }
 
   function renderSurveys() {
-    const responses = surveys.map((item, i) => JSON.parse(item.surveyResponse));
+    const responses = surveys.map((item, i) => item.surveyResponse);
     return sectionsContent.map((section) => {
       return (
         <Section

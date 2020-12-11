@@ -5,6 +5,10 @@ const { NodejsFunction } = require("@aws-cdk/aws-lambda-nodejs");
 const lambda = require("@aws-cdk/aws-lambda");
 const apigateway = require("@aws-cdk/aws-apigateway");
 const cognito = require("@aws-cdk/aws-cognito");
+const iam = require("@aws-cdk/aws-iam");
+const cloudfront = require("@aws-cdk/aws-cloudfront");
+const origins = require("@aws-cdk/aws-cloudfront-origins");
+const s3deploy = require("@aws-cdk/aws-s3-deployment");
 
 class CdkBackendStack extends cdk.Stack {
   /**
@@ -15,6 +19,13 @@ class CdkBackendStack extends cdk.Stack {
    */
   constructor(scope, id, props) {
     super(scope, id, props);
+
+    // Common resources
+    const stack = cdk.Stack.of(this);
+    const region = stack.region;
+
+    //provisionedthroughput - cost of lower
+    //perhaps remove s3 abort
 
     const surveyResourcesBucket = new Bucket(this, "SurveyResources", {});
     surveyResourcesBucket.addCorsRule({
@@ -40,7 +51,13 @@ class CdkBackendStack extends cdk.Stack {
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
     });
 
-    const api = new apigateway.RestApi(this, "SurveyClientApi", {
+    new cdk.CfnOutput(this, "SurveyResponses table", {
+      value: surveyResponsesTable.tableName,
+    });
+
+    // Survey client resources
+
+    const restApi = new apigateway.RestApi(this, "SurveyClientApi", {
       restApiName: "LTL Survey Client Service",
       description: "This service receives LTL Audit Survey reponses.",
       defaultCorsPreflightOptions: {
@@ -76,7 +93,7 @@ class CdkBackendStack extends cdk.Stack {
       this,
       "SurveyClientApiAuth",
       {
-        restApiId: api.restApiId,
+        restApiId: restApi.restApiId,
         type: "COGNITO_USER_POOLS",
         identitySource: "method.request.header.Authorization",
         providerArns: [surveyClientUserPool.userPoolArn],
@@ -89,7 +106,7 @@ class CdkBackendStack extends cdk.Stack {
       entry: "resources/addSurveyLambda/index.js",
       handler: "handler",
       environment: {
-        REGION: "eu-west-2", //TODO get from CDK environment
+        REGION: region,
         SURVEY_DB_TABLE: surveyResponsesTable.tableName,
         SURVEY_RESOURCES_BUCKET: surveyResourcesBucket.bucketName,
       },
@@ -99,7 +116,13 @@ class CdkBackendStack extends cdk.Stack {
     surveyResponsesTable.grant(addSurveyLambda, "dynamodb:PutItem");
     surveyResourcesBucket.grantPut(addSurveyLambda); // TODO restrict to uploads path?
 
-    addApiGatewayMethod(api, "survey", "POST", addSurveyLambda, apiAuthoriser);
+    addApiGatewayMethod(
+      restApi,
+      "survey",
+      "POST",
+      addSurveyLambda,
+      apiAuthoriser
+    );
 
     const confirmSurveyLambda = new NodejsFunction(
       this,
@@ -109,7 +132,7 @@ class CdkBackendStack extends cdk.Stack {
         entry: "resources/confirmSurveyLambda/index.js",
         handler: "handler",
         environment: {
-          REGION: "eu-west-2", //TODO get from CDK environment
+          REGION: region,
           SURVEY_DB_TABLE: surveyResponsesTable.tableName,
         },
         timeout: cdk.Duration.seconds(30),
@@ -124,21 +147,163 @@ class CdkBackendStack extends cdk.Stack {
     surveyResourcesBucket.grantReadWrite(confirmSurveyLambda); // TODO restrict to object move?
 
     addApiGatewayMethod(
-      api,
+      restApi,
       "confirmsurvey",
       "POST",
       confirmSurveyLambda,
       apiAuthoriser
     );
 
+    // Admin client
+
+    const adminClientUserPool = new cognito.UserPool(this, "SurveyAdminPool", {
+      selfSignUpEnabled: false,
+      // userVerification: {
+      //   emailSubject: 'Verify your email for our awesome app!',
+      //   emailBody: 'Hello {username}, Thanks for signing up to our awesome app! Your verification code is {####}',
+      //   emailStyle: cognito.VerificationEmailStyle.CODE,
+      // },
+      signInAliases: { email: true },
+      autoVerify: { email: true },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: true,
+      },
+
+      // TODO - enable MFA for admin ?
+    });
+    const adminClientUserPoolClient = adminClientUserPool.addClient(
+      "SurveyAdminPoolAppClient",
+      {
+        accessTokenValidity: cdk.Duration.minutes(60),
+        idTokenValidity: cdk.Duration.minutes(60),
+        refreshTokenValidity: cdk.Duration.days(30),
+      }
+    );
+
+    const adminClientIdentityPool = new cognito.CfnIdentityPool(
+      this,
+      "AdminClientIdentityPool",
+      {
+        allowUnauthenticatedIdentities: false, // Don't allow unathenticated users
+        cognitoIdentityProviders: [
+          {
+            clientId: adminClientUserPoolClient.userPoolClientId,
+            providerName: adminClientUserPool.userPoolProviderName,
+          },
+        ],
+      }
+    );
+
+    // IAM role used for authenticated users
+    const adminClientAuthenticatedRole = new iam.Role(
+      this,
+      "AdminClientAuthRole",
+      {
+        assumedBy: new iam.FederatedPrincipal(
+          "cognito-identity.amazonaws.com",
+          {
+            StringEquals: {
+              "cognito-identity.amazonaws.com:aud": adminClientIdentityPool.ref,
+            },
+            "ForAnyValue:StringLike": {
+              "cognito-identity.amazonaws.com:amr": "authenticated",
+            },
+          },
+          "sts:AssumeRoleWithWebIdentity"
+        ),
+      }
+    );
+    adminClientAuthenticatedRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "mobileanalytics:PutEvents",
+          "cognito-sync:*",
+          "cognito-identity:*",
+        ],
+        resources: ["*"],
+      })
+    );
+
+    new cognito.CfnIdentityPoolRoleAttachment(
+      this,
+      "AdminClientIdentityPoolRoleAttachment",
+      {
+        identityPoolId: adminClientIdentityPool.ref,
+        roles: { authenticated: adminClientAuthenticatedRole.roleArn },
+      }
+    );
+
+    //       adminClientAuthenticatedRole.role.addToPolicy(
+    //   // IAM policy granting users permission to a specific folder in the S3 bucket
+    //   new iam.PolicyStatement({
+    //     actions: ["s3:*"],
+    //     effect: iam.Effect.ALLOW,
+    //     resources: [
+    //       bucketArn + "/private/${cognito-identity.amazonaws.com:sub}/*",
+    //     ],
+    //   })
+    // );
+    surveyResponsesTable.grant(
+      adminClientAuthenticatedRole,
+      "dynamodb:GetItem",
+      "dynamodb:Scan"
+    );
+
+    surveyResourcesBucket.grantRead(adminClientAuthenticatedRole); // TODO restrict to object move?
+
+    // React website hosting - survey client
+    addHostedWebsite(this, "SurveyWebClient", "../surveyclient/build");
+
+    // React website hosting - admin client
+    addHostedWebsite(this, "AdminWebClient", "../adminclient/build");
+
+
+    function addHostedWebsite(scope, name, pathToWebsiteContents) {
+      const BUCKET_NAME = name;
+      const DISTRIBUTION_NAME = name + "Distribution";
+      const DEPLOY_NAME = name + "DeployWithInvalidation";
+
+      const bucket = new Bucket(scope, BUCKET_NAME, {});
+
+      const distribution = new cloudfront.Distribution(
+        scope,
+        DISTRIBUTION_NAME,
+        {
+          defaultBehavior: {
+            origin: new origins.S3Origin(bucket),
+            allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+            viewerProtocolPolicy:
+              cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          },
+          defaultRootObject: "index.html",
+        }
+      );
+
+      new s3deploy.BucketDeployment(scope, DEPLOY_NAME, {
+        sources: [s3deploy.Source.asset(pathToWebsiteContents)],
+        destinationBucket: bucket,
+        distribution,
+      });
+
+      new cdk.CfnOutput(scope, name + " URL", {
+        value: "https://" + distribution.domainName,
+      });
+    }
+
     function addApiGatewayMethod(
-      api,
+      restApi,
       resourcePath,
       method,
       lambdaFunction,
       apiAuthoriser
     ) {
-      const resource = api.root.addResource(resourcePath);
+      const resource = restApi.root.addResource(resourcePath);
 
       const postMethod = resource.addMethod(
         method,

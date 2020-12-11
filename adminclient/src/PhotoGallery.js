@@ -36,7 +36,6 @@ const useStyles = makeStyles((theme) => ({
 
 function GalleryPhoto({ photo }) {
   const classes = useStyles();
-
   return (
     <div className={classes.photoSection}>
       <S3Image
@@ -64,14 +63,16 @@ function PhotoGallery({ survey = null, surveys = null }) {
   }, [survey, surveys]);
 
   if (surveys != null) {
-    function surveyPhotos(survey) {
-      const response = JSON.parse(survey.surveyResponse);
+    function surveyPhotos(survey, index) {
+      const response = survey.surveyResponse;
 
       return (
-        <div className={classes.paper}>
+        <div key={"survey-" + index} className={classes.paper}>
           <h2>Images from {response.background.contactname.answer}</h2>
           {survey !== null ? (
-            survey.photos.map((photo) => <GalleryPhoto photo={photo} />)
+            survey.photos.map((photo, j) => (
+              <GalleryPhoto key={"photo-" + j} photo={photo} />
+            ))
           ) : (
             <p>No photos</p>
           )}
@@ -83,7 +84,7 @@ function PhotoGallery({ survey = null, surveys = null }) {
       <>
         {surveys
           .filter((survey) => survey.photos.length > 0)
-          .map((survey) => surveyPhotos(survey))}
+          .map((survey, i) => surveyPhotos(survey, i))}
       </>
     );
   }

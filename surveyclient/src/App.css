@@ -1,5 +1,5 @@
 body {
-  background-image: url(/assets/Background_image.png);
+  background-image: url(/assets/Background_image.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: top;
@@ -23,7 +23,7 @@ textarea {
 
 .app-bar {
   z-index: 1100;
-  background-image: url(/assets/LTL_Wood_2_banner.png);
+  background-image: url(/assets/LTL_Wood_2_banner.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

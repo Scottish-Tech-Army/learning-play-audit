@@ -5,13 +5,12 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import SurveyResultsTable from "./SurveyResultsTable";
-import * as queries from "./graphql/queries";
-// import * as subscriptions from "./graphql/subscriptions";
 import Amplify from "aws-amplify";
-import API, { graphqlOperation } from "@aws-amplify/api";
 import aws_exports from "./aws-exports";
-// import { withAuthenticator, AmplifySignOut } from "aws-amplify-react";
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
+import { Auth } from "@aws-amplify/auth";
+import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 Amplify.configure(aws_exports);
 
@@ -66,33 +65,28 @@ function App() {
   }, [surveyResponses]);
 
   useEffect(() => {
-    async function fetchData() {
-      const result = await API.graphql(
-        graphqlOperation(queries.listSurveyResponses, { limit: 999 })
-      );
-      setSurveyResponses(result.data.listSurveyResponses.items);
-    }
-    fetchData();
-  }, []);
+    Auth.currentCredentials()
+      .then((credentials) => {
+        console.log("Current credentials", credentials);
+        const dynamodbClient = new DynamoDBClient({
+          region: "eu-west-2",
+          credentials: credentials,
+        });
+        async function fetchData() {
+          const params = {
+            TableName: aws_exports.surveyResponsesTable,
+          };
 
-  // useEffect(() => {
-  //   let subscription;
-  //   async function setupSubscription() {
-  //     subscription = API.graphql(
-  //       graphqlOperation(subscriptions.onCreateSurveyResponse, {})
-  //     ).subscribe({
-  //       next: (data) => {
-  //         const surveyResponse = data.value.data.onCreateSurveyResponse;
-  //         console.log("Subscription data", data);
-  //         console.log("Updated survey response", surveyResponse);
-  //         setSurveyResponses((a) => a.concat([surveyResponse]));
-  //       },
-  //     });
-  //   }
-  //   setupSubscription();
-  //
-  //   return () => subscription.unsubscribe();
-  // }, []);
+          const result = await dynamodbClient.send(new ScanCommand(params));
+          console.log("scan result", result);
+          setSurveyResponses(result.Items.map((item) => unmarshall(item)));
+        }
+        fetchData();
+      })
+      .catch(() => {
+        console.log("User not logged in");
+      });
+  }, []);
 
   return (
     <div className="App">
@@ -115,8 +109,5 @@ function App() {
 export default withAuthenticator(App, {
   signUpConfig: {
     hiddenDefaults: ["phone_number"],
-  },
-  signInConfig: {
-    headerText: "wibble"
   },
 });

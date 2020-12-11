@@ -23,7 +23,7 @@ export function exportSurveysAsCsv(surveys = []) {
   });
 
   surveys.forEach((survey, i) => {
-    const response = JSON.parse(survey.surveyResponse);
+    const response = survey.surveyResponse;
     console.log(survey);
     const rowData = [survey.id];
 

@@ -19,7 +19,6 @@ import {
   TableRow,
   TableCell,
   TableLayoutType,
-  WidthType,
   BorderStyle,
 } from "docx";
 
@@ -28,7 +27,7 @@ export function exportSurveysAsDocx(surveys = []) {
     console.log("No surveys to export");
   }
 
-  const responses = surveys.map((survey) => JSON.parse(survey.surveyResponse));
+  const responses = surveys.map((survey) => survey.surveyResponse);
   const doc = new Document();
 
   const paragraphs = sectionsContent
@@ -71,7 +70,7 @@ export function exportSurveysAsDocx(surveys = []) {
   }
 
   function renderSurveyPhotos(survey, i) {
-    const response = JSON.parse(survey.surveyResponse);
+    const response = survey.surveyResponse;
 
     return Promise.all(survey.photos.map(renderPhoto)).then((photos) => {
       return Promise.resolve([
