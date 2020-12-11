@@ -16,13 +16,12 @@ export default function CircularProgressWithLabel({ value, tooltip, label }) {
       aria-labelledby={tooltip}
       role="progressbar"
       aria-valuenow={Math.round(value)}
-      style={{
-        display: "flex",
-        width: SIZE,
-        height: SIZE,
-      }}
     >
-      <svg viewBox={`${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`}>
+      <svg
+        viewBox={`${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`}
+        width={SIZE}
+        height={SIZE}
+      >
         <title>{tooltip}</title>
         <circle
           stroke={CIRCLE_INACTIVE_COLOUR}
