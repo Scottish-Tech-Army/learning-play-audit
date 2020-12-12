@@ -244,6 +244,20 @@ textarea {
   align-items: stretch;
 }
 
+.submit-dialog .progress-bar {
+  background-color: #f1f1f1;
+  width: 80%;
+}
+
+.submit-dialog .progress-bar-active {
+  background-color: #afcd4b;
+  height: 20px;
+}
+
+.submit-dialog .submission-status {
+  margin: 20px;
+}
+
 .introduction .icons-group {
   display: flex;
   flex-direction: row;
@@ -482,7 +496,6 @@ textarea {
   right: 0;
 }
 
-
 .add-note-button {
   padding-left: 30px;
 }
@@ -579,7 +592,8 @@ textarea {
 }
 
 .add-note-dialog,
-.add-photos-dialog {
+.add-photos-dialog,
+.submit-dialog {
   width: 60%;
   background: white;
   display: flex;
@@ -621,6 +635,7 @@ textarea {
 
 .add-note-dialog button,
 .add-photos-dialog .save-photos-button,
+.submit-dialog button,
 .submit-survey-button,
 .get-started button {
   margin-top: 20px;
@@ -637,6 +652,7 @@ textarea {
 
 .add-note-dialog button:active,
 .add-photos-dialog .save-photos-button:active,
+.submit-dialog button:active,
 .submit-survey-button:active,
 .get-started button:active {
   box-shadow: none;
