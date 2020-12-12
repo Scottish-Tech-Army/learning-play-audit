@@ -16,7 +16,7 @@ import { sectionsContent, SURVEY_VERSION } from "./Content";
 import { TEXT_WITH_YEAR } from "./QuestionTypes";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
-import { SIGN_UP } from "./AuthStates";
+import { SIGN_UP, SIGNED_IN } from "./AuthStates";
 
 localforage.config({
   // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
@@ -349,6 +349,8 @@ function setAuthState(state, { authState, user }) {
   const result = { ...state };
   result.authentication.state = authState;
   result.authentication.user = user;
+  // Show welcome screen on every login
+  result.newUser = state.newUser || authState === SIGNED_IN;
 
   // TODO necessary?
   // if (authState === SIGNED_IN) {
@@ -386,6 +388,17 @@ export default createStore(surveyReducer, applyMiddleware(thunk));
 
 export function getResultsJson(state) {
   return state.answers;
+}
+
+export function surveyInProgress(answerCounts, photoDetails) {
+  if (Object.values(photoDetails).length > 0) {
+    return true;
+  }
+  return (
+    Object.values(answerCounts).find(
+      ({ answer, comments }) => answer > 0 || comments > 0
+    ) !== undefined
+  );
 }
 
 /*

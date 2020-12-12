@@ -1,9 +1,18 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { CONFIRM_WELCOME } from "../model/ActionTypes.js";
+import { surveyInProgress } from "../model/SurveyModel";
 
 export default function GetStartedScreen() {
   const dispatch = useDispatch();
+  const answerCounts = useSelector((state) => state.answerCounts);
+  const photoDetails = useSelector((state) => state.photoDetails);
+
+  function buttonText() {
+    return surveyInProgress(answerCounts, photoDetails)
+      ? "CONTINUE SURVEY"
+      : "START SURVEY";
+  }
 
   return (
     <div className="get-started-wrapper">
@@ -19,7 +28,7 @@ export default function GetStartedScreen() {
           to be able to submit your completed answers at the end of the survey.
         </p>
         <button onClick={() => dispatch({ type: CONFIRM_WELCOME })}>
-          <span>START SURVEY</span>
+          <span>{buttonText()}</span>
         </button>
       </div>
     </div>
