@@ -9,7 +9,6 @@ function GalleryPhoto({ photoId }) {
   const imageData = useSelector((state) =>
     state.photos[photoId] ? state.photos[photoId].imageData : ""
   );
-  const photoDetails = useSelector((state) => state.photoDetails[photoId]);
   const description = useSelector(
     (state) => state.photoDetails[photoId].description
   );
@@ -36,15 +35,11 @@ function GalleryPhoto({ photoId }) {
         src={"data:image/jpeg;base64," + imageData}
         alt={"survey view"}
       />
-      <div className="photo-details">
-        <div className="question-id">
-          {photoDetails.sectionId} {photoDetails.questionId}
-        </div>
-        <textarea
-          onChange={(e) => handleDescriptionChange(photoId, e)}
-          value={description}
-        />
-      </div>
+      <textarea
+        className="photo-description"
+        onChange={(e) => handleDescriptionChange(photoId, e)}
+        value={description}
+      />
       <button
         aria-haspopup="true"
         aria-label="Delete Photo"

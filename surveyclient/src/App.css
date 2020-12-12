@@ -8,6 +8,7 @@ body {
 
 .root,
 .add-note-dialog,
+.add-photos-dialog,
 .nav-menu-popup,
 textarea {
   font-family: Ubuntu;
@@ -368,7 +369,7 @@ textarea {
 }
 
 .add-note-button,
-.add-photo-button,
+.add-photos-button,
 .previous-section-button,
 .next-section-button,
 .menu-button {
@@ -421,45 +422,37 @@ textarea {
   align-items: center;
 }
 
-.photo {
-  max-width: 200px;
-  width: 100%;
-  margin: 5px;
-}
 .photo-section {
   display: flex;
   flex-direction: row;
   justify-content: stretch;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding-top: 10px;
   padding-bottom: 10px;
   border-top: grey 2px solid;
   align-items: flex-start;
+  position: relative;
 }
-.photo-details {
-  display: flex;
-  flex-direction: column;
-  margin-left: 50px;
-  flex-grow: 1;
-}
-.question-id {
-  font-weight: bold;
-}
-.photo-description {
+
+.photo-section .photo {
+  max-width: 40%;
+  width: 40%;
   margin: 5px;
 }
 
-.delete-button {
+.photo-section .delete-button {
   margin: 5px;
   border: 0;
-  background-color: white;
+  background-color: transparent;
+  padding: 0;
 }
 
 .photo-section textarea {
-  margin-left: 0;
-  margin-top: 5px;
+  margin: 5px;
   width: 100%;
+  min-width: 50px;
   box-sizing: border-box;
+  align-self: stretch;
 }
 
 .question {
@@ -482,8 +475,39 @@ textarea {
   margin-right: 50px;
 }
 
+.dated-question .question-line .add-photos-button,
+.text-question .question-line .add-photos-button {
+  position: absolute;
+  top: 15px;
+  right: 0;
+}
+
+
 .add-note-button {
   padding-left: 30px;
+}
+
+.add-photos-dialog {
+  max-height: 80vh;
+}
+
+.add-photos-dialog .add-photos-scroll {
+  overflow-y: auto;
+  width: 100%;
+}
+
+.add-photos-dialog .photo-section {
+  flex-wrap: nowrap;
+}
+
+.add-photos-dialog .question-line label {
+  position: absolute;
+  right: 15px;
+  top: -15px;
+}
+
+.add-photos-dialog .question-text {
+  margin-right: 70px;
 }
 
 .answerRow {
@@ -527,6 +551,7 @@ textarea {
 }
 
 .add-note-dialog textarea,
+.add-photos-dialog .photo-section textarea,
 .question textarea,
 .photo-section textarea {
   resize: none;
@@ -535,6 +560,8 @@ textarea {
 }
 
 .add-note-dialog textarea,
+.add-photos-dialog .photo-section textarea:hover,
+.add-photos-dialog .photo-section textarea:focus,
 .question textarea:hover,
 .question textarea:focus,
 .photo-section textarea:hover,
@@ -551,7 +578,8 @@ textarea {
   margin-left: 50px;
 }
 
-.add-note-dialog {
+.add-note-dialog,
+.add-photos-dialog {
   width: 60%;
   background: white;
   display: flex;
@@ -562,14 +590,16 @@ textarea {
   box-shadow: 0px 2px 4px #00000080;
 }
 
-.add-note-dialog .title {
+.add-note-dialog .title,
+.add-photos-dialog .title {
   font-family: Special Elite;
   font-size: 46px;
   font-weight: normal;
   margin-top: 0;
 }
 
-.add-note-dialog .question-line {
+.add-note-dialog .question-line,
+.add-photos-dialog .question-line {
   padding: 0;
   margin-bottom: 20px;
 }
@@ -579,12 +609,18 @@ textarea {
   margin-left: 20px;
 }
 
+.add-photos-dialog .question-text {
+  margin-right: 70px;
+  margin-left: 20px;
+}
+
 .add-note-dialog textarea {
   align-self: stretch;
   margin: 0;
 }
 
 .add-note-dialog button,
+.add-photos-dialog .save-photos-button,
 .submit-survey-button,
 .get-started button {
   margin-top: 20px;
@@ -592,6 +628,7 @@ textarea {
   background-color: #f6a85c;
   width: 160px;
   height: 40px;
+  min-height: 40px;
   font-family: Ubuntu-Bold, Ubuntu;
   font-weight: bold;
   font-size: 12px;
@@ -599,6 +636,7 @@ textarea {
 }
 
 .add-note-dialog button:active,
+.add-photos-dialog .save-photos-button:active,
 .submit-survey-button:active,
 .get-started button:active {
   box-shadow: none;
@@ -805,6 +843,7 @@ textarea {
 @media screen and (max-width: 915px) {
   .root,
   .add-note-dialog,
+  .add-photos-dialog,
   .nav-menu-popup,
   textarea {
     font-size: 14px;
@@ -937,8 +976,22 @@ textarea {
 
   .add-note-dialog textarea,
   .question textarea,
-  .photo-section textarea {
+  .photo-section textarea,
+  .photo-section .photo,
+  .photo-section .delete-button {
     margin-left: 0;
+    margin-right: 0;
+  }
+
+  .photo-section .delete-button {
+    position: absolute;
+    top: 25px;
+    right: 15px;
+  }
+
+  .photo-section .photo {
+    max-width: 100%;
+    width: 100%;
   }
 
   .section,
@@ -960,5 +1013,9 @@ textarea {
   .authenticator h2,
   .get-started h2 {
     font-size: 24px;
+  }
+
+  .photo-section {
+    flex-direction: column;
   }
 }

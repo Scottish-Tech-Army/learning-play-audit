@@ -2,6 +2,7 @@ import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
+import QuestionAddPhotosButton from "./QuestionAddPhotosButton";
 
 function QuestionText({
   sectionId,
@@ -44,10 +45,16 @@ function QuestionText({
   }
 
   return (
-    <div id={id} className="question">
+    <div id={id} className="question text-question">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>
+        <QuestionAddPhotosButton
+          sectionId={sectionId}
+          questionId={questionId}
+          questionNumber={questionNumber}
+          questionText={question.text}
+        />
       </div>
       <textarea onChange={handleChange} value={questionAnswers.answer} />
     </div>

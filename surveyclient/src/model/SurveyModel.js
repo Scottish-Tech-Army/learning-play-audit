@@ -152,8 +152,7 @@ export function surveyReducer(state = initialState(), action) {
 }
 
 function addPhoto(state, action) {
-  console.log("addPhoto");
-  console.log(action);
+  console.log("addPhoto", action.sectionId, action.questionId);
   const photoId = uuidv4();
   const result = { ...state };
   result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
@@ -170,7 +169,7 @@ function addPhoto(state, action) {
 }
 
 export function loadPhoto(file, sectionId = null, questionId = null) {
-  console.log("loadPhoto");
+  console.log("loadPhoto", sectionId, questionId);
   return function (dispatch) {
     if (window.FileReader) {
       return readFileAsync(file)

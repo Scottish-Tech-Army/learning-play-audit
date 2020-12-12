@@ -2,6 +2,7 @@ import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
+import QuestionAddPhotosButton from "./QuestionAddPhotosButton";
 
 function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   const questionId = question.id;
@@ -51,10 +52,16 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   }
 
   return (
-    <div id={id} className="question">
+    <div id={id} className="question dated-question">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>
+        <QuestionAddPhotosButton
+          sectionId={sectionId}
+          questionId={questionId}
+          questionNumber={questionNumber}
+          questionText={question.text}
+        />
       </div>
       {yearAnswerRow("answer1", "year1", "Improvement 1")}
       {yearAnswerRow("answer2", "year2", "Improvement 2")}
