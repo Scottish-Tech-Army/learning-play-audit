@@ -18,15 +18,31 @@ import {
   GALLERY,
   SUBMIT,
 } from "./components/FixedSectionTypes";
-import Amplify from "aws-amplify";
-import awsconfig from "./aws-exports";
+import { Amplify } from "@aws-amplify/core";
 import Authenticator, {
   isAuthenticating,
 } from "./components/auth/Authenticator";
 import { menuButtonSvg } from "./components/SvgUtils";
 import "./App.css";
 
-Amplify.configure(awsconfig);
+// Configure these properties in .env.local
+const awsConfig = {
+  Auth: {
+    region: process.env.REACT_APP_AWS_REGION,
+    userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
+  },
+  API: {
+    endpoints: [
+      {
+        name: process.env.REACT_APP_AWS_CLIENT_API_NAME,
+        endpoint: process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT,
+      },
+    ],
+  },
+};
+
+console.log("Configure", Amplify.configure(awsConfig));
 
 window.LOG_LEVEL = "DEBUG";
 

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { API } from "aws-amplify";
-import { Auth } from "aws-amplify";
+import { Auth } from "@aws-amplify/auth";
+import { API } from "@aws-amplify/api";
 import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { SIGNED_IN } from "../model/AuthStates";
@@ -15,9 +15,14 @@ export const SUBMITTING_CONFIRM = "Confirming upload";
 export const SUBMIT_COMPLETE = "Upload complete";
 export const SUBMIT_FAILED = "Upload failed - please try again";
 
+// Configure these properties in .env.local
+const API_NAME = process.env.REACT_APP_AWS_CLIENT_API_NAME;
+
 function submitSurvey(request) {
+  console.log("API configure", API.configure());
+
   console.log("POST survey", request);
-  return API.post("ltlClientApi", "/survey", request);
+  return API.post(API_NAME, "/survey", request);
 }
 
 async function uploadPhoto(
@@ -71,7 +76,7 @@ function uploadPhotos({ uploadUrls }, photos, progressIncrementCallback) {
 
 function confirmsurvey(request) {
   console.log("POST confirmsurvey", request);
-  return API.post("ltlClientApi", "/confirmsurvey", request);
+  return API.post(API_NAME, "/confirmsurvey", request);
 }
 
 function SubmitSection({ sections, setCurrentSection }) {
