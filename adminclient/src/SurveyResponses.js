@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     "& td": {
       border: "#d3d3d3 thin solid",
       padding: "5px",
+      height: "15px",
     },
     "& td.response-no": {
       width: "1em",
@@ -103,6 +104,7 @@ function QuestionSelectWithComment({ question, questionNumber, responses }) {
   function getAnswer(response) {
     switch (response.answer) {
       case null:
+      case "":
         return "";
       case "a":
         return "strongly agree";
@@ -147,6 +149,7 @@ function QuestionUserSelect({ question, questionNumber, responses }) {
   function getAnswer(response) {
     switch (response.answer) {
       case null:
+      case "":
         return "";
       case "a":
         return "teacher";

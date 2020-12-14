@@ -51,7 +51,7 @@ function movePhoto(photo) {
       new CopyObjectCommand({
         Bucket: photo.bucket,
         CopySource: photo.bucket + "/" + uploadKey,
-        Key: "public/" + photo.fullsize.key,
+        Key: photo.fullsize.key,
       })
     )
     .then((result) => {

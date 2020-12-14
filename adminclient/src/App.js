@@ -5,14 +5,25 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import SurveyResultsTable from "./SurveyResultsTable";
-import Amplify from "aws-amplify";
-import aws_exports from "./aws-exports";
 import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
+import { Amplify } from "@aws-amplify/core";
 import { Auth } from "@aws-amplify/auth";
 import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 
-Amplify.configure(aws_exports);
+// Configure these properties in .env.local
+const SURVEY_RESPONSES_TABLE = process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE;
+
+const awsConfig = {
+  Auth: {
+    identityPoolId: process.env.REACT_APP_AWS_IDENTITY_POOL_ID,
+    region: process.env.REACT_APP_AWS_REGION,
+    userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
+  },
+};
+
+Amplify.configure(awsConfig);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,18 +78,16 @@ function App() {
   useEffect(() => {
     Auth.currentCredentials()
       .then((credentials) => {
-        console.log("Current credentials", credentials);
         const dynamodbClient = new DynamoDBClient({
           region: "eu-west-2",
           credentials: credentials,
         });
         async function fetchData() {
           const params = {
-            TableName: aws_exports.surveyResponsesTable,
+            TableName: SURVEY_RESPONSES_TABLE,
           };
 
           const result = await dynamodbClient.send(new ScanCommand(params));
-          console.log("scan result", result);
           setSurveyResponses(result.Items.map((item) => unmarshall(item)));
         }
         fetchData();
