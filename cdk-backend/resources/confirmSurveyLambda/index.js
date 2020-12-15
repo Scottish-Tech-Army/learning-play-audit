@@ -26,6 +26,8 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const s3Client = new S3Client(process.env.REGION);
 const dynamodbClient = new DynamoDBClient({ region: process.env.REGION });
 
+const STATE_COMPLETE = "Complete";
+
 function getSurveyResponse(surveyId) {
   console.log("getSurveyResponse", surveyId);
 
@@ -81,6 +83,7 @@ async function updateSurveyResponse(surveyResponse) {
     TableName: process.env.SURVEY_DB_TABLE,
     Item: marshall({
       ...surveyResponse,
+      state: STATE_COMPLETE,
       updatedAt: new Date().toISOString(),
     }),
   };

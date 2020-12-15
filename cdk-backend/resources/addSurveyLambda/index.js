@@ -9,6 +9,7 @@ const { formatUrl } = require("@aws-sdk/util-format-url");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 
 const EXPIRATION = 60 * 60 * 1000;
+const STATE_PENDING = "Pending upload";
 
 const s3Client = new S3Client(process.env.REGION);
 const dynamodbClient = new DynamoDBClient({ region: process.env.REGION });
@@ -23,6 +24,7 @@ function storeSurveyResponse(surveyResponse) {
     TableName: process.env.SURVEY_DB_TABLE,
     Item: marshall({
       __typename: "SurveyResponse",
+      state: STATE_PENDING,
       createdAt: creationDate,
       updatedAt: creationDate,
       ...surveyResponse,

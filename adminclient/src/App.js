@@ -71,6 +71,7 @@ function App() {
             school: item.schoolName,
             contactName: item.responderName,
             email: item.responderEmail,
+            state: item.state,
           };
         })
       );

@@ -107,6 +107,9 @@ class CdkBackendStack extends cdk.Stack {
         requireSymbols: false,
       },
     });
+    surveyClientUserPool.node.defaultChild.applyRemovalPolicy(
+      cdk.RemovalPolicy.RETAIN
+    );
     new cdk.CfnOutput(this, "Survey user pool id", {
       value: surveyClientUserPool.userPoolId,
       description: "User pool id for survey users",
@@ -208,6 +211,9 @@ class CdkBackendStack extends cdk.Stack {
 
       // TODO - enable MFA for admin ?
     });
+    adminClientUserPool.node.defaultChild.applyRemovalPolicy(
+      cdk.RemovalPolicy.RETAIN
+    );
     new cdk.CfnOutput(this, "Survey admin user pool id", {
       value: adminClientUserPool.userPoolId,
       description: "User pool id for admin users",

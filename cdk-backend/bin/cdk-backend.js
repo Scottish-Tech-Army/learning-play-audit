@@ -12,6 +12,8 @@ if (!envStageName) {
   );
 }
 
-new CdkBackendStack(app, "LTLSurvey-" + envStageName, {
+const stack = new CdkBackendStack(app, "LTLSurvey-" + envStageName, {
   envStageName,
 });
+
+cdk.Tags.of(stack).add("DeployEnvironment", envStageName);

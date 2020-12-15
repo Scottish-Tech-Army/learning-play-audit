@@ -145,6 +145,7 @@ function SurveyResultsTable({ datarows = [], surveyResponses }) {
               <TableCell align="left">School</TableCell>
               <TableCell align="left">Contact Name</TableCell>
               <TableCell align="left">Email</TableCell>
+              <TableCell align="left">State</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -171,6 +172,7 @@ function SurveyResultsTable({ datarows = [], surveyResponses }) {
                   <TableCell align="left">{row.school}</TableCell>
                   <TableCell align="left">{row.contactName}</TableCell>
                   <TableCell align="left">{row.email}</TableCell>
+                  <TableCell align="left">{row.state}</TableCell>
                 </TableRow>
               );
             })}
