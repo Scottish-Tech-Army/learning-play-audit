@@ -42,7 +42,10 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "ftest": "wdio wdio.conf.js"
+    "ftest": "wdio wdio.conf.js",
+
+    "build:ltltest": "env-cmd -f .env.ltltest npm run build",
+    "build:ltllive": "env-cmd -f .env.ltllive npm run build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -133,6 +136,7 @@
     "babel-preset-react-app": "^9.1.2",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "chromedriver": "^86.0.0",
+    "env-cmd": "^10.1.0",
     "eslint": "^6.6.0",
     "eslint-config-react-app": "^5.2.1",
     "eslint-loader": "3.0.3",

@@ -17,17 +17,28 @@ class CdkBackendStack extends cdk.Stack {
    * @param {string} id
    * @param {cdk.StackProps=} props
    */
-  constructor(scope, id, props) {
-    super(scope, id, props);
+  constructor(scope, stackId, props) {
+    super(scope, stackId, props);
 
     // Common resources
     const stack = cdk.Stack.of(this);
     const region = stack.region;
+    const { envStageName } = props;
 
     //provisionedthroughput - cost of lower
     //perhaps remove s3 abort
 
-    const surveyResourcesBucket = new Bucket(this, "SurveyResources", {});
+    // The following are fixed resource names with environment stage suffixes
+    // These resources will not be replaced during updates
+    const SURVEY_RESOURCES_BUCKET_NAME =
+      stackId.toLowerCase() + "-surveyresources";
+    const SURVEY_RESPONSES_TABLE_NAME = stackId + "-SurveyResponses";
+    const SURVEY_CLIENT_USERPOOL_ID = stackId + "-SurveyUserPool";
+    const SURVEY_ADMIN_USERPOOL_ID = stackId + "-SurveyAdminPool";
+
+    const surveyResourcesBucket = new Bucket(this, "SurveyResources", {
+      bucketName: SURVEY_RESOURCES_BUCKET_NAME,
+    });
     surveyResourcesBucket.addCorsRule({
       allowedHeaders: ["*"],
       allowedMethods: [
@@ -46,32 +57,45 @@ class CdkBackendStack extends cdk.Stack {
       ],
       maxAge: 3000,
     });
-
-    const surveyResponsesTable = new dynamodb.Table(this, "SurveyResponses", {
-      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+    new cdk.CfnOutput(this, "SurveyResources bucket", {
+      value: surveyResourcesBucket.bucketName,
+      description: "S3 bucket containing uploaded survey resources",
     });
 
+    const surveyResponsesTable = new dynamodb.Table(this, "SurveyResponses", {
+      tableName: SURVEY_RESPONSES_TABLE_NAME,
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+    });
     new cdk.CfnOutput(this, "SurveyResponses table", {
       value: surveyResponsesTable.tableName,
+      description: "DynamoDB table containing survey responses",
     });
 
     // Survey client resources
 
     const restApi = new apigateway.RestApi(this, "SurveyClientApi", {
-      restApiName: "LTL Survey Client Service",
+      restApiName: "LTL Survey Client Service (" + envStageName + ")",
       description: "This service receives LTL Audit Survey reponses.",
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
       },
     });
+    new cdk.CfnOutput(this, "LTL client API endpoint", {
+      value: restApi.urlForPath(),
+      description: "API Gateway endpoint for survey submission API",
+    });
 
     const surveyClientUserPool = new cognito.UserPool(this, "SurveyUserPool", {
+      userPoolName: SURVEY_CLIENT_USERPOOL_ID,
       selfSignUpEnabled: true,
-      // userVerification: {
-      //   emailSubject: 'Verify your email for our awesome app!',
-      //   emailBody: 'Hello {username}, Thanks for signing up to our awesome app! Your verification code is {####}',
-      //   emailStyle: cognito.VerificationEmailStyle.CODE,
-      // },
+      userVerification: {
+        emailSubject:
+          "Please verify your email for the Learning Through Landscapes Audit Survey",
+        emailBody:
+          "This email address was recently added as your Learning Through Landscapes contact email address. " +
+          "Please enter the confirmation code {####} in the audit survey to verify your email address.",
+        emailStyle: cognito.VerificationEmailStyle.CODE,
+      },
       signInAliases: { email: true },
       autoVerify: { email: true },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
@@ -83,10 +107,22 @@ class CdkBackendStack extends cdk.Stack {
         requireSymbols: false,
       },
     });
-    surveyClientUserPool.addClient("SurveyUserPoolAppClient", {
-      accessTokenValidity: cdk.Duration.minutes(60),
-      idTokenValidity: cdk.Duration.minutes(60),
-      refreshTokenValidity: cdk.Duration.days(30),
+    new cdk.CfnOutput(this, "Survey user pool id", {
+      value: surveyClientUserPool.userPoolId,
+      description: "User pool id for survey users",
+    });
+
+    const surveyClientUserPoolAppClient = surveyClientUserPool.addClient(
+      "SurveyUserPoolAppClient",
+      {
+        accessTokenValidity: cdk.Duration.minutes(60),
+        idTokenValidity: cdk.Duration.minutes(60),
+        refreshTokenValidity: cdk.Duration.days(30),
+      }
+    );
+    new cdk.CfnOutput(this, "Survey user pool web client id", {
+      value: surveyClientUserPoolAppClient.userPoolClientId,
+      description: "User pool web client id for survey users",
     });
 
     const apiAuthoriser = new apigateway.CfnAuthorizer(
@@ -157,12 +193,8 @@ class CdkBackendStack extends cdk.Stack {
     // Admin client
 
     const adminClientUserPool = new cognito.UserPool(this, "SurveyAdminPool", {
+      userPoolName: SURVEY_ADMIN_USERPOOL_ID,
       selfSignUpEnabled: false,
-      // userVerification: {
-      //   emailSubject: 'Verify your email for our awesome app!',
-      //   emailBody: 'Hello {username}, Thanks for signing up to our awesome app! Your verification code is {####}',
-      //   emailStyle: cognito.VerificationEmailStyle.CODE,
-      // },
       signInAliases: { email: true },
       autoVerify: { email: true },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
@@ -176,6 +208,11 @@ class CdkBackendStack extends cdk.Stack {
 
       // TODO - enable MFA for admin ?
     });
+    new cdk.CfnOutput(this, "Survey admin user pool id", {
+      value: adminClientUserPool.userPoolId,
+      description: "User pool id for admin users",
+    });
+
     const adminClientUserPoolClient = adminClientUserPool.addClient(
       "SurveyAdminPoolAppClient",
       {
@@ -184,6 +221,10 @@ class CdkBackendStack extends cdk.Stack {
         refreshTokenValidity: cdk.Duration.days(30),
       }
     );
+    new cdk.CfnOutput(this, "Survey admin user pool web client id", {
+      value: adminClientUserPoolClient.userPoolClientId,
+      description: "User pool web client id for admin users",
+    });
 
     const adminClientIdentityPool = new cognito.CfnIdentityPool(
       this,
@@ -198,6 +239,10 @@ class CdkBackendStack extends cdk.Stack {
         ],
       }
     );
+    new cdk.CfnOutput(this, "Survey admin identity pool id", {
+      value: adminClientIdentityPool.ref,
+      description: "Identity pool id for admin users",
+    });
 
     // IAM role used for authenticated users
     const adminClientAuthenticatedRole = new iam.Role(
@@ -263,7 +308,6 @@ class CdkBackendStack extends cdk.Stack {
     // React website hosting - admin client
     addHostedWebsite(this, "AdminWebClient", "../adminclient/build");
 
-
     function addHostedWebsite(scope, name, pathToWebsiteContents) {
       const BUCKET_NAME = name;
       const DISTRIBUTION_NAME = name + "Distribution";
@@ -293,6 +337,7 @@ class CdkBackendStack extends cdk.Stack {
 
       new cdk.CfnOutput(scope, name + " URL", {
         value: "https://" + distribution.domainName,
+        description: "External URL for " + name + " website",
       });
     }
 

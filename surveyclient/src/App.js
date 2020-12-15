@@ -25,7 +25,12 @@ import Authenticator, {
 import { menuButtonSvg } from "./components/SvgUtils";
 import "./App.css";
 
+const API_NAME = "ltlClientApi";
+
 // Configure these properties in .env.local
+const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
+const isLive = ENVIRONMENT_NAME === "LIVE";
+
 const awsConfig = {
   Auth: {
     region: process.env.REACT_APP_AWS_REGION,
@@ -35,7 +40,7 @@ const awsConfig = {
   API: {
     endpoints: [
       {
-        name: process.env.REACT_APP_AWS_CLIENT_API_NAME,
+        name: API_NAME,
         endpoint: process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT,
       },
     ],
@@ -131,6 +136,7 @@ function App() {
             Welcome to the Learning Through Landscapes
             <br />
             Learning and Play Audit Survey
+            {!isLive && " (" + ENVIRONMENT_NAME + ")"}
           </h1>
           <h1 className="title small">
             Welcome to the
@@ -138,6 +144,7 @@ function App() {
             <span className="ltl-title">Learning Through Landscapes</span>
             <br />
             Learning and Play Audit Survey
+            {!isLive && " (" + ENVIRONMENT_NAME + ")"}
           </h1>
         </>
       );
@@ -147,7 +154,8 @@ function App() {
       <h1 className="title">
         Learning Through Landscapes
         <br />
-        Learning and Play Audit Survey{" "}
+        Learning and Play Audit Survey
+        {!isLive && " (" + ENVIRONMENT_NAME + ")"}
       </h1>
     );
   }

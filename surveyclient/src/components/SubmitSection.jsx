@@ -15,8 +15,7 @@ export const SUBMITTING_CONFIRM = "Confirming upload";
 export const SUBMIT_COMPLETE = "Upload complete";
 export const SUBMIT_FAILED = "Upload failed - please try again";
 
-// Configure these properties in .env.local
-const API_NAME = process.env.REACT_APP_AWS_CLIENT_API_NAME;
+const API_NAME = "ltlClientApi";
 
 function submitSurvey(request) {
   console.log("API configure", API.configure());

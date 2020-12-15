@@ -13,6 +13,8 @@ import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 // Configure these properties in .env.local
 const SURVEY_RESPONSES_TABLE = process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE;
+const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
+const isLive = ENVIRONMENT_NAME === "LIVE";
 
 const awsConfig = {
   Auth: {
@@ -102,7 +104,8 @@ function App() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            Learning and Play Audit Admin - Overview
+            Learning and Play Audit Admin
+            {!isLive && " (" + ENVIRONMENT_NAME + ")"} - Overview
           </Typography>
           <AmplifySignOut />
         </Toolbar>
