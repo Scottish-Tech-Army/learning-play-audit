@@ -87,8 +87,8 @@ function DownloadButton() {
       onClick={handleInstall}
       className="download-button"
     >
+      INSTALL APP
       <GetAppIcon />
-      INSTALL
     </button>
   );
 }

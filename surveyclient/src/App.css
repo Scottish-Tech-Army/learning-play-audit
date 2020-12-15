@@ -101,10 +101,8 @@ textarea {
 .app-bar .auth-signin-signout,
 .app-bar .download-button {
   position: absolute;
-  width: 100px;
+  width: 140px;
   height: 40px;
-  background-color: #2d6a89;
-  color: white;
   font-size: 12px;
   font-weight: normal;
   box-shadow: 1px 1px 4px black;
@@ -115,12 +113,20 @@ textarea {
   box-shadow: none;
 }
 .app-bar .auth-signin-signout {
+  background-color: #2d6a89;
+  color: white;
   right: 30px;
   top: 60px;
 }
 .app-bar .download-button {
+  background-color: #afcd4b;
+  color: black;
   right: 30px;
   top: 10px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-bar .auth-current-user {
@@ -718,10 +724,27 @@ textarea {
 }
 
 /* charts */
+.results-section h2 {
+  font-family: Special Elite;
+  font-size: 24px;
+  font-weight: normal;
+  margin-left: 30px;
+}
 
 .results-chart {
   position: relative;
-  width: 60vw;
+  margin-left: 40px;
+  margin-right: 20px;
+}
+.results-chart.five-bars {
+  height: 415px;
+}
+.results-chart.two-bars {
+  height: 190px;
+}
+
+.small-chart {
+  display: none !important;
 }
 
 .authenticator-wrapper,
@@ -1033,5 +1056,25 @@ textarea {
 
   .photo-section {
     flex-direction: column;
+  }
+
+  .large-chart {
+    display: none !important;
+  }
+  .small-chart {
+    display: block !important;
+  }
+  .results-chart {
+    position: relative;
+    margin-left: 40px;
+    margin-right: 20px;
+  }
+  .results-chart.five-bars {
+    height: 360px;
+  }
+  .results-chart.two-bars {
+    height: 340px;
+    width: 190px;
+    align-self: center;
   }
 }
