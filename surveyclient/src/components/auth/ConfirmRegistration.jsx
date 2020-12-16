@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Auth } from "@aws-amplify/auth";
 import { handleSignIn, setAuthError, setAuthState } from "./utils";
 import { useDispatch, useSelector } from "react-redux";
-import { SIGN_IN, CONFIRM_SIGN_UP } from "../../model/AuthStates";
+import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
 
 const EMAIL_ID = "emailInput";
 const CODE_ID = "codeInput";
 
-export default function ConfirmSignUp() {
+export default function ConfirmRegistration() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.authentication.user);
   const authState = useSelector((state) => state.authentication.state);
@@ -30,13 +30,13 @@ export default function ConfirmSignUp() {
     try {
       if (!userInput) throw new Error("Username can not be empty");
       await Auth.resendSignUp(userInput);
-      dispatch(setAuthState(CONFIRM_SIGN_UP));
+      dispatch(setAuthState(CONFIRM_REGISTRATION));
     } catch (error) {
       dispatch(setAuthError(error));
     }
   }
 
-  async function confirmSignUp(event: Event) {
+  async function confirmRegistration(event: Event) {
     if (event) {
       event.preventDefault();
     }
@@ -93,7 +93,7 @@ export default function ConfirmSignUp() {
         </button>
       </div>
 
-      <button onClick={confirmSignUp} disabled={loading}>
+      <button onClick={confirmRegistration} disabled={loading}>
         {loading ? <amplify-loading-spinner /> : <span>CONFIRM</span>}
       </button>
       <div className="question">

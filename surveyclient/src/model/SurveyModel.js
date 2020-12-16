@@ -16,7 +16,7 @@ import { sectionsContent, SURVEY_VERSION } from "./Content";
 import { TEXT_WITH_YEAR } from "./QuestionTypes";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
-import { SIGN_UP, SIGNED_IN } from "./AuthStates";
+import { REGISTER, SIGNED_IN } from "./AuthStates";
 
 localforage.config({
   // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
@@ -79,7 +79,7 @@ function initialState() {
     photoDetails: {},
     authentication: {
       errorMessage: "",
-      state: SIGN_UP,
+      state: REGISTER,
       user: undefined,
     },
     newUser: true,

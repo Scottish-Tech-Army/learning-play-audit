@@ -767,7 +767,7 @@ textarea {
 .authenticator,
 .get-started {
   background-color: white;
-  padding: 20px;
+  padding: 20px 40px;
   display: flex;
   flex-direction: column;
   width: 60%;
@@ -777,6 +777,12 @@ textarea {
   align-items: center;
   width: 50%;
   padding: 50px;
+}
+
+.authenticator .title-logo-small {
+  display: none;
+  align-self: center;
+  margin-bottom: 20px;
 }
 
 .authenticator .question {
@@ -795,12 +801,17 @@ textarea {
   font-weight: normal;
   box-shadow: 1px 1px 4px black;
   border: none;
-  margin-top: 20px;
+  margin-top: 15px;
   margin-bottom: 20px;
 }
 
-.authenticator button:active {
+.authenticator button.disabled {
+  background-color: darkGrey;
+  color: white;
   box-shadow: none;
+}
+
+.authenticator button:active {
 }
 
 .authenticator button.inline-action {
@@ -824,7 +835,8 @@ textarea {
   margin-bottom: 30px;
 }
 
-.authenticator input {
+.authenticator input[type="email"],
+.authenticator input[type="password"] {
   margin-top: 5px;
   margin-bottom: 5px;
   height: 39px;
@@ -834,6 +846,139 @@ textarea {
 
 .authenticator #emailInput {
   margin-bottom: 20px;
+}
+.authenticator #passwordInput {
+  margin-bottom: 40px;
+}
+
+.email-label-line {
+  display: flex;
+  justify-content: space-between;
+}
+
+.email-label-line .tooltip {
+  position: relative;
+  border-bottom: 1px dotted #2d6a89;
+  font-size: 12px;
+  color: #2d6a89;
+}
+
+.email-label-line .tooltip .tooltip-text {
+  visibility: hidden;
+  color: #2d6a89;
+  background-color: white;
+  text-align: left;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  width: 228px;
+  top: 125%;
+  left: 50%;
+  margin-left: -126px;
+  border: 2px solid #2d6a89;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.email-label-line .tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent #2d6a89 transparent;
+}
+
+.authenticator button.tooltip.small {
+  background-color: #2d6a89;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  box-shadow: none;
+  font-weight: bold;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.tooltip-popup {
+  width: 200px;
+  position: relative;
+  padding: 40px 20px;
+  background-color: white;
+  font-size: 14px;
+  color: #2d6a89;
+  border-color: #2d6a89;
+}
+
+.tooltip-popup .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #830415;
+  border: none;
+  border-radius: 10px;
+  height: 20px;
+  width: 20px;
+  padding: 0;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.email-label-line .tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.authenticator .checkbox-line {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 5px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.authenticator .checkbox-line .checkmark {
+  cursor: pointer;
+}
+
+.authenticator .checkbox-line .checkmark {
+  position: relative;
+  height: 30px;
+  width: 30px;
+  border: 3px solid #2d6a89;
+  border-radius: 5px;
+}
+
+.authenticator .checkbox-line .checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 9px;
+  top: 1px;
+  width: 9px;
+  height: 18px;
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.authenticator .checkbox-line .checkmark.checked::after {
+  display: block;
+}
+
+.authenticator .checkbox-line label {
+  padding-left: 10px;
 }
 
 .get-started p {
@@ -927,7 +1072,6 @@ textarea {
   .app-bar .title {
     font-size: 18px;
     margin-top: 80px;
-    margin-left: 30px;
   }
 
   .app-bar .title.large {
@@ -959,12 +1103,33 @@ textarea {
     width: 75px;
     height: 30px;
   }
+
+  .app-bar.authenticating .title-logo-large {
+    display: none;
+  }
+
   .app-bar.authenticating .title {
     margin-top: 20px;
   }
 
   .app-bar.authenticating .title-logo-small {
     top: 10px;
+  }
+
+  .authenticator-wrapper,
+  .get-started-wrapper {
+    top: 90px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding-bottom: 0;
+  }
+
+  .authenticator,
+  .get-started {
+    box-sizing: border-box;
+    width: 70%;
+    max-height: calc(100% - 80px);
+    overflow-y: auto;
   }
 
   .background-section .question-user-select {
@@ -1049,9 +1214,27 @@ textarea {
     padding-left: 0;
   }
 
+  .authenticator .title-logo-small,
+  .get-started .title-logo-small {
+    display: block;
+  }
+
+  .authenticator,
+  .get-started {
+    padding: 20px 20px;
+  }
+
   .authenticator h2,
   .get-started h2 {
     font-size: 24px;
+  }
+
+  .authenticator button.tooltip.small {
+    display: block;
+  }
+
+  .authenticator .tooltip.large {
+    display: none;
   }
 
   .photo-section {

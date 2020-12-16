@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { handleSignIn, setAuthState } from "./utils";
 import { useDispatch, useSelector } from "react-redux";
-import { SIGN_UP, FORGOT_PASSWORD } from "../../model/AuthStates";
+import { REGISTER, FORGOT_PASSWORD } from "../../model/AuthStates";
 
 const EMAIL_ID = "emailInput";
 const PASSWORD_ID = "passwordInput";
@@ -66,7 +66,7 @@ export default function SignIn() {
         Don't have an account?{" "}
         <button
           className="inline-action"
-          onClick={() => dispatch(setAuthState(SIGN_UP))}
+          onClick={() => dispatch(setAuthState(REGISTER))}
         >
           Register
         </button>

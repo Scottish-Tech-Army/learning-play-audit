@@ -17,6 +17,7 @@ export default function GetStartedScreen() {
   return (
     <div className="get-started-wrapper">
       <div className="get-started">
+        <img className="title-logo-small" src="./assets/ltl-logo.jpg" alt="" />
         <h2>Get Started!</h2>
 
         <p>

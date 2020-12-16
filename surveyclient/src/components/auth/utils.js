@@ -7,7 +7,7 @@ import {
 } from "../../model/ActionTypes";
 import {
   SIGNED_IN,
-  CONFIRM_SIGN_UP,
+  CONFIRM_REGISTRATION,
   FORGOT_PASSWORD,
   RESET_PASSWORD,
 } from "../../model/AuthStates";
@@ -60,7 +60,7 @@ export function handleSignIn(username, password) {
         dispatch(setAuthError(error));
         if (error.code === "UserNotConfirmedException") {
           logger.debug("the user is not confirmed");
-          dispatch(setAuthState(CONFIRM_SIGN_UP, { username }));
+          dispatch(setAuthState(CONFIRM_REGISTRATION, { username }));
         } else if (error.code === "PasswordResetRequiredException") {
           logger.debug("the user requires a new password");
           dispatch(setAuthState(FORGOT_PASSWORD, { username }));
@@ -68,37 +68,3 @@ export function handleSignIn(username, password) {
       });
   };
 }
-
-// export const handleSignIn = async (dispatch, username, password) => {
-//   try {
-//     const user = await Auth.signIn(username, password);
-//     logger.debug(user);
-//     if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
-//       logger.debug("require new password", user.challengeParam);
-//       dispatch({
-//         type: SET_AUTH_STATE,
-//         authState: RESET_PASSWORD,
-//         user: user,
-//       });
-//     } else {
-//       dispatch(checkContact(user));
-//     }
-//   } catch (error) {
-//     dispatch({ type: SET_AUTH_ERROR, message: error.message });
-//     if (error.code === "UserNotConfirmedException") {
-//       logger.debug("the user is not confirmed");
-//       dispatch({
-//         type: SET_AUTH_STATE,
-//         authState: CONFIRM_SIGN_UP,
-//         user: { username },
-//       });
-//     } else if (error.code === "PasswordResetRequiredException") {
-//       logger.debug("the user requires a new password");
-//       dispatch({
-//         type: SET_AUTH_STATE,
-//         authState: FORGOT_PASSWORD,
-//         user: { username },
-//       });
-//     }
-//   }
-// };
