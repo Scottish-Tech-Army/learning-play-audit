@@ -1,17 +1,13 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CONFIRM_WELCOME } from "../model/ActionTypes.js";
-import { surveyInProgress } from "../model/SurveyModel";
 
-export default function GetStartedScreen() {
+export default function GetStartedScreen({ canInstall, downloadButton }) {
   const dispatch = useDispatch();
-  const answerCounts = useSelector((state) => state.answerCounts);
-  const photoDetails = useSelector((state) => state.photoDetails);
+  const hasEverLoggedIn = useSelector((state) => state.hasEverLoggedIn);
 
   function buttonText() {
-    return surveyInProgress(answerCounts, photoDetails)
-      ? "CONTINUE SURVEY"
-      : "START SURVEY";
+    return hasEverLoggedIn ? "CONTINUE SURVEY" : "START SURVEY HERE";
   }
 
   return (
@@ -28,9 +24,18 @@ export default function GetStartedScreen() {
           However you will need to have access to a reliable internet connection
           to be able to submit your completed answers at the end of the survey.
         </p>
-        <button onClick={() => dispatch({ type: CONFIRM_WELCOME })}>
-          <span>{buttonText()}</span>
-        </button>
+        {canInstall && (
+          <p>
+            You can either fill in the survey here in your brower, or download
+            it as an app using the Install button.
+          </p>
+        )}
+        <div className="action-row">
+          <button onClick={() => dispatch({ type: CONFIRM_WELCOME })}>
+            <span>{buttonText()}</span>
+          </button>
+          {downloadButton}
+        </div>
       </div>
     </div>
   );

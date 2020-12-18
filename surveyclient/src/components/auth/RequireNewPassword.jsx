@@ -5,6 +5,7 @@ import { ConsoleLogger as Logger } from "@aws-amplify/core";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import { setAuthError, setAuthState } from "./utils";
+import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const logger = new Logger("amplify-require-new-password");
 
@@ -70,9 +71,12 @@ export default function RequireNewPassword() {
         placeholder="Enter your new password"
       />
 
-      <button onClick={completeNewPassword} disbled={loading}>
-        {loading ? <amplify-loading-spinner /> : <span>CHANGE</span>}
-      </button>
+      <div className="action-row">
+        <button onClick={completeNewPassword} disbled={loading}>
+          {loading ? <amplify-loading-spinner /> : <span>CHANGE</span>}
+        </button>
+        <ContinueSignedOutButton />
+      </div>
       <div className="question">
         <button
           className="inline-action"

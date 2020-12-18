@@ -6,7 +6,6 @@ import GallerySection from "./components/GallerySection";
 import SubmitSection from "./components/SubmitSection";
 import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
-import DownloadButton from "./components/DownloadButton";
 import AuthSignInOut from "./components/auth/AuthSignInOut";
 import AuthCurrentUser from "./components/auth/AuthCurrentUser";
 import GetStartedScreen from "./components/GetStartedScreen";
@@ -49,12 +48,16 @@ const awsConfig = {
 
 console.log("Configure", Amplify.configure(awsConfig));
 
-window.LOG_LEVEL = "DEBUG";
+// window.LOG_LEVEL = "DEBUG";
 
 function App() {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.authentication.state);
-  const newUser = useSelector((state) => state.newUser);
+  const hasSeenSplashPage = useSelector((state) => state.hasSeenSplashPage);
+  const hasEverLoggedIn = useSelector((state) => state.hasEverLoggedIn);
+
+  console.log("hasSeenSplashPage", hasSeenSplashPage);
+  console.log("hasEverLoggedIn", hasEverLoggedIn);
 
   const [currentSection, _setCurrentSection] = useState("introduction");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -67,6 +70,106 @@ function App() {
   useEffect(() => {
     dispatch(refreshState());
   }, [dispatch]);
+
+  const [deferredInstallEvent, setDeferredInstallEvent] = useState(null);
+  const [appInstalled, setAppInstalled] = useState(false);
+
+  useEffect(() => {
+    const listener = (event) => {
+      console.log("beforeinstallprompt triggered");
+      event.preventDefault();
+      setDeferredInstallEvent(event);
+    };
+    window.addEventListener("beforeinstallprompt", listener);
+
+    return function cleanup() {
+      window.removeEventListener("beforeinstallprompt", listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const listener = (event) => {
+      console.log("PWA install successful");
+      setAppInstalled(true);
+    };
+    window.addEventListener("appinstalled", listener);
+
+    return function cleanup() {
+      window.removeEventListener("appinstalled", listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const listener = () => {
+      let displayMode = "browser tab";
+      if (navigator.standalone) {
+        displayMode = "standalone-ios";
+        setAppInstalled(true);
+      }
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        displayMode = "standalone";
+        setAppInstalled(true);
+      }
+      console.log("Running mode: ", displayMode);
+    };
+    window.addEventListener("DOMContentLoaded", listener);
+
+    return function cleanup() {
+      window.removeEventListener("DOMContentLoaded", listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const innerListener = (evt) => {
+      let displayMode = "browser tab";
+      if (evt.matches) {
+        displayMode = "standalone";
+        setAppInstalled(true);
+      }
+      console.log("Running mode: ", displayMode);
+    };
+    const outerListener = () => {
+      window
+        .matchMedia("(display-mode: standalone)")
+        .addListener(innerListener);
+    };
+    window.addEventListener("DOMContentLoaded", outerListener);
+
+    return function cleanup() {
+      window.removeEventListener("DOMContentLoaded", outerListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("canInstall", deferredInstallEvent !== null, appInstalled);
+  }, [deferredInstallEvent, appInstalled]);
+
+  function handleInstall() {
+    if (deferredInstallEvent != null) {
+      deferredInstallEvent.prompt();
+    }
+  }
+
+  function canInstall() {
+    return deferredInstallEvent !== null && !appInstalled;
+  }
+
+  function downloadButton() {
+    if (!canInstall()) {
+      return null;
+    }
+
+    return (
+      <button
+        aria-haspopup="true"
+        aria-label="Install Application"
+        onClick={handleInstall}
+        className="download-button"
+      >
+        INSTALL SURVEY APP
+      </button>
+    );
+  }
 
   function setCurrentSection(sectionId) {
     _setCurrentSection(sectionId);
@@ -124,12 +227,8 @@ function App() {
     );
   }
 
-  function preSurvey() {
-    return newUser || isAuthenticating(authState);
-  }
-
   function getTitle() {
-    if (preSurvey()) {
+    if (!hasSeenSplashPage || isAuthenticating(authState)) {
       return (
         <>
           <h1 className="title large">
@@ -160,20 +259,10 @@ function App() {
     );
   }
 
-  return (
-    <div className="root">
-      <>
-        <div className={"app-bar" + (preSurvey() ? " authenticating" : "")}>
-          {!preSurvey() && (
-            <button
-              aria-label="open drawer"
-              onClick={handleDrawerToggle}
-              className="menu-button"
-            >
-              {menuButtonSvg()}
-            </button>
-          )}
-
+  if (isAuthenticating(authState)) {
+    return (
+      <div className="root">
+        <div className="app-bar authenticating">
           <img
             className="title-logo-small"
             src="./assets/LTL_logo_small.png"
@@ -185,28 +274,73 @@ function App() {
             alt=""
           />
           {getTitle()}
-          {!preSurvey() && (
-            <>
-              <AuthSignInOut />
-              <AuthCurrentUser />
-              <DownloadButton />
-            </>
-          )}
         </div>
-        {!isAuthenticating(authState) && newUser && <GetStartedScreen />}
-        {!isAuthenticating(authState) && !newUser && (
-          <main className="content">
-            <NavDrawer
-              mobileOpen={mobileOpen}
-              handleDrawerToggle={handleDrawerToggle}
-              currentSection={currentSection}
-              setCurrentSection={setCurrentSection}
-            />
-            <div className="section-container">{getCurrentSection()}</div>
-          </main>
-        )}
         <Authenticator />
-      </>
+      </div>
+    );
+  }
+
+  if (!hasSeenSplashPage) {
+    return (
+      <div className="root">
+        <div className="app-bar authenticating">
+          <img
+            className="title-logo-small"
+            src="./assets/LTL_logo_small.png"
+            alt=""
+          />
+          <img
+            className="title-logo-large"
+            src="./assets/LTL_logo_large.png"
+            alt=""
+          />
+          {getTitle()}
+          <AuthSignInOut />
+          <AuthCurrentUser />
+        </div>
+        <GetStartedScreen
+          canInstall={canInstall()}
+          downloadButton={downloadButton()}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="root">
+      <div className="app-bar">
+        <button
+          aria-label="open drawer"
+          onClick={handleDrawerToggle}
+          className="menu-button"
+        >
+          {menuButtonSvg()}
+        </button>
+
+        <img
+          className="title-logo-small"
+          src="./assets/LTL_logo_small.png"
+          alt=""
+        />
+        <img
+          className="title-logo-large"
+          src="./assets/LTL_logo_large.png"
+          alt=""
+        />
+        {getTitle()}
+        <AuthSignInOut />
+        <AuthCurrentUser />
+        {downloadButton()}
+      </div>
+      <main className="content">
+        <NavDrawer
+          mobileOpen={mobileOpen}
+          handleDrawerToggle={handleDrawerToggle}
+          currentSection={currentSection}
+          setCurrentSection={setCurrentSection}
+        />
+        <div className="section-container">{getCurrentSection()}</div>
+      </main>
     </div>
   );
 }

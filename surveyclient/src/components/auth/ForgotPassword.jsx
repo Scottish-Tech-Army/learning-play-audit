@@ -4,6 +4,7 @@ import { Logger } from "@aws-amplify/core";
 import { useDispatch } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import { setAuthError, setAuthState } from "./utils";
+import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 const CODE_ID = "codeInput";
@@ -93,13 +94,16 @@ export default function ForgotPassword() {
           />
         </>
       )}
-      <button onClick={delivery ? submit : send} disabled={loading}>
-        {loading ? (
-          <amplify-loading-spinner />
-        ) : (
-          <span>{delivery ? "SUBMIT" : "SEND CODE"}</span>
-        )}
-      </button>
+      <div className="action-row">
+        <button onClick={delivery ? submit : send} disabled={loading}>
+          {loading ? (
+            <amplify-loading-spinner />
+          ) : (
+            <span>{delivery ? "SUBMIT" : "SEND CODE"}</span>
+          )}
+        </button>
+        <ContinueSignedOutButton />
+      </div>
       <div className="question">
         <button
           className="inline-action"

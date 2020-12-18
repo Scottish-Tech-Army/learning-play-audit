@@ -1,3 +1,12 @@
+:root {
+  --textcolour-ltl-grey: #404040;
+  --colour-ltl-blue: #2d6a89;
+  --colour-ltl-orange: #f6a85c;
+  --colour-ltl-green: #afcd4b;
+  --colour-ltl-purple: #7e354f;
+  --colour-ltl-red: #830415;
+}
+
 body {
   background-image: url(/assets/Background_image.jpg);
   background-repeat: no-repeat;
@@ -13,7 +22,7 @@ body {
 textarea {
   font-family: Ubuntu;
   font-size: 18px;
-  color: #404040;
+  color: var(--textcolour-ltl-grey);
 }
 
 .root {
@@ -62,7 +71,7 @@ textarea {
 }
 
 .nav-menu-popup .menu-button .burger-menu {
-  fill: #f6a85c;
+  fill: var(--colour-ltl-orange);
 }
 
 .app-bar .title-logo-small {
@@ -95,7 +104,7 @@ textarea {
 }
 
 .app-bar.authenticating .title .ltl-title {
-  color: #afcd4b;
+  color: var(--colour-ltl-green);
 }
 
 .app-bar .auth-signin-signout,
@@ -113,13 +122,13 @@ textarea {
   box-shadow: none;
 }
 .app-bar .auth-signin-signout {
-  background-color: #2d6a89;
+  background-color: var(--colour-ltl-blue);
   color: white;
   right: 30px;
   top: 60px;
 }
 .app-bar .download-button {
-  background-color: #afcd4b;
+  background-color: var(--colour-ltl-green);
   color: black;
   right: 30px;
   top: 10px;
@@ -139,7 +148,7 @@ textarea {
 }
 
 .app-bar .auth-current-user .intro-text {
-  color: #afcd4b;
+  color: var(--colour-ltl-orange);
 }
 
 .app-bar .auth-current-user .email {
@@ -149,7 +158,7 @@ textarea {
 .nav-menu-fixed,
 .nav-menu-popup {
   color: rgba(0, 0, 0, 0.87);
-  background-color: #fff;
+  background-color: white;
   top: 0;
   bottom: 0;
   z-index: 1200;
@@ -184,13 +193,13 @@ textarea {
 .nav-menu-item {
   padding: 16px 5px;
   margin: 8px 28px 8px 8px;
-  border: solid 1px #f6a85c;
+  border: solid 1px var(--colour-ltl-orange);
   position: relative;
   font-size: 18px;
 }
 
 .nav-menu-item.selected {
-  background-color: #f6a85c;
+  background-color: var(--colour-ltl-orange);
 }
 
 .nav-menu-item.introduction {
@@ -199,11 +208,11 @@ textarea {
 
 .nav-menu-item.results,
 .nav-menu-item.gallery {
-  border-color: #7e354f;
+  border-color: var(--colour-ltl-purple);
 }
 
 .nav-menu-item.submit {
-  border-color: #2d6a89;
+  border-color: var(--colour-ltl-blue);
 }
 
 .nav-menu-item .section-number {
@@ -256,7 +265,7 @@ textarea {
 }
 
 .submit-dialog .progress-bar-active {
-  background-color: #afcd4b;
+  background-color: var(--colour-ltl-green);
   height: 20px;
 }
 
@@ -377,7 +386,7 @@ textarea {
   background-color: #d7e6a5;
 }
 .toggle-button-group button.selected {
-  background-color: #afcd4b;
+  background-color: var(--colour-ltl-green);
 }
 .toggle-button-group button:not(:last-child) {
   border-right: none; /* Prevent double borders */
@@ -535,12 +544,12 @@ textarea {
 }
 
 .question-divider {
-  border: 1px solid #afcd4b;
+  border: 1px solid var(--colour-ltl-green);
   border-radius: 1px;
   width: 50px;
 }
 .subsection-divider {
-  border: 1px solid #f6a85c;
+  border: 1px solid var(--colour-ltl-orange);
   border-radius: 1px;
   width: 200px;
 }
@@ -606,7 +615,7 @@ textarea {
   flex-direction: column;
   align-items: center;
   padding: 50px;
-  border: solid 1px #f6a85c;
+  border: solid 1px var(--colour-ltl-orange);
   box-shadow: 0px 2px 4px #00000080;
 }
 
@@ -646,7 +655,7 @@ textarea {
 .get-started button {
   margin-top: 20px;
   border: 0;
-  background-color: #f6a85c;
+  background-color: var(--colour-ltl-orange);
   width: 160px;
   height: 40px;
   min-height: 40px;
@@ -779,7 +788,8 @@ textarea {
   padding: 50px;
 }
 
-.authenticator .title-logo-small {
+.authenticator .title-logo-small,
+.get-started .title-logo-small {
   display: none;
   align-self: center;
   margin-bottom: 20px;
@@ -792,10 +802,14 @@ textarea {
   padding: 0;
 }
 
+.authenticator .action-row {
+  justify-content: start;
+}
+
 .authenticator button {
   width: 100px;
   height: 40px;
-  background-color: #2d6a89;
+  background-color: var(--colour-ltl-blue);
   color: white;
   font-size: 12px;
   font-weight: normal;
@@ -812,10 +826,11 @@ textarea {
 }
 
 .authenticator button:active {
+  box-shadow: none;
 }
 
 .authenticator button.inline-action {
-  color: #2d6a89;
+  color: var(--colour-ltl-blue);
   background-color: inherit;
   box-shadow: none;
   border: none;
@@ -826,6 +841,13 @@ textarea {
   margin: 0;
 }
 
+.authenticator button.continue-signed-out-button {
+  margin-left: 40px;
+  background-color: var(--colour-ltl-orange);
+  color: black;
+  font-weight: bold;
+}
+
 .authenticator h2,
 .get-started h2 {
   font-family: Special Elite;
@@ -833,6 +855,12 @@ textarea {
   font-weight: normal;
   margin-top: 0;
   margin-bottom: 30px;
+}
+
+.get-started .download-button {
+  background-color: var(--colour-ltl-blue);
+  color: white;
+  margin-left: 80px;
 }
 
 .authenticator input[type="email"],
@@ -858,14 +886,14 @@ textarea {
 
 .email-label-line .tooltip {
   position: relative;
-  border-bottom: 1px dotted #2d6a89;
+  border-bottom: 1px dotted var(--colour-ltl-blue);
   font-size: 12px;
-  color: #2d6a89;
+  color: var(--colour-ltl-blue);
 }
 
 .email-label-line .tooltip .tooltip-text {
   visibility: hidden;
-  color: #2d6a89;
+  color: var(--colour-ltl-blue);
   background-color: white;
   text-align: left;
   padding: 10px;
@@ -875,7 +903,7 @@ textarea {
   top: 125%;
   left: 50%;
   margin-left: -126px;
-  border: 2px solid #2d6a89;
+  border: 2px solid var(--colour-ltl-blue);
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -889,11 +917,11 @@ textarea {
   margin-left: -5px;
   border-width: 10px;
   border-style: solid;
-  border-color: transparent transparent #2d6a89 transparent;
+  border-color: transparent transparent var(--colour-ltl-blue) transparent;
 }
 
 .authenticator button.tooltip.small {
-  background-color: #2d6a89;
+  background-color: var(--colour-ltl-blue);
   color: white;
   width: 20px;
   height: 20px;
@@ -912,15 +940,15 @@ textarea {
   padding: 40px 20px;
   background-color: white;
   font-size: 14px;
-  color: #2d6a89;
-  border-color: #2d6a89;
+  color: var(--colour-ltl-blue);
+  border-color: var(--colour-ltl-blue);
 }
 
 .tooltip-popup .close-button {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #830415;
+  background-color: var(--colour-ltl-red);
   border: none;
   border-radius: 10px;
   height: 20px;
@@ -954,7 +982,7 @@ textarea {
   position: relative;
   height: 30px;
   width: 30px;
-  border: 3px solid #2d6a89;
+  border: 3px solid var(--colour-ltl-blue);
   border-radius: 5px;
 }
 

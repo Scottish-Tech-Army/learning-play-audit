@@ -4,6 +4,7 @@ import { handleSignIn, setAuthError, setAuthState } from "./utils";
 import { useDispatch } from "react-redux";
 import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
 import Modal from "@material-ui/core/Modal";
+import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 const PASSWORD_ID = "passwordInput";
@@ -96,15 +97,15 @@ export default function Register() {
 
       <div className="email-label-line">
         <label htmlFor={EMAIL_ID}>Email Address*</label>
-        <div class="tooltip large">
+        <div className="tooltip large">
           Why do we need this?
-          <span class="tooltip-text">
+          <span className="tooltip-text">
             Learning Through Landscapes may use this email address to contact
             you in relation to this survey. Your email address will not be used
             for any other purpose.
           </span>
         </div>
-        <button class="tooltip small" onClick={() => setGdprPopup(true)}>
+        <button className="tooltip small" onClick={() => setGdprPopup(true)}>
           ?
         </button>
         <Modal
@@ -120,7 +121,7 @@ export default function Register() {
             justifyContent: "center",
           }}
         >
-          <div class="tooltip-popup small">
+          <div className="tooltip-popup small">
             <button
               className="close-button"
               onClick={() => setGdprPopup(false)}
@@ -160,13 +161,16 @@ export default function Register() {
         setGdprChecked
       )}
 
-      <button
-        className={"register-button" + (!formComplete() ? " disabled" : "")}
-        onClick={signUp}
-        disabled={loading || !formComplete()}
-      >
-        {loading ? <amplify-loading-spinner /> : <span>REGISTER</span>}
-      </button>
+      <div className="action-row">
+        <button
+          className={"register-button" + (!formComplete() ? " disabled" : "")}
+          onClick={signUp}
+          disabled={loading || !formComplete()}
+        >
+          {loading ? <amplify-loading-spinner /> : <span>REGISTER</span>}
+        </button>
+        <ContinueSignedOutButton />
+      </div>
       <div className="question">
         Already have an account?{" "}
         <button

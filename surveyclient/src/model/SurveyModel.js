@@ -71,6 +71,7 @@ function createAnswerCounts() {
 }
 
 function initialState() {
+  console.log("Setting initialState");
   // listQuestionIds();
   return {
     answers: createEmptyAnswers(),
@@ -82,7 +83,9 @@ function initialState() {
       state: REGISTER,
       user: undefined,
     },
-    newUser: true,
+    hasSeenSplashPage: false,
+    hasEverLoggedIn: false,
+    initialisingState: true,
   };
 }
 
@@ -92,7 +95,7 @@ export function surveyReducer(state = initialState(), action) {
   switch (action.type) {
     case CONFIRM_WELCOME:
       console.log("CONFIRM_WELCOME");
-      newState = { ...state, newUser: false };
+      newState = { ...state, hasSeenSplashPage: true };
       writeAnswers(newState);
       return newState;
 
@@ -104,7 +107,7 @@ export function surveyReducer(state = initialState(), action) {
 
     case RESET_STATE:
       console.log("RESET_STATE");
-      newState = initialState();
+      newState = { ...initialState(), initialisingState: false };
       writeAnswers(newState);
       writePhotos(newState);
       return newState;
@@ -135,7 +138,9 @@ export function surveyReducer(state = initialState(), action) {
 
     case SET_AUTH_STATE:
       // console.log("SET_AUTH_STATE");
-      return setAuthState(state, action);
+      newState = setAuthState(state, action);
+      writeAnswers(newState);
+      return newState;
 
     case SET_AUTH_ERROR:
       // console.log("SET_AUTH_ERROR");
@@ -232,47 +237,65 @@ function updatePhotoDescription(state, action) {
 }
 
 export function refreshState() {
+  console.log("refreshState start");
   return function (dispatch, getState) {
     Promise.all([readAnswers(), readPhotos()])
       .then(([storedAnswers, storedPhotos]) => {
         console.log("read local store", storedAnswers, storedPhotos);
-        const state = getState();
-        if (storedAnswers !== null || storedPhotos !== null) {
-          dispatch({
-            type: REFRESH_STATE,
-            state: {
-              ...state,
-              ...(storedAnswers !== null ? storedAnswers : {}),
-              ...(storedPhotos !== null ? storedPhotos : {}),
-            },
-          });
-        }
+        const state = { ...getState(), initialisingState: false };
         if (storedAnswers === null) {
-          console.log("writeAnswers");
-          console.log(state);
-          writeAnswers(state);
+            console.log("writeAnswers");
+            console.log(state);
+            writeAnswers(state);
         }
         if (storedPhotos === null) {
-          console.log("writePhotos");
-          console.log(state);
-          writePhotos(state);
+            console.log("writePhotos");
+            console.log(state);
+            writePhotos(state);
         }
+        dispatch({
+          type: REFRESH_STATE,
+          state: {
+            ...state,
+            ...(storedAnswers !== null ? storedAnswers : {}),
+            ...(storedPhotos !== null ? storedPhotos : {}),
+          },
+        });
+        console.log("refreshState end");
       })
       .catch((err) => console.log(err));
   };
 }
 
-const writeAnswers = ({ answers, answerCounts, photoDetails, newUser }) =>
+const writeAnswers = ({
+  answers,
+  answerCounts,
+  photoDetails,
+  hasSeenSplashPage,
+  hasEverLoggedIn,
+  initialisingState,
+}) => {
+  console.log("Calling writeAnswers");
+  if (initialisingState) {
+    console.log("Still initialisingState, skipping writeAnswers");
+    return;
+  }
   localforage.setItem("answers", {
     answers: answers,
     answerCounts: answerCounts,
     photoDetails: photoDetails,
-    newUser: newUser,
+    hasSeenSplashPage: hasSeenSplashPage,
+    hasEverLoggedIn: hasEverLoggedIn,
   });
+};
 const readAnswers = () => localforage.getItem("answers");
 
-const writePhotos = ({ photos }) => {
-  console.log("writeAnswersAndPhotos");
+const writePhotos = ({ photos, initialisingState }) => {
+  console.log("writePhotos");
+  if (initialisingState) {
+    console.log("Still initialisingState, skipping writePhotos");
+    return;
+  }
   console.log({ photos: photos });
   localforage.setItem("photos", { photos: photos });
 };
@@ -349,7 +372,8 @@ function setAuthState(state, { authState, user }) {
   result.authentication.state = authState;
   result.authentication.user = user;
   // Show welcome screen on every login
-  result.newUser = state.newUser || authState === SIGNED_IN;
+  result.hasSeenSplashPage = state.hasSeenSplashPage && authState !== SIGNED_IN;
+  result.hasEverLoggedIn = state.hasEverLoggedIn || authState === SIGNED_IN;
 
   // TODO necessary?
   // if (authState === SIGNED_IN) {
@@ -387,17 +411,6 @@ export default createStore(surveyReducer, applyMiddleware(thunk));
 
 export function getResultsJson(state) {
   return state.answers;
-}
-
-export function surveyInProgress(answerCounts, photoDetails) {
-  if (Object.values(photoDetails).length > 0) {
-    return true;
-  }
-  return (
-    Object.values(answerCounts).find(
-      ({ answer, comments }) => answer > 0 || comments > 0
-    ) !== undefined
-  );
 }
 
 /*

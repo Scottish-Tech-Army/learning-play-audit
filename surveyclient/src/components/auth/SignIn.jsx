@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { handleSignIn, setAuthState } from "./utils";
 import { useDispatch, useSelector } from "react-redux";
 import { REGISTER, FORGOT_PASSWORD } from "../../model/AuthStates";
+import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 const PASSWORD_ID = "passwordInput";
@@ -59,9 +60,15 @@ export default function SignIn() {
           Reset password
         </button>
       </div>
-      <button onClick={signIn} disabled={loading || email.length === 0 || password.length === 0 }>
-        {loading ? <amplify-loading-spinner /> : <span>LOGIN</span>}
-      </button>
+      <div className="action-row">
+        <button
+          onClick={signIn}
+          disabled={loading || email.length === 0 || password.length === 0}
+        >
+          {loading ? <amplify-loading-spinner /> : <span>LOGIN</span>}
+        </button>
+        <ContinueSignedOutButton />
+      </div>
       <div className="question">
         Don't have an account?{" "}
         <button

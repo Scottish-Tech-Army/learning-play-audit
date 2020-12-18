@@ -3,6 +3,7 @@ import { Auth } from "@aws-amplify/auth";
 import { handleSignIn, setAuthError, setAuthState } from "./utils";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
+import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 const CODE_ID = "codeInput";
@@ -93,9 +94,12 @@ export default function ConfirmRegistration() {
         </button>
       </div>
 
-      <button onClick={confirmRegistration} disabled={loading}>
-        {loading ? <amplify-loading-spinner /> : <span>CONFIRM</span>}
-      </button>
+      <div className="action-row">
+        <button onClick={confirmRegistration} disabled={loading}>
+          {loading ? <amplify-loading-spinner /> : <span>CONFIRM</span>}
+        </button>
+        <ContinueSignedOutButton />
+      </div>
       <div className="question">
         <button
           className="inline-action"
