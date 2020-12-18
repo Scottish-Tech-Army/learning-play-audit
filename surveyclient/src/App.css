@@ -5,6 +5,9 @@
   --colour-ltl-green: #afcd4b;
   --colour-ltl-purple: #7e354f;
   --colour-ltl-red: #830415;
+  --font-family-ltl-heading: "Special Elite", Times, serif;
+  --font-family-ltl-body: Ubuntu, sans-serif;
+  --font-family-ltl-bold: Ubuntu-Bold, Ubuntu, sans-serif;
 }
 
 body {
@@ -20,7 +23,7 @@ body {
 .add-photos-dialog,
 .nav-menu-popup,
 textarea {
-  font-family: Ubuntu;
+  font-family: var(--font-family-ltl-body);
   font-size: 18px;
   color: var(--textcolour-ltl-grey);
 }
@@ -88,7 +91,7 @@ textarea {
 }
 
 .app-bar .title {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
   font-size: 44px;
   color: white;
   text-align: center;
@@ -221,7 +224,7 @@ textarea {
 }
 
 .nav-menu-item .section-title {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
 }
 
 .nav-menu-item .nav-menu-item-progress {
@@ -328,7 +331,7 @@ textarea {
 .section .title,
 .gallery-section .title,
 .background-section .title {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
   text-align: center;
 }
 .question {
@@ -376,7 +379,7 @@ textarea {
   cursor: pointer;
   float: left;
   text-transform: uppercase;
-  font-family: Ubuntu-Bold, Ubuntu;
+  font-family: var(--font-family-ltl-bold);
   font-size: 12px;
   font-weight: bold;
   width: 157px;
@@ -621,7 +624,7 @@ textarea {
 
 .add-note-dialog .title,
 .add-photos-dialog .title {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
   font-size: 46px;
   font-weight: normal;
   margin-top: 0;
@@ -659,7 +662,7 @@ textarea {
   width: 160px;
   height: 40px;
   min-height: 40px;
-  font-family: Ubuntu-Bold, Ubuntu;
+  font-family: var(--font-family-ltl-bold);
   font-weight: bold;
   font-size: 12px;
   box-shadow: 0px 2px 4px #00000080;
@@ -734,7 +737,7 @@ textarea {
 
 /* charts */
 .results-section h2 {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
   font-size: 24px;
   font-weight: normal;
   margin-left: 30px;
@@ -796,7 +799,7 @@ textarea {
 }
 
 .authenticator .question {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
   display: flex;
   flex-direction: row;
   padding: 0;
@@ -850,7 +853,7 @@ textarea {
 
 .authenticator h2,
 .get-started h2 {
-  font-family: Special Elite;
+  font-family: var(--font-family-ltl-heading);
   font-size: 46px;
   font-weight: normal;
   margin-top: 0;
