@@ -23,6 +23,8 @@ import {
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Auth } from "@aws-amplify/auth";
 
+const IMAGE_NOT_FOUND = "[Image not found]";
+
 // Configure these properties in .env.local
 const REGION = process.env.REACT_APP_AWS_REGION;
 const SURVEY_RESOURCES_S3_BUCKET =
@@ -62,22 +64,43 @@ export function exportSurveysAsDocx(surveys = []) {
       Key: photo.fullsize.key,
     };
 
-    return s3.send(new GetObjectCommand(params)).then((photoData) => {
-      const image = Media.addImage(
-        doc,
-        new Response(photoData.Body).arrayBuffer()
-      );
-      return Promise.resolve([
-        new Paragraph(image),
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: photo.description,
-            }),
-          ],
-        }),
-      ]);
-    });
+    return s3
+      .send(new GetObjectCommand(params))
+      .then((photoData) => {
+        const image = Media.addImage(
+          doc,
+          new Response(photoData.Body).arrayBuffer()
+        );
+        return Promise.resolve([
+          new Paragraph(image),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: photo.description,
+              }),
+            ],
+          }),
+        ]);
+      })
+      .catch((error) => {
+        console.error("Error retrieving photo", params, error);
+        return Promise.resolve([
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: IMAGE_NOT_FOUND,
+              }),
+            ],
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: photo.description,
+              }),
+            ],
+          }),
+        ]);
+      });
   }
 
   function renderSurveyPhotos(survey, i, s3) {

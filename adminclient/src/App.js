@@ -8,18 +8,26 @@ import SurveyResultsTable from "./SurveyResultsTable";
 import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
 import { Amplify } from "@aws-amplify/core";
 import { Auth } from "@aws-amplify/auth";
-import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  ScanCommand,
+  BatchGetItemCommand,
+} from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
+import SurveyResponsesDialog from "./SurveyResponsesDialog";
 
 // Configure these properties in .env.local
+const REGION = process.env.REACT_APP_AWS_REGION;
 const SURVEY_RESPONSES_TABLE = process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE;
+const SURVEY_RESPONSES_SUMMARY_INDEX =
+  process.env.REACT_APP_AWS_SURVEY_RESPONSES_SUMMARY_INDEX;
 const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
 const isLive = ENVIRONMENT_NAME === "LIVE";
 
 const awsConfig = {
   Auth: {
+    region: REGION,
     identityPoolId: process.env.REACT_APP_AWS_IDENTITY_POOL_ID,
-    region: process.env.REACT_APP_AWS_REGION,
     userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
     userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
   },
@@ -59,19 +67,23 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   const classes = useStyles();
   const [surveyResponses, setSurveyResponses] = useState([]);
-  const [datarows, setDatarows] = useState([]);
+  const [fullSurveyResponses, setFullSurveyResponses] = useState([]);
+  const [dataRows, setDataRows] = useState([]);
+  const [openSurveyResponses, setOpenSurveyResponses] = useState(false);
+  const [selectedSurveyIds, setSelectedSurveyIds] = useState([]);
 
   useEffect(() => {
     if (surveyResponses != null && surveyResponses.length > 0) {
-      setDatarows(
+      setDataRows(
         surveyResponses.map((item) => {
           return {
             id: item.id,
-            timestamp: new Date(item.createdAt).toLocaleString(),
+            timestamp: item.createdAt,
+            timestampString: new Date(item.createdAt).toLocaleString(),
             school: item.schoolName,
             contactName: item.responderName,
             email: item.responderEmail,
-            state: item.state,
+            uploadState: item.uploadState,
           };
         })
       );
@@ -82,23 +94,72 @@ function App() {
     Auth.currentCredentials()
       .then((credentials) => {
         const dynamodbClient = new DynamoDBClient({
-          region: "eu-west-2",
+          region: REGION,
           credentials: credentials,
         });
-        async function fetchData() {
-          const params = {
-            TableName: SURVEY_RESPONSES_TABLE,
-          };
-
-          const result = await dynamodbClient.send(new ScanCommand(params));
-          setSurveyResponses(result.Items.map((item) => unmarshall(item)));
-        }
-        fetchData();
+        const params = {
+          TableName: SURVEY_RESPONSES_TABLE,
+          IndexName: SURVEY_RESPONSES_SUMMARY_INDEX,
+          ReturnConsumedCapacity: "TOTAL",
+        };
+        console.log("Scanning data", params);
+        return dynamodbClient.send(new ScanCommand(params));
       })
-      .catch(() => {
-        console.log("User not logged in");
+      .then((result) => {
+        console.log("Survey responses", result);
+        setSurveyResponses(result.Items.map((item) => unmarshall(item)));
+      })
+      .catch((error) => {
+        console.log("Error retrieving data", error);
       });
   }, []);
+
+  useEffect(() => {
+    if (selectedSurveyIds.length === 0) {
+      return;
+    }
+    const surveyIdsToRetrieve = selectedSurveyIds.filter(
+      (surveyId) =>
+        fullSurveyResponses.find(
+          (fullSurveyResponse) => surveyId === fullSurveyResponse.id
+        ) === undefined
+    );
+    if (surveyIdsToRetrieve.length === 0) {
+      return;
+    }
+
+    Auth.currentCredentials()
+      .then((credentials) => {
+        const dynamodbClient = new DynamoDBClient({
+          region: REGION,
+          credentials: credentials,
+        });
+        const params = {
+          RequestItems: {},
+          ReturnConsumedCapacity: "TOTAL",
+        };
+        params.RequestItems[SURVEY_RESPONSES_TABLE] = {
+          Keys: surveyIdsToRetrieve.map((id) => {
+            return { id: { S: id } };
+          }),
+        };
+        console.log("Retrieving full responses data", params);
+        return dynamodbClient.send(new BatchGetItemCommand(params));
+      })
+      .then((result) => {
+        console.log("Survey responses", result);
+        const retrievedResponses = result.Responses[
+          SURVEY_RESPONSES_TABLE
+        ].map((item) => unmarshall(item));
+        setFullSurveyResponses((fullSurveyResponses) => [
+          ...fullSurveyResponses,
+          ...retrievedResponses,
+        ]);
+      })
+      .catch((error) => {
+        console.log("User not logged in", error);
+      });
+  }, [selectedSurveyIds, fullSurveyResponses]);
 
   return (
     <div className="App">
@@ -112,8 +173,19 @@ function App() {
         </Toolbar>
       </AppBar>
       <SurveyResultsTable
-        datarows={datarows}
+        dataRows={dataRows}
         surveyResponses={surveyResponses}
+        openSurveyResponses={(surveyIds) => {
+          setSelectedSurveyIds(surveyIds);
+          setOpenSurveyResponses(true);
+        }}
+      />
+      <SurveyResponsesDialog
+        isOpen={openSurveyResponses}
+        surveys={fullSurveyResponses.filter((surveyResponse) =>
+          selectedSurveyIds.includes(surveyResponse.id)
+        )}
+        handleClose={() => setOpenSurveyResponses(false)}
       />
     </div>
   );

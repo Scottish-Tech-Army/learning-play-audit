@@ -362,7 +362,6 @@ function Section({ section, sectionResponses }) {
     throw new Error("unknown question type: " + type);
   }
 
-  console.log("Render section " + section.title);
   return (
     <Box className={classes.section} flexDirection="column">
       <h1>

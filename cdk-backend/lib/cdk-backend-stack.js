@@ -70,6 +70,23 @@ class CdkBackendStack extends cdk.Stack {
       value: surveyResponsesTable.tableName,
       description: "DynamoDB table containing survey responses",
     });
+    surveyResponsesTable.addGlobalSecondaryIndex({
+      indexName: "SummaryIndex",
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "createdAt", type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.INCLUDE,
+      nonKeyAttributes: [
+        "responderName",
+        "schoolName",
+        "uploadState",
+        "responderEmail",
+      ],
+      readCapacity: 10,
+    });
+    new cdk.CfnOutput(this, "SurveyResponseSummaries index", {
+      value: "SummaryIndex",
+      description: "DynamoDB index for survey response summaries",
+    });
 
     // Survey client resources
 
@@ -302,6 +319,7 @@ class CdkBackendStack extends cdk.Stack {
     // );
     surveyResponsesTable.grant(
       adminClientAuthenticatedRole,
+      "dynamodb:BatchGetItem",
       "dynamodb:GetItem",
       "dynamodb:Scan"
     );
