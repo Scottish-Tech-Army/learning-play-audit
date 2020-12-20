@@ -14,7 +14,6 @@ import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
 import Toolbar from "@material-ui/core/Toolbar";
-import { exportSurveysAsCsv } from "./SurveysAsCsv";
 
 import TablePagination from "@material-ui/core/TablePagination";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
@@ -215,7 +214,12 @@ function LTLTableHead({
   );
 }
 
-function SurveyResultsTable({ dataRows = [], surveyResponses, openSurveyResponses }) {
+function SurveyResultsTable({
+  dataRows = [],
+  surveyResponses,
+  openSurveyResponses,
+  exportCsv,
+}) {
   const classes = useStyles;
 
   const [selectedSurveys, setSelectedSurveys] = useState([]);
@@ -248,14 +252,6 @@ function SurveyResultsTable({ dataRows = [], surveyResponses, openSurveyResponse
     setPage(0);
   }
 
-  function exportCsv() {
-    exportSurveysAsCsv(
-      surveyResponses.filter((surveyResponse) =>
-        selectedSurveys.includes(surveyResponse.id)
-      )
-    );
-  }
-
   function handleSelectAllClick(event) {
     setSelectedSurveys(event.target.checked ? dataRows.map((n) => n.id) : []);
   }
@@ -280,7 +276,7 @@ function SurveyResultsTable({ dataRows = [], surveyResponses, openSurveyResponse
       <TableToolbar
         numSelected={numSelected}
         viewSurveys={() => openSurveyResponses(selectedSurveys)}
-        exportCsv={exportCsv}
+        exportCsv={() => exportCsv(selectedSurveys)}
       />
       <TableContainer>
         <Table className={classes.table} aria-label="simple table">

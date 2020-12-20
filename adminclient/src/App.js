@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -15,6 +15,7 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import SurveyResponsesDialog from "./SurveyResponsesDialog";
+import { exportSurveysAsCsv } from "./SurveysAsCsv";
 
 // Configure these properties in .env.local
 const REGION = process.env.REACT_APP_AWS_REGION;
@@ -71,6 +72,8 @@ function App() {
   const [dataRows, setDataRows] = useState([]);
   const [openSurveyResponses, setOpenSurveyResponses] = useState(false);
   const [selectedSurveyIds, setSelectedSurveyIds] = useState([]);
+  const exportCsvRequested = useRef(false);
+  const allResponsesRetrieved = useRef(true);
 
   useEffect(() => {
     if (surveyResponses != null && surveyResponses.length > 0) {
@@ -116,6 +119,7 @@ function App() {
 
   useEffect(() => {
     if (selectedSurveyIds.length === 0) {
+      allResponsesRetrieved.current = true;
       return;
     }
     const surveyIdsToRetrieve = selectedSurveyIds.filter(
@@ -125,8 +129,11 @@ function App() {
         ) === undefined
     );
     if (surveyIdsToRetrieve.length === 0) {
+      allResponsesRetrieved.current = true;
       return;
     }
+
+    allResponsesRetrieved.current = false;
 
     Auth.currentCredentials()
       .then((credentials) => {
@@ -155,11 +162,42 @@ function App() {
           ...fullSurveyResponses,
           ...retrievedResponses,
         ]);
+        allResponsesRetrieved.current = true;
       })
       .catch((error) => {
         console.log("User not logged in", error);
       });
   }, [selectedSurveyIds, fullSurveyResponses]);
+
+  useEffect(() => {
+    console.log(
+      "export status",
+      exportCsvRequested,
+      allResponsesRetrieved,
+      selectedSurveyIds,
+      fullSurveyResponses
+    );
+    if (exportCsvRequested.current && allResponsesRetrieved.current) {
+      exportCsvRequested.current = false;
+
+      exportSurveysAsCsv(
+        fullSurveyResponses.filter((surveyResponse) =>
+          selectedSurveyIds.includes(surveyResponse.id)
+        )
+      );
+    }
+  }, [
+    selectedSurveyIds,
+    fullSurveyResponses,
+    exportCsvRequested,
+    allResponsesRetrieved,
+  ]);
+
+  function requestExportCsv(surveyIds) {
+    allResponsesRetrieved.current = false;
+    exportCsvRequested.current = true;
+    setSelectedSurveyIds(surveyIds);
+  }
 
   return (
     <div className="App">
@@ -179,6 +217,7 @@ function App() {
           setSelectedSurveyIds(surveyIds);
           setOpenSurveyResponses(true);
         }}
+        exportCsv={requestExportCsv}
       />
       <SurveyResponsesDialog
         isOpen={openSurveyResponses}
