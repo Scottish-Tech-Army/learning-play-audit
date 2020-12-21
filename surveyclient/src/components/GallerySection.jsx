@@ -1,54 +1,14 @@
 import React from "react";
 import "../App.css";
-import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { loadPhoto } from "../model/SurveyModel";
 import GalleryPhoto from "./GalleryPhoto";
-import AddPhotoAlternateOutlinedIcon from "@material-ui/icons/AddPhotoAlternateOutlined";
-import IconButton from "@material-ui/core/IconButton";
+import { GALLERY } from "./FixedSectionTypes";
+import SectionBottomNavigation from "./SectionBottomNavigation";
+import { addPhotoSvg } from "./SvgUtils";
+import { sectionsContent } from "../model/Content";
 
-const useStyles = makeStyles((theme) => ({
-  gallerySection: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-  },
-  photo: {
-    maxWidth: "200px",
-    width: "100%",
-  },
-  question: {
-    width: "100%",
-    paddingTop: "1em",
-    paddingBottom: "1em",
-    borderTop: "1px solid grey",
-  },
-  photoSection: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    flexWrap: "wrap",
-  },
-  questionNumber: {
-    position: "absolute",
-  },
-  questionText: {
-    marginLeft: "2em",
-  },
-  commentboxHidden: {
-    display: "none",
-  },
-  commentbox: {
-    paddingTop: "1em",
-  },
-  label: {
-    color: "rgba(0, 0, 0, 0.87)",
-  },
-}));
-
-function GallerySection() {
-  const classes = useStyles();
+function GallerySection({ sections, setCurrentSection }) {
   const dispatch = useDispatch();
   const photoDetails = useSelector((state) => state.photoDetails);
 
@@ -56,14 +16,95 @@ function GallerySection() {
     dispatch(loadPhoto(target.files[0]));
   };
 
+  function isGeneralPhoto(photoDetails) {
+    return (
+      photoDetails.sectionId === null ||
+      photoDetails.sectionId === undefined ||
+      photoDetails.questionId === null ||
+      photoDetails.questionId === undefined
+    );
+  }
+
+  function getSectionQuestionPhotoIdMap() {
+    const result = {};
+
+    Object.keys(photoDetails)
+      .filter((photoId) => !isGeneralPhoto(photoDetails[photoId]))
+      .forEach((photoId, i) => {
+        const current = photoDetails[photoId];
+
+        let section = result[current.sectionId];
+        if (section === undefined) {
+          section = {};
+          result[current.sectionId] = section;
+        }
+        let question = section[current.questionId];
+        if (question === undefined) {
+          question = [];
+          section[current.questionId] = question;
+        }
+        question.push(photoId);
+      });
+
+    return result;
+  }
+
+  function orderedPhotos() {
+    const output = [];
+
+    const generalPhotoIds = Object.keys(photoDetails).filter((photoId) =>
+      isGeneralPhoto(photoDetails[photoId])
+    );
+    if (generalPhotoIds.length > 0) {
+      output.push(
+        <div key="general" className="gallery-section-question">
+          <h3>General</h3>
+          {generalPhotoIds.map((photoId) => (
+            <GalleryPhoto key={photoId} photoId={photoId} />
+          ))}
+        </div>
+      );
+    }
+
+    const questionPhotoIds = getSectionQuestionPhotoIdMap();
+
+    sectionsContent.forEach((section) => {
+      const sectionId = section.id;
+      const sectionTitle = section.title;
+
+      const photoSection = questionPhotoIds[sectionId];
+      if (photoSection === undefined) {
+        return;
+      }
+
+      section.content((type, questionId, text) => {
+        const photoQuestion = photoSection[questionId];
+        if (photoQuestion === undefined) {
+          return;
+        }
+
+        output.push(
+          <div
+            key={sectionId + "-" + questionId}
+            className="gallery-section-question"
+          >
+            <h3>
+              {sectionTitle} - {text}
+            </h3>
+            {photoQuestion.map((photoId) => (
+              <GalleryPhoto key={photoId} photoId={photoId} />
+            ))}
+          </div>
+        );
+      });
+    });
+
+    return output;
+  }
+
   return (
-    <Box className={classes.gallerySection}>
-      <Box
-        display="flex"
-        flexDirection="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
+    <div className="gallery-section">
+      <div className="gallery-section-header">
         <h1>Photos</h1>
         <input
           accept="image/*"
@@ -72,21 +113,15 @@ function GallerySection() {
           type="file"
           onChange={addPhoto}
         />
-        <label htmlFor="icon-button-add-photo">
-          <IconButton color="primary" aria-label="Add Photo" component="span">
-            <AddPhotoAlternateOutlinedIcon fontSize="large" />
-          </IconButton>
-        </label>
-      </Box>
-
-      {photoDetails !== undefined ? (
-        Object.keys(photoDetails).map((photoId) => (
-          <GalleryPhoto photoId={photoId} />
-        ))
-      ) : (
-        <></>
-      )}
-    </Box>
+        <label htmlFor="icon-button-add-photo">{addPhotoSvg()}</label>
+      </div>
+      {orderedPhotos()}
+      <SectionBottomNavigation
+        sections={sections}
+        currentSectionId={GALLERY}
+        setCurrentSectionId={setCurrentSection}
+      />
+    </div>
   );
 }
 

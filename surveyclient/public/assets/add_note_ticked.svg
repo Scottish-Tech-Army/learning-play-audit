@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="53px" height="50px" viewBox="0 0 53 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Notes</title>
+    <defs>
+        <filter x="-34.3%" y="-38.4%" width="168.6%" height="176.8%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Notes" filter="url(#filter-1)" transform="translate(9.000000, 9.000000)">
+        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" fill-rule="nonzero" x="0.625" y="0.625" width="25" height="30" rx="1"></rect>
+        <rect id="Rectangle" fill="#000000" fill-rule="nonzero" x="3.7375" y="19.5625" width="12.5" height="1.875" rx="0.5"></rect>
+        <rect id="Rectangle" fill="#000000" fill-rule="nonzero" x="3.7375" y="12.8" width="18.75" height="1.875" rx="0.5"></rect>
+        <rect id="Rectangle" fill="#000000" fill-rule="nonzero" x="3.7375" y="6.025" width="18.75" height="1.875" rx="0.5"></rect>
+        <path d="M33.125,15.25 L20.55,25.1625 C20.4952001,25.2063751 20.4172999,25.2063751 20.3625,25.1625 L20.3625,25.1625 L16.325,26.25 C16.2639748,26.2718586 16.1958125,26.2520439 16.1560157,26.2008766 C16.116219,26.1497094 16.1137924,26.078767 16.15,26.025 L18.1625,22.375 L18.1625,22.375 C18.1385626,22.3055576 18.1641846,22.2286915 18.225,22.1875 L30.8,12.3 C31.6371846,11.5807058 32.8975048,11.669932 33.625,12.5 C33.9403891,12.9028306 34.063706,13.4235021 33.9625,13.925 C33.8413271,14.4487187 33.5460713,14.9158398 33.125,15.25 L33.125,15.25 Z" id="Path" stroke="#000000" fill="#FFFFFF" fill-rule="nonzero"></path>
+        <line x1="19.0625" y1="21.55" x2="21.3875" y2="24.5" id="Path" stroke="#000000"></line>
+        <line x1="29.8625" y1="13.0375" x2="32.1875" y2="15.9875" id="Path" stroke="#000000"></line>
+    </g>
+    <g id="check" transform="translate(25.000000, 1.000000)">
+        <circle id="Oval" fill="#39B54A" cx="10" cy="10" r="10"></circle>
+        <path d="M14.8533333,6.47333333 C14.6581216,6.27836441 14.3418784,6.27836441 14.1466667,6.47333333 L8.14666667,12.4733333 L5.85333333,10.16 C5.72868628,10.0262312 5.54096297,9.97116721 5.36380739,10.0164096 C5.18665182,10.0616521 5.04831873,10.1999851 5.00307631,10.3771407 C4.95783388,10.5542963 5.01289788,10.7420196 5.14666667,10.8666667 L7.81333333,13.5333333 C8.00854503,13.7283023 8.3247883,13.7283023 8.52,13.5333333 L14.8666667,7.18666667 C14.9606192,7.0908799 15.0121323,6.96135208 15.0097123,6.82720327 C15.0071174,6.69305447 14.9507998,6.56554218 14.8533333,6.47333333 Z" id="Path" fill="#F2F2F2"></path>
+    </g>
+</svg>

@@ -2,35 +2,18 @@ import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
-import TextField from "@material-ui/core/TextField";
-import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  question: {
-    width: "100%",
-    paddingTop: "0.5em",
-    paddingBottom: "0.5em",
-  },
-  questionNumber: {
-    position: "absolute",
-  },
-  questionText: {
-    marginLeft: "2em",
-  },
-}));
+import QuestionAddPhotosButton from "./QuestionAddPhotosButton";
 
 function QuestionText({
   sectionId,
   question,
   questionNumber,
-  inlineLabel = false,
+  textField = false,
 }) {
   const questionId = question.id;
   const id = sectionId + "-" + questionId;
 
   const dispatch = useDispatch();
-  const classes = useStyles();
 
   const questionAnswers = useSelector(
     (state) => state.answers[sectionId][questionId]
@@ -46,39 +29,36 @@ function QuestionText({
     });
   };
 
-  if (inlineLabel) {
+  if (textField) {
     return (
-      <div id={id} className={classes.question}>
-        <TextField
-          multiline
-          fullWidth
-          rowsMax={4}
-          label={question.text}
-          value={questionAnswers.answer}
+      <div id={id} className="question">
+        <label htmlFor={id + "-text"}>{question.text}</label>
+        <input
+          id={id + "-text"}
+          type="text"
+          name={id + "-text"}
           onChange={handleChange}
-          variant="outlined"
+          value={questionAnswers.answer}
         />
       </div>
     );
   }
 
   return (
-    <div id={id} className={classes.question}>
-      <Box flexDirection="row">
-        <div className={classes.questionNumber}>{questionNumber}</div>
-        <p className={classes.questionText}>{question.text}</p>
-      </Box>
-        <TextField
-          multiline
-          fullWidth
-          rowsMax={4}
-          value={questionAnswers.answer}
-          onChange={handleChange}
-          variant="outlined"
-        />{" "}
+    <div id={id} className="question text-question">
+      <div className="question-line">
+        <div className="question-number">{questionNumber}</div>
+        <div className="question-text">{question.text}</div>
+        <QuestionAddPhotosButton
+          sectionId={sectionId}
+          questionId={questionId}
+          questionNumber={questionNumber}
+          questionText={question.text}
+        />
+      </div>
+      <textarea onChange={handleChange} value={questionAnswers.answer} />
     </div>
   );
-
 }
 
 export default QuestionText;

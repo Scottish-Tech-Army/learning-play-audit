@@ -1,46 +1,16 @@
 import React, { useEffect } from "react";
 import { sectionsContent } from "../model/Content";
-import { makeStyles } from "@material-ui/core/styles";
 import NavDrawerSectionItem from "./NavDrawerSectionItem";
-import Divider from "@material-ui/core/Divider";
-import Drawer from "@material-ui/core/Drawer";
-import Hidden from "@material-ui/core/Hidden";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import { useTheme } from "@material-ui/core/styles";
-import {
-  INTRODUCTION,
-  RESULTS,
-  GALLERY,
-  SUBMIT,
-} from "./FixedSectionTypes";
+import Modal from "@material-ui/core/Modal";
+import { INTRODUCTION, RESULTS, GALLERY, SUBMIT } from "./FixedSectionTypes";
+import { menuButtonSvg } from "./SvgUtils";
 
-const drawerWidth = 240;
-
-const useStyles = makeStyles((theme) => ({
-  drawer: {
-    [theme.breakpoints.up("md")]: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-  },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
-  drawerPaper: {
-    width: drawerWidth,
-  },
-}));
-
-function NavDrawer({
+export default function NavDrawer({
   mobileOpen,
   handleDrawerToggle,
   currentSection,
   setCurrentSection,
 }) {
-  const classes = useStyles();
-  const theme = useTheme();
-
   const [totalQuestionsMap, setTotalQuestionsMap] = React.useState(null);
 
   useEffect(() => {
@@ -55,34 +25,32 @@ function NavDrawer({
 
   const drawer = (
     <div className="nav-menu">
-      <Divider />
-      <List>{createMenuItem("Introduction", INTRODUCTION)}</List>
-      <Divider />
-      <List>{sectionsContent.map(createSectionMenuItem)}</List>
-      <Divider />
-      <List>{createMenuItem("Results", RESULTS)}</List>
-      <List>{createMenuItem("Photos", GALLERY)}</List>
-      <List>{createMenuItem("Submit survey", SUBMIT)}</List>
+      {createMenuItem("Introduction", INTRODUCTION)}
+      {sectionsContent.map(createSectionMenuItem)}
+      {createMenuItem("Results", RESULTS)}
+      {createMenuItem("Photos", GALLERY)}
+      {createMenuItem("Submit survey", SUBMIT)}
     </div>
   );
 
   function createMenuItem(title, id) {
     return (
-      <ListItem
-        button
-        selected={currentSection === id}
+      <div
+        className={
+          "nav-menu-item " + id + (currentSection === id ? " selected" : "")
+        }
         onClick={(event) => setCurrentSection(id)}
         key={id}
-        className="nav-menu-item"
       >
-        <ListItemText primary={title} />
-      </ListItem>
+        <span className="section-title">{title}</span>
+      </div>
     );
   }
 
   function createSectionMenuItem(section) {
     return (
       <NavDrawerSectionItem
+        key={section.id}
         section={section}
         currentSection={currentSection}
         setCurrentSection={setCurrentSection}
@@ -93,37 +61,29 @@ function NavDrawer({
     );
   }
 
-  const container =
-    window !== undefined ? () => window.document.body : undefined;
-
   return (
-    <nav className={classes.drawer} aria-label="survey sections">
-      <Hidden mdUp>
-        <Drawer
-          container={container}
-          variant="temporary"
-          anchor={theme.direction === "rtl" ? "right" : "left"}
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          classes={{ paper: classes.drawerPaper }}
-          ModalProps={{ keepMounted: true }}
-        >
-          <div className={classes.toolbar} />
+    <nav className="drawer" aria-label="survey sections">
+      <Modal
+        className="nav-menu-popup-modal"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        container={
+          window !== undefined ? () => window.document.body : undefined
+        }
+        keepMounted={true}
+      >
+        <div className={"nav-menu-popup" + (mobileOpen ? "" : " hidden")}>
+          <button
+            aria-label="close drawer"
+            onClick={handleDrawerToggle}
+            className="menu-button"
+          >
+            {menuButtonSvg()}
+          </button>
           {drawer}
-        </Drawer>
-      </Hidden>
-      <Hidden smDown implementation="css">
-        <Drawer
-          classes={{ paper: classes.drawerPaper }}
-          variant="permanent"
-          open
-        >
-          <div className={classes.toolbar} />
-          {drawer}
-        </Drawer>
-      </Hidden>
+        </div>
+      </Modal>
+      <div className="nav-menu-fixed">{drawer}</div>
     </nav>
   );
 }
-
-export default NavDrawer;

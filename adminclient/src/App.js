@@ -1,19 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import SurveyResultsTable from "./SurveyResultsTable";
-import * as queries from "./graphql/queries";
-// import * as subscriptions from "./graphql/subscriptions";
-import Amplify from "aws-amplify";
-import API, { graphqlOperation } from "@aws-amplify/api";
-import aws_exports from "./aws-exports";
-// import { withAuthenticator, AmplifySignOut } from "aws-amplify-react";
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
+import { Amplify } from "@aws-amplify/core";
+import { Auth } from "@aws-amplify/auth";
+import {
+  DynamoDBClient,
+  ScanCommand,
+  BatchGetItemCommand,
+} from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import SurveyResponsesDialog from "./SurveyResponsesDialog";
+import { exportSurveysAsCsv } from "./SurveysAsCsv";
 
-Amplify.configure(aws_exports);
+// Configure these properties in .env.local
+const REGION = process.env.REACT_APP_AWS_REGION;
+const SURVEY_RESPONSES_TABLE = process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE;
+const SURVEY_RESPONSES_SUMMARY_INDEX =
+  process.env.REACT_APP_AWS_SURVEY_RESPONSES_SUMMARY_INDEX;
+const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
+const isLive = ENVIRONMENT_NAME === "LIVE";
+
+const awsConfig = {
+  Auth: {
+    region: REGION,
+    identityPoolId: process.env.REACT_APP_AWS_IDENTITY_POOL_ID,
+    userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
+  },
+};
+
+Amplify.configure(awsConfig);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,18 +68,25 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   const classes = useStyles();
   const [surveyResponses, setSurveyResponses] = useState([]);
-  const [datarows, setDatarows] = useState([]);
+  const [fullSurveyResponses, setFullSurveyResponses] = useState([]);
+  const [dataRows, setDataRows] = useState([]);
+  const [openSurveyResponses, setOpenSurveyResponses] = useState(false);
+  const [selectedSurveyIds, setSelectedSurveyIds] = useState([]);
+  const exportCsvRequested = useRef(false);
+  const allResponsesRetrieved = useRef(true);
 
   useEffect(() => {
     if (surveyResponses != null && surveyResponses.length > 0) {
-      setDatarows(
+      setDataRows(
         surveyResponses.map((item) => {
           return {
             id: item.id,
-            timestamp: new Date(item.createdAt).toLocaleString(),
+            timestamp: item.createdAt,
+            timestampString: new Date(item.createdAt).toLocaleString(),
             school: item.schoolName,
             contactName: item.responderName,
             email: item.responderEmail,
+            uploadState: item.uploadState,
           };
         })
       );
@@ -66,47 +94,137 @@ function App() {
   }, [surveyResponses]);
 
   useEffect(() => {
-    async function fetchData() {
-      const result = await API.graphql(
-        graphqlOperation(queries.listSurveyResponses, { limit: 999 })
-      );
-      setSurveyResponses(result.data.listSurveyResponses.items);
-    }
-    fetchData();
+    Auth.currentCredentials()
+      .then((credentials) => {
+        const dynamodbClient = new DynamoDBClient({
+          region: REGION,
+          credentials: credentials,
+        });
+        const params = {
+          TableName: SURVEY_RESPONSES_TABLE,
+          IndexName: SURVEY_RESPONSES_SUMMARY_INDEX,
+          ReturnConsumedCapacity: "TOTAL",
+        };
+        console.log("Scanning data", params);
+        return dynamodbClient.send(new ScanCommand(params));
+      })
+      .then((result) => {
+        console.log("Survey responses", result);
+        setSurveyResponses(result.Items.map((item) => unmarshall(item)));
+      })
+      .catch((error) => {
+        console.log("Error retrieving data", error);
+      });
   }, []);
 
-  // useEffect(() => {
-  //   let subscription;
-  //   async function setupSubscription() {
-  //     subscription = API.graphql(
-  //       graphqlOperation(subscriptions.onCreateSurveyResponse, {})
-  //     ).subscribe({
-  //       next: (data) => {
-  //         const surveyResponse = data.value.data.onCreateSurveyResponse;
-  //         console.log("Subscription data", data);
-  //         console.log("Updated survey response", surveyResponse);
-  //         setSurveyResponses((a) => a.concat([surveyResponse]));
-  //       },
-  //     });
-  //   }
-  //   setupSubscription();
-  //
-  //   return () => subscription.unsubscribe();
-  // }, []);
+  useEffect(() => {
+    if (selectedSurveyIds.length === 0) {
+      allResponsesRetrieved.current = true;
+      return;
+    }
+    const surveyIdsToRetrieve = selectedSurveyIds.filter(
+      (surveyId) =>
+        fullSurveyResponses.find(
+          (fullSurveyResponse) => surveyId === fullSurveyResponse.id
+        ) === undefined
+    );
+    if (surveyIdsToRetrieve.length === 0) {
+      allResponsesRetrieved.current = true;
+      return;
+    }
+
+    allResponsesRetrieved.current = false;
+
+    Auth.currentCredentials()
+      .then((credentials) => {
+        const dynamodbClient = new DynamoDBClient({
+          region: REGION,
+          credentials: credentials,
+        });
+        const params = {
+          RequestItems: {},
+          ReturnConsumedCapacity: "TOTAL",
+        };
+        params.RequestItems[SURVEY_RESPONSES_TABLE] = {
+          Keys: surveyIdsToRetrieve.map((id) => {
+            return { id: { S: id } };
+          }),
+        };
+        console.log("Retrieving full responses data", params);
+        return dynamodbClient.send(new BatchGetItemCommand(params));
+      })
+      .then((result) => {
+        console.log("Survey responses", result);
+        const retrievedResponses = result.Responses[
+          SURVEY_RESPONSES_TABLE
+        ].map((item) => unmarshall(item));
+        setFullSurveyResponses((fullSurveyResponses) => [
+          ...fullSurveyResponses,
+          ...retrievedResponses,
+        ]);
+        allResponsesRetrieved.current = true;
+      })
+      .catch((error) => {
+        console.log("User not logged in", error);
+      });
+  }, [selectedSurveyIds, fullSurveyResponses]);
+
+  useEffect(() => {
+    console.log(
+      "export status",
+      exportCsvRequested,
+      allResponsesRetrieved,
+      selectedSurveyIds,
+      fullSurveyResponses
+    );
+    if (exportCsvRequested.current && allResponsesRetrieved.current) {
+      exportCsvRequested.current = false;
+
+      exportSurveysAsCsv(
+        fullSurveyResponses.filter((surveyResponse) =>
+          selectedSurveyIds.includes(surveyResponse.id)
+        )
+      );
+    }
+  }, [
+    selectedSurveyIds,
+    fullSurveyResponses,
+    exportCsvRequested,
+    allResponsesRetrieved,
+  ]);
+
+  function requestExportCsv(surveyIds) {
+    allResponsesRetrieved.current = false;
+    exportCsvRequested.current = true;
+    setSelectedSurveyIds(surveyIds);
+  }
 
   return (
     <div className="App">
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            Learning and Play Audit Admin - Overview
+            Learning and Play Audit Admin
+            {!isLive && " (" + ENVIRONMENT_NAME + ")"} - Overview
           </Typography>
           <AmplifySignOut />
         </Toolbar>
       </AppBar>
       <SurveyResultsTable
-        datarows={datarows}
+        dataRows={dataRows}
         surveyResponses={surveyResponses}
+        openSurveyResponses={(surveyIds) => {
+          setSelectedSurveyIds(surveyIds);
+          setOpenSurveyResponses(true);
+        }}
+        exportCsv={requestExportCsv}
+      />
+      <SurveyResponsesDialog
+        isOpen={openSurveyResponses}
+        surveys={fullSurveyResponses.filter((surveyResponse) =>
+          selectedSurveyIds.includes(surveyResponse.id)
+        )}
+        handleClose={() => setOpenSurveyResponses(false)}
       />
     </div>
   );
@@ -115,8 +233,5 @@ function App() {
 export default withAuthenticator(App, {
   signUpConfig: {
     hiddenDefaults: ["phone_number"],
-  },
-  signInConfig: {
-    headerText: "wibble"
   },
 });

@@ -1,107 +1,175 @@
-import React, { useEffect } from "react";
-import "./App.css";
+import React, { useEffect, useState } from "react";
 import { sectionsContentMap, sectionsContent } from "./model/Content";
-import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
 import GallerySection from "./components/GallerySection";
 import SubmitSection from "./components/SubmitSection";
 import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
-import DownloadButton from "./components/DownloadButton";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import { useDispatch } from "react-redux";
+import AuthSignInOut from "./components/auth/AuthSignInOut";
+import AuthCurrentUser from "./components/auth/AuthCurrentUser";
+import GetStartedScreen from "./components/GetStartedScreen";
+import { useDispatch, useSelector } from "react-redux";
 import { refreshState } from "./model/SurveyModel";
-import MenuIcon from "@material-ui/icons/Menu";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import BottomNavigation from "@material-ui/core/BottomNavigation";
-import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import {
   INTRODUCTION,
   RESULTS,
   GALLERY,
   SUBMIT,
 } from "./components/FixedSectionTypes";
-import Amplify from "aws-amplify";
-import awsconfig from "./aws-exports";
+import { Amplify } from "@aws-amplify/core";
+import Authenticator, {
+  isAuthenticating,
+} from "./components/auth/Authenticator";
+import { menuButtonSvg } from "./components/SvgUtils";
+import "./App.css";
 
-Amplify.configure(awsconfig);
+const API_NAME = "ltlClientApi";
 
-const drawerWidth = 240;
+// Configure these properties in .env.local
+const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
+const isLive = ENVIRONMENT_NAME === "LIVE";
 
-const useStyles = makeStyles((theme) => ({
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: "33.33%",
-    flexShrink: 0,
+const awsConfig = {
+  Auth: {
+    region: process.env.REACT_APP_AWS_REGION,
+    userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
   },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
+  API: {
+    endpoints: [
+      {
+        name: API_NAME,
+        endpoint: process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT,
+      },
+    ],
   },
-  title: {
-    flexGrow: 1,
-  },
+};
 
-  root: {
-    width: "100%",
-    display: "flex",
-  },
-  drawer: {
-    [theme.breakpoints.up("md")]: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-  },
-  appBar: {
-    zIndex: 2000,
-    [theme.breakpoints.up("md")]: {
-      width: "100%",
-    },
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up("md")]: {
-      display: "none",
-    },
-  },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  content: {
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      marginLeft: drawerWidth,
-    },
-  },
-  sectionContainer: {
-    padding: "20px",
-    width: "100%",
-  },
-}));
+console.log("Configure", Amplify.configure(awsConfig));
+
+// window.LOG_LEVEL = "DEBUG";
 
 function App() {
-  const classes = useStyles();
   const dispatch = useDispatch();
+  const authState = useSelector((state) => state.authentication.state);
+  const hasSeenSplashPage = useSelector((state) => state.hasSeenSplashPage);
+  const hasEverLoggedIn = useSelector((state) => state.hasEverLoggedIn);
 
-  const [currentSection, _setCurrentSection] = React.useState("introduction");
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  console.log("hasSeenSplashPage", hasSeenSplashPage);
+  console.log("hasEverLoggedIn", hasEverLoggedIn);
+
+  const [currentSection, _setCurrentSection] = useState("introduction");
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setMobileOpen((mobileOpen) => !mobileOpen);
   };
 
   // Restore locally stored answers if existing
   useEffect(() => {
     dispatch(refreshState());
   }, [dispatch]);
+
+  const [deferredInstallEvent, setDeferredInstallEvent] = useState(null);
+  const [appInstalled, setAppInstalled] = useState(false);
+
+  useEffect(() => {
+    const listener = (event) => {
+      console.log("beforeinstallprompt triggered");
+      event.preventDefault();
+      setDeferredInstallEvent(event);
+    };
+    window.addEventListener("beforeinstallprompt", listener);
+
+    return function cleanup() {
+      window.removeEventListener("beforeinstallprompt", listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const listener = (event) => {
+      console.log("PWA install successful");
+      setAppInstalled(true);
+    };
+    window.addEventListener("appinstalled", listener);
+
+    return function cleanup() {
+      window.removeEventListener("appinstalled", listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const listener = () => {
+      let displayMode = "browser tab";
+      if (navigator.standalone) {
+        displayMode = "standalone-ios";
+        setAppInstalled(true);
+      }
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        displayMode = "standalone";
+        setAppInstalled(true);
+      }
+      console.log("Running mode: ", displayMode);
+    };
+    window.addEventListener("DOMContentLoaded", listener);
+
+    return function cleanup() {
+      window.removeEventListener("DOMContentLoaded", listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    const innerListener = (evt) => {
+      let displayMode = "browser tab";
+      if (evt.matches) {
+        displayMode = "standalone";
+        setAppInstalled(true);
+      }
+      console.log("Running mode: ", displayMode);
+    };
+    const outerListener = () => {
+      window
+        .matchMedia("(display-mode: standalone)")
+        .addListener(innerListener);
+    };
+    window.addEventListener("DOMContentLoaded", outerListener);
+
+    return function cleanup() {
+      window.removeEventListener("DOMContentLoaded", outerListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("canInstall", deferredInstallEvent !== null, appInstalled);
+  }, [deferredInstallEvent, appInstalled]);
+
+  function handleInstall() {
+    if (deferredInstallEvent != null) {
+      deferredInstallEvent.prompt();
+    }
+  }
+
+  function canInstall() {
+    return deferredInstallEvent !== null && !appInstalled;
+  }
+
+  function downloadButton() {
+    if (!canInstall()) {
+      return null;
+    }
+
+    return (
+      <button
+        aria-haspopup="true"
+        aria-label="Install Application"
+        onClick={handleInstall}
+        className="download-button"
+      >
+        INSTALL SURVEY APP
+      </button>
+    );
+  }
 
   function setCurrentSection(sectionId) {
     _setCurrentSection(sectionId);
@@ -120,91 +188,158 @@ function App() {
   sections.push({ title: "Photos", id: GALLERY });
   sections.push({ title: "Submit survey", id: SUBMIT });
 
-  function hasNextSection() {
-    return (
-      sections.findIndex((section) => section.id === currentSection) <
-      sections.length - 1
-    );
-  }
-
-  function hasPreviousSection() {
-    return sections.findIndex((section) => section.id === currentSection) > 0;
-  }
-
-  const PREVIOUS_SECTION = 0;
-  const NEXT_SECTION = 1;
-
   function getCurrentSection() {
     if (currentSection === INTRODUCTION) {
       return <IntroductionSection />;
     }
     if (currentSection === RESULTS) {
-      return <ResultsSection />;
+      return (
+        <ResultsSection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     if (currentSection === GALLERY) {
-      return <GallerySection />;
+      return (
+        <GallerySection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     if (currentSection === SUBMIT) {
-      return <SubmitSection />;
+      return (
+        <SubmitSection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     const section = sectionsContentMap.get(currentSection);
-    return <Section key={section.id} section={section} />;
+    return (
+      <Section
+        key={section.id}
+        section={section}
+        sections={sections}
+        setCurrentSection={setCurrentSection}
+      />
+    );
+  }
+
+  function getTitle() {
+    if (!hasSeenSplashPage || isAuthenticating(authState)) {
+      return (
+        <>
+          <h1 className="title large">
+            Welcome to the Learning Through Landscapes
+            <br />
+            Learning and Play Audit Survey
+            {!isLive && " (" + ENVIRONMENT_NAME + ")"}
+          </h1>
+          <h1 className="title small">
+            Welcome to the
+            <br />
+            <span className="ltl-title">Learning Through Landscapes</span>
+            <br />
+            Learning and Play Audit Survey
+            {!isLive && " (" + ENVIRONMENT_NAME + ")"}
+          </h1>
+        </>
+      );
+    }
+
+    return (
+      <h1 className="title">
+        Learning Through Landscapes
+        <br />
+        Learning and Play Audit Survey
+        {!isLive && " (" + ENVIRONMENT_NAME + ")"}
+      </h1>
+    );
+  }
+
+  if (isAuthenticating(authState)) {
+    return (
+      <div className="root">
+        <div className="app-bar authenticating">
+          <img
+            className="title-logo-small"
+            src="./assets/LTL_logo_small.png"
+            alt=""
+          />
+          <img
+            className="title-logo-large"
+            src="./assets/LTL_logo_large.png"
+            alt=""
+          />
+          {getTitle()}
+        </div>
+        <Authenticator />
+      </div>
+    );
+  }
+
+  if (!hasSeenSplashPage) {
+    return (
+      <div className="root">
+        <div className="app-bar authenticating">
+          <img
+            className="title-logo-small"
+            src="./assets/LTL_logo_small.png"
+            alt=""
+          />
+          <img
+            className="title-logo-large"
+            src="./assets/LTL_logo_large.png"
+            alt=""
+          />
+          {getTitle()}
+          <AuthSignInOut />
+          <AuthCurrentUser />
+        </div>
+        <GetStartedScreen
+          canInstall={canInstall()}
+          downloadButton={downloadButton()}
+        />
+      </div>
+    );
   }
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            className={classes.menuButton}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            Learning and Play Audit Tool
-          </Typography>
-          <DownloadButton />
-        </Toolbar>
-      </AppBar>
-      <main className={classes.content}>
+    <div className="root">
+      <div className="app-bar">
+        <button
+          aria-label="open drawer"
+          onClick={handleDrawerToggle}
+          className="menu-button"
+        >
+          {menuButtonSvg()}
+        </button>
+
+        <img
+          className="title-logo-small"
+          src="./assets/LTL_logo_small.png"
+          alt=""
+        />
+        <img
+          className="title-logo-large"
+          src="./assets/LTL_logo_large.png"
+          alt=""
+        />
+        {getTitle()}
+        <AuthSignInOut />
+        <AuthCurrentUser />
+        {downloadButton()}
+      </div>
+      <main className="content">
         <NavDrawer
           mobileOpen={mobileOpen}
           handleDrawerToggle={handleDrawerToggle}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
         />
-        <div className={classes.toolbar} />
-        <div className={classes.sectionContainer}>{getCurrentSection()}</div>
-        <BottomNavigation
-          showLabels
-          onChange={(event, newValue) => {
-            var index = sections.findIndex(
-              (section) => section.id === currentSection
-            );
-            index += newValue === PREVIOUS_SECTION ? -1 : 1;
-            if (index >= 0 && index < sections.length) {
-              setCurrentSection(sections[index].id);
-            }
-          }}
-        >
-          <BottomNavigationAction
-            disabled={!hasPreviousSection()}
-            label="Previous section"
-            value={PREVIOUS_SECTION}
-            icon={<ArrowBackIosIcon />}
-          />
-          <BottomNavigationAction
-            disabled={!hasNextSection()}
-            value={NEXT_SECTION}
-            label="Next section"
-            icon={<ArrowForwardIosIcon />}
-          />
-        </BottomNavigation>
+        <div className="section-container">{getCurrentSection()}</div>
       </main>
     </div>
   );

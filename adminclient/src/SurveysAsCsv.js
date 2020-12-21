@@ -23,7 +23,7 @@ export function exportSurveysAsCsv(surveys = []) {
   });
 
   surveys.forEach((survey, i) => {
-    const response = JSON.parse(survey.surveyResponse);
+    const response = survey.surveyResponse;
     console.log(survey);
     const rowData = [survey.id];
 
@@ -45,8 +45,6 @@ export function exportSurveysAsCsv(surveys = []) {
 }
 
 function renderSectionHeader(data, section) {
-  console.log("Render section header " + section.title);
-
   // Contains question and question part headers
   var questionData = [[], []];
 
@@ -88,8 +86,6 @@ function renderSectionHeader(data, section) {
 }
 
 function renderSectionAnswers(rowData, section, sectionResponse) {
-  console.log("Render section answers " + section.title);
-
   function addQuestion(type, id, text) {
     const response = sectionResponse[id];
 

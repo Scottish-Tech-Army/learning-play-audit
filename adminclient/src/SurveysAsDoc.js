@@ -6,7 +6,6 @@ import {
   USER_TYPE_WITH_COMMENT,
 } from "./QuestionTypes";
 import { sectionsContent } from "./Content";
-import { Storage } from "aws-amplify";
 import { saveAs } from "file-saver";
 import {
   Document,
@@ -19,15 +18,24 @@ import {
   TableRow,
   TableCell,
   TableLayoutType,
-  WidthType,
+  BorderStyle,
 } from "docx";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { Auth } from "@aws-amplify/auth";
+
+const IMAGE_NOT_FOUND = "[Image not found]";
+
+// Configure these properties in .env.local
+const REGION = process.env.REACT_APP_AWS_REGION;
+const SURVEY_RESOURCES_S3_BUCKET =
+  process.env.REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET;
 
 export function exportSurveysAsDocx(surveys = []) {
   if (surveys.length === 0) {
     console.log("No surveys to export");
   }
 
-  const responses = surveys.map((survey) => JSON.parse(survey.surveyResponse));
+  const responses = surveys.map((survey) => survey.surveyResponse);
   const doc = new Document();
 
   const paragraphs = sectionsContent
@@ -39,7 +47,6 @@ export function exportSurveysAsDocx(surveys = []) {
     })
     .flat();
 
-  console.log(paragraphs);
   doc.addSection({
     properties: {},
     children: [
@@ -51,28 +58,57 @@ export function exportSurveysAsDocx(surveys = []) {
     ],
   });
 
-  function renderPhoto(photo, i) {
-    return Storage.get(photo.fullsize.key, {
-      download: true,
-    }).then((photoData) => {
-      const image = Media.addImage(doc, photoData.Body);
-      return Promise.resolve([
-        new Paragraph(image),
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: photo.description,
-            }),
-          ],
-        }),
-      ]);
-    });
+  function renderPhoto(photo, i, s3) {
+    const params = {
+      Bucket: SURVEY_RESOURCES_S3_BUCKET,
+      Key: photo.fullsize.key,
+    };
+
+    return s3
+      .send(new GetObjectCommand(params))
+      .then((photoData) => {
+        const image = Media.addImage(
+          doc,
+          new Response(photoData.Body).arrayBuffer()
+        );
+        return Promise.resolve([
+          new Paragraph(image),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: photo.description,
+              }),
+            ],
+          }),
+        ]);
+      })
+      .catch((error) => {
+        console.error("Error retrieving photo", params, error);
+        return Promise.resolve([
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: IMAGE_NOT_FOUND,
+              }),
+            ],
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: photo.description,
+              }),
+            ],
+          }),
+        ]);
+      });
   }
 
-  function renderSurveyPhotos(survey, i) {
-    const response = JSON.parse(survey.surveyResponse);
+  function renderSurveyPhotos(survey, i, s3) {
+    const response = survey.surveyResponse;
 
-    return Promise.all(survey.photos.map(renderPhoto)).then((photos) => {
+    return Promise.all(
+      survey.photos.map((photo, i) => renderPhoto(photo, i, s3))
+    ).then((photos) => {
       return Promise.resolve([
         new Paragraph({
           children: [
@@ -86,9 +122,16 @@ export function exportSurveysAsDocx(surveys = []) {
     });
   }
 
-  Promise.all(
-    surveys.filter((survey) => survey.photos.length > 0).map(renderSurveyPhotos)
-  )
+  Auth.currentCredentials()
+    .then((credentials) => {
+      const s3 = new S3Client({ region: REGION, credentials });
+
+      return Promise.all(
+        surveys
+          .filter((survey) => survey.photos.length > 0)
+          .map((survey, i) => renderSurveyPhotos(survey, i, s3))
+      );
+    })
     .then((photoSections) => {
       doc.addSection({
         children: [
@@ -101,7 +144,7 @@ export function exportSurveysAsDocx(surveys = []) {
       });
 
       Packer.toBlob(doc).then((blob) => {
-        saveAs(blob, "example.docx");
+        saveAs(blob, "SurveyReport.docx");
       });
     })
     .catch((error) => console.error(error));
@@ -129,6 +172,27 @@ function renderQuestionText(questionNumber, questionText) {
   });
 }
 
+const GREY_BORDER = {
+  top: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  bottom: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  left: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  right: { color: "bfbfbf", style: BorderStyle.SINGLE },
+};
+
+function tableRow(...cellsContent) {
+  return new TableRow({
+    children: cellsContent.map(tableCell),
+  });
+}
+
+function tableCell(content) {
+  return new TableCell({
+    children: [new Paragraph(content)],
+    margins: { bottom: 100, top: 100, left: 100, right: 100 },
+    borders: GREY_BORDER,
+  });
+}
+
 function questionSelectWithComment(question, questionNumber, responses) {
   function getAnswer(response) {
     switch (response.answer) {
@@ -141,6 +205,7 @@ function questionSelectWithComment(question, questionNumber, responses) {
       case "d":
         return "strongly disagree";
       case null:
+      case "":
         return "";
       default:
         return "unknown: " + response.answer;
@@ -152,23 +217,9 @@ function questionSelectWithComment(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 1600, 7000],
+      borders: GREY_BORDER,
       rows: responses.map((response, i) => {
-        return new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph("" + (i + 1))],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [new Paragraph(getAnswer(response))],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [new Paragraph(response.comments)],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-          ],
-        });
+        return tableRow("" + (i + 1), getAnswer(response), response.comments);
       }),
     }),
   ];
@@ -186,6 +237,7 @@ function questionUserSelect(question, questionNumber, responses) {
       case "d":
         return "other";
       case null:
+      case "":
         return "";
       default:
         return "unknown: " + response.answer;
@@ -208,25 +260,14 @@ function questionUserSelect(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 1600, 7000],
+      borders: GREY_BORDER,
+
       rows: responses.map((response, i) => {
-        return new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph("" + (i + 1))],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [new Paragraph(getAnswer(response))],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [
-                new Paragraph(labelTitle(response) + " - " + response.comments),
-              ],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-          ],
-        });
+        return tableRow(
+          "" + (i + 1),
+          getAnswer(response),
+          labelTitle(response) + " - " + response.comments
+        );
       }),
     }),
   ];
@@ -238,21 +279,12 @@ function questionText(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 8600],
+      borders: GREY_BORDER,
       rows: responses.map((response, i) => {
-        return new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph("" + (i + 1))],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [
-                new Paragraph(response.answer != null ? response.answer : ""),
-              ],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-          ],
-        });
+        return tableRow(
+          "" + (i + 1),
+          response.answer != null ? response.answer : ""
+        );
       }),
     }),
   ];
@@ -263,22 +295,7 @@ function questionTextWithYear(question, questionNumber, responses) {
     const answer = response[answerKey] != null ? response[answerKey] : "";
     const year = response[yearKey] != null ? response[yearKey] : "";
 
-    return new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph("" + index)],
-          margins: { bottom: 100, top: 100, left: 100, right: 100 },
-        }),
-        new TableCell({
-          children: [new Paragraph(answer)],
-          margins: { bottom: 100, top: 100, left: 100, right: 100 },
-        }),
-        new TableCell({
-          children: [new Paragraph(year)],
-          margins: { bottom: 100, top: 100, left: 100, right: 100 },
-        }),
-      ],
-    });
+    return tableRow("" + index, answer, year);
   }
 
   function hasValue(value) {
@@ -301,42 +318,13 @@ function questionTextWithYear(question, questionNumber, responses) {
     new Table({
       layout: TableLayoutType.FIXED,
       columnWidths: [300, 8000, 600],
+      borders: GREY_BORDER,
       rows: [
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph("")],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [new Paragraph("Improvement")],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-            new TableCell({
-              children: [new Paragraph("Year")],
-              margins: { bottom: 100, top: 100, left: 100, right: 100 },
-            }),
-          ],
-        }),
+        tableRow("", "Improvement", "Year"),
         ...responses
           .map((response, i) => {
             if (!questionAnswered(response)) {
-              return new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph("" + (i + 1))],
-                    margins: { bottom: 100, top: 100, left: 100, right: 100 },
-                  }),
-                  new TableCell({
-                    children: [new Paragraph("")],
-                    margins: { bottom: 100, top: 100, left: 100, right: 100 },
-                  }),
-                  new TableCell({
-                    children: [new Paragraph("")],
-                    margins: { bottom: 100, top: 100, left: 100, right: 100 },
-                  }),
-                ],
-              });
+              return tableRow("" + (i + 1), "", "");
             }
 
             return [

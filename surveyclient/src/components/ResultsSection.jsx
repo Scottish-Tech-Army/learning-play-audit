@@ -1,28 +1,25 @@
 import React, { useRef, useEffect } from "react";
 import "../App.css";
-import Box from "@material-ui/core/Box";
 import { useSelector } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
 import Chart from "chart.js";
 import { sectionsContent } from "../model/Content";
+import { RESULTS } from "./FixedSectionTypes";
+import SectionBottomNavigation from "./SectionBottomNavigation";
 
-const useStyles = makeStyles((theme) => ({
-  resultsChart: {
-    position: "relative",
-    // display: "flex",
-    width: "60vw",
-  },
-}));
-
-function ResultsSection() {
+function ResultsSection({ sections, setCurrentSection }) {
   const answers = useSelector((state) => state.answers);
-  const classes = useStyles();
-  const chartContainer1 = useRef();
-  const chartContainer2 = useRef();
-  const chartContainer3 = useRef();
-  const chartInstance1 = useRef(null);
-  const chartInstance2 = useRef(null);
-  const chartInstance3 = useRef(null);
+  const chartContainer1small = useRef();
+  const chartContainer1large = useRef();
+  const chartContainer2small = useRef();
+  const chartContainer2large = useRef();
+  const chartContainer3small = useRef();
+  const chartContainer3large = useRef();
+  const chartInstance1small = useRef(null);
+  const chartInstance1large = useRef(null);
+  const chartInstance2small = useRef(null);
+  const chartInstance2large = useRef(null);
+  const chartInstance3small = useRef(null);
+  const chartInstance3large = useRef(null);
 
   const [answerWeights] = React.useState(createAnswerWeights());
 
@@ -96,7 +93,7 @@ function ResultsSection() {
       return (value * 100) / maxValue;
     }
 
-    function radarDataGreenspaceAnswers() {
+    function chartDataGreenspaceAnswers() {
       return [
         calcAnswer(answers, answerWeights, "greenspace", "accessible"),
         calcAnswer(answers, answerWeights, "greenspace", "frequentuse"),
@@ -106,8 +103,8 @@ function ResultsSection() {
       ];
     }
 
-    function radarDataAnswers() {
-      console.log("radarDataAnswers");
+    function chartDataAnswers() {
+      console.log("chartDataAnswers");
 
       return [
         calcSectionAnswers(answers, answerWeights, "learning"),
@@ -118,8 +115,8 @@ function ResultsSection() {
       ];
     }
 
-    function radarDataPracticeAnswers() {
-      console.log("radarDataPracticeAnswers");
+    function chartDataPracticeAnswers() {
+      console.log("chartDataPracticeAnswers");
       return [
         calcMultipleAnswers(answers, answerWeights, "practice", [
           "developingcurriculum",
@@ -143,13 +140,44 @@ function ResultsSection() {
       ];
     }
 
-    function updateChart(chartContainer, chartInstance, labels, dataset) {
+    function updateChart(
+      chartContainer,
+      chartInstance,
+      labels,
+      data,
+      barColour,
+      small = false
+    ) {
       if (chartInstance.current !== null) {
         chartInstance.current.destroy();
       }
 
+      const valueAxis = {
+        gridLines: {
+          color: "#807d7d",
+          z: 1,
+        },
+        ticks: {
+          beginAtZero: true,
+          suggestedMin: 0,
+          suggestedMax: 100,
+          fontSize: 14,
+        },
+      };
+
+      const categoryAxis = {
+        gridLines: {
+          color: "#807d7d",
+          z: 1,
+        },
+        ticks: {
+          fontSize: 16,
+          fontStyle: "bold",
+        },
+      };
+
       const configuration = {
-        type: "horizontalBar",
+        type: small ? "bar" : "horizontalBar",
         options: {
           animation: {
             duration: 0,
@@ -159,21 +187,30 @@ function ResultsSection() {
           },
           responsiveAnimationDuration: 0,
           responsive: true,
+          maintainAspectRatio: false,
+          legend: false,
+          borderWidth: 10,
           scales: {
-            xAxes: [
-              {
-                ticks: {
-                  beginAtZero: true,
-                  suggestedMin: 0,
-                  suggestedMax: 100,
-                },
-              },
-            ],
+            xAxes: [small ? categoryAxis : valueAxis],
+            yAxes: [small ? valueAxis : categoryAxis],
+          },
+          tooltips: {
+            enabled: false,
           },
         },
         data: {
           labels: labels,
-          datasets: [dataset],
+          datasets: [
+            {
+              data: data,
+              backgroundColor: barColour,
+              borderColor: barColour,
+              hoverBackgroundColor: barColour,
+              hoverBorderColor: barColour,
+              categoryPercentage: 0.9,
+              maxBarThickness: 55,
+            },
+          ],
         },
       };
 
@@ -181,71 +218,99 @@ function ResultsSection() {
       chartInstance.current = new Chart(chartRef, configuration);
     }
 
-    updateChart(
-      chartContainer1,
-      chartInstance1,
+    function updateCharts(
+      chartContainerSmall,
+      chartInstanceSmall,
+      chartContainerLarge,
+      chartInstanceLarge,
+      labels,
+      data,
+      barColour
+    ) {
+      updateChart(
+        chartContainerSmall,
+        chartInstanceSmall,
+        labels,
+        data,
+        barColour,
+        true
+      );
+      updateChart(
+        chartContainerLarge,
+        chartInstanceLarge,
+        labels,
+        data,
+        barColour,
+        false
+      );
+    }
+
+    updateCharts(
+      chartContainer1small,
+      chartInstance1small,
+      chartContainer1large,
+      chartInstance1large,
       [
-        "for learning",
-        "for play",
-        "for wellbeing",
-        "for sustainability",
-        "for community & participation",
+        "For Learning",
+        "For Play",
+        "For Wellbeing",
+        "For Sustainability",
+        ["For Community", "& Participation"],
       ],
-      {
-        data: radarDataAnswers(),
-        backgroundColor: "rgb(0, 128, 0, 0.2)",
-        borderColor: "green",
-        label: "Results",
-        // label: "How good is our outdoor space?",
-      }
+      chartDataAnswers(),
+      "#c53e50",
+      false
     );
-    updateChart(
-      chartContainer2,
-      chartInstance2,
+    updateCharts(
+      chartContainer2small,
+      chartInstance2small,
+      chartContainer2large,
+      chartInstance2large,
       [
-        "for accessibility",
-        "for frequent use",
-        "for wildlife",
-        "for learning and play",
-        "for ease of change",
+        "For Accessibility",
+        "For Frequent Use",
+        "For Wildlife",
+        ["For Learning", "& Play"],
+        ["For Ease of", "Change"],
       ],
-      {
-        data: radarDataGreenspaceAnswers(),
-        backgroundColor: "rgb(0, 0, 128, 0.2)",
-        borderColor: "blue",
-        label: "Results",
-      }
+      chartDataGreenspaceAnswers(),
+      "#afcd4b"
     );
-    updateChart(chartContainer3, chartInstance3, ["learning", "play"], {
-      data: radarDataPracticeAnswers(),
-      backgroundColor: "rgb(128, 0, 0, 0.2)",
-      borderColor: "red",
-      label: "Results",
-    });
+    updateCharts(
+      chartContainer3small,
+      chartInstance3small,
+      chartContainer3large,
+      chartInstance3large,
+      ["Learning", "Play"],
+      chartDataPracticeAnswers(),
+      "#7e354f"
+    );
   }, [answers, answerWeights]);
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="stretch">
-      <h2>How good is our outdoor space?</h2>
-      <div className={classes.resultsChart}>
-        <canvas ref={chartContainer1} />
+    <div className="section results-section">
+      <h2>How Good Is Our Outdoor Space?</h2>
+      <div className="results-chart five-bars">
+        <canvas className="small-chart" ref={chartContainer1small} />
+        <canvas className="large-chart" ref={chartContainer1large} />
       </div>
-      <h2>How good is our local greenspace?</h2>
-      <div className={classes.resultsChart}>
-        <canvas ref={chartContainer2} />
+      <h2>How Good Is Our Local Greenspace?</h2>
+      <div className="results-chart five-bars">
+        <canvas className="small-chart" ref={chartContainer2small} />
+        <canvas className="large-chart" ref={chartContainer2large} />
       </div>
-      <h2>How good is our outdoor practice?</h2>
-      <div className={classes.resultsChart}>
-        <canvas ref={chartContainer3} />
+      <h2>How Good Is Our Outdoor Practice?</h2>
+      <div className="results-chart two-bars">
+        <canvas className="small-chart" ref={chartContainer3small} />
+        <canvas className="large-chart" ref={chartContainer3large} />
       </div>
-    </Box>
+      <SectionBottomNavigation
+        sections={sections}
+        currentSectionId={RESULTS}
+        setCurrentSectionId={setCurrentSection}
+      />
+    </div>
   );
 }
-
-// <Box display="flex" flexDirection="row">
-//   <Button variant="outlined" color="primary">
-//     Print
-//   </Button>
-// </Box>
 
 export default ResultsSection;
