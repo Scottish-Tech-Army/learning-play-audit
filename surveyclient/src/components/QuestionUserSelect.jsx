@@ -58,10 +58,10 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
   }
 
   return (
-    <div id={id} className="question-user-select">
+    <div id={id} className="question user-select">
       <div className="selection-column">
         <span>I&nbsp;am&nbsp;a</span>
-        <div className="toggle-button-group userrole">
+        <div className="toggle-button-group">
           {toggleButton("a", "teacher")}
           {toggleButton("b", "parent")}
           {toggleButton("c", "pupil")}

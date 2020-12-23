@@ -65,7 +65,7 @@ export default function SignIn() {
           onClick={signIn}
           disabled={loading || email.length === 0 || password.length === 0}
         >
-          {loading ? <amplify-loading-spinner /> : <span>LOGIN</span>}
+          {loading ? <div class="loader" /> : <span>LOGIN</span>}
         </button>
         <ContinueSignedOutButton />
       </div>

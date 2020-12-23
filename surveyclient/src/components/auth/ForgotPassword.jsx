@@ -97,7 +97,7 @@ export default function ForgotPassword() {
       <div className="action-row">
         <button onClick={delivery ? submit : send} disabled={loading}>
           {loading ? (
-            <amplify-loading-spinner />
+            <div class="loader" />
           ) : (
             <span>{delivery ? "SUBMIT" : "SEND CODE"}</span>
           )}

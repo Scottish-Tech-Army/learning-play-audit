@@ -45,7 +45,7 @@ function QuestionText({
   }
 
   return (
-    <div id={id} className="question text-question">
+    <div id={id} className="question text">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>

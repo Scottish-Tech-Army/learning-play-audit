@@ -68,15 +68,13 @@ export default function Authenticator() {
     <>
       <AuthErrorAlert />
       {isAuthenticating(authState) && (
-        <div className="authenticator-wrapper">
-          <div className="authenticator">
-            <img
-              className="title-logo-small"
-              src="./assets/ltl-logo.jpg"
-              alt=""
-            />
-            {renderAuthComponent()}
-          </div>
+        <div className="section authenticator">
+          <img
+            className="title-logo-small"
+            src="./assets/ltl-logo.jpg"
+            alt=""
+          />
+          {renderAuthComponent()}
         </div>
       )}
     </>

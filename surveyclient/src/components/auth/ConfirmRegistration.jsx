@@ -96,7 +96,7 @@ export default function ConfirmRegistration() {
 
       <div className="action-row">
         <button onClick={confirmRegistration} disabled={loading}>
-          {loading ? <amplify-loading-spinner /> : <span>CONFIRM</span>}
+          {loading ? <div class="loader" /> : <span>CONFIRM</span>}
         </button>
         <ContinueSignedOutButton />
       </div>

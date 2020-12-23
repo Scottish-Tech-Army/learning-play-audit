@@ -52,7 +52,7 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   }
 
   return (
-    <div id={id} className="question dated-question">
+    <div id={id} className="question dated">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>

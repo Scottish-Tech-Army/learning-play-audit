@@ -103,9 +103,9 @@ function GallerySection({ sections, setCurrentSection }) {
   }
 
   return (
-    <div className="gallery-section">
-      <div className="gallery-section-header">
-        <h1>Photos</h1>
+    <div className="section gallery">
+      <div className="section-header">
+        <h1 className="title">Photos</h1>
         <input
           accept="image/*"
           style={{ display: "none" }}

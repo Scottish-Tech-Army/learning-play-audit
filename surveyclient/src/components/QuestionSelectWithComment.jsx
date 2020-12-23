@@ -41,7 +41,7 @@ export default function QuestionSelectWithComment({
   }
 
   return (
-    <div id={id} className="question">
+    <div id={id} className="question select">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
         <div className="question-text">{question.text}</div>

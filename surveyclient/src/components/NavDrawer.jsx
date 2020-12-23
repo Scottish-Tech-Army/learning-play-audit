@@ -62,7 +62,7 @@ export default function NavDrawer({
   }
 
   return (
-    <nav className="drawer" aria-label="survey sections">
+    <>
       <Modal
         className="nav-menu-popup-modal"
         open={mobileOpen}
@@ -72,7 +72,10 @@ export default function NavDrawer({
         }
         keepMounted={true}
       >
-        <div className={"nav-menu-popup" + (mobileOpen ? "" : " hidden")}>
+        <nav
+          className={"nav-menu-container popup" + (mobileOpen ? "" : " hidden")}
+          aria-label="survey sections"
+        >
           <button
             aria-label="close drawer"
             onClick={handleDrawerToggle}
@@ -81,9 +84,11 @@ export default function NavDrawer({
             {menuButtonSvg()}
           </button>
           {drawer}
-        </div>
+        </nav>
       </Modal>
-      <div className="nav-menu-fixed">{drawer}</div>
-    </nav>
+      <nav className="nav-menu-container fixed" aria-label="survey sections">
+        {drawer}
+      </nav>
+    </>
   );
 }

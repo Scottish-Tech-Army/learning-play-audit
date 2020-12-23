@@ -76,7 +76,7 @@ function Section({ section, sections, setCurrentSection }) {
   console.log("Render section " + section.title);
   return (
     <div
-      className={section.id === BACKGROUND ? "background-section" : "section"}
+      className={"section" + (section.id === BACKGROUND ? " background" : "")}
     >
       <h1 className="title">
         {section.number}. {section.title}

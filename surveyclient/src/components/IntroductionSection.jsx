@@ -33,8 +33,8 @@ function ExampleQuestion() {
 
 function IntroductionSection() {
   return (
-    <div className="introduction">
-      <div className="subsection">
+    <>
+      <div className="section introduction">
         <h1 className="title">Introduction</h1>
         <p>
           This audit tool was developed by Grounds for Learning to help you
@@ -68,7 +68,7 @@ function IntroductionSection() {
           thoughts and visits themes you are not aware of.
         </p>
       </div>
-      <div className="subsection">
+      <div className="section introduction">
         <h1 className="title">How To Complete The Survey</h1>
         <p>
           Most of the 'questions' you will answer are actually statements -
@@ -91,7 +91,7 @@ function IntroductionSection() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -154,7 +154,7 @@ function App() {
     return deferredInstallEvent !== null && !appInstalled;
   }
 
-  function downloadButton() {
+  function downloadButtonMain() {
     if (!canInstall()) {
       return null;
     }
@@ -167,6 +167,24 @@ function App() {
         className="download-button"
       >
         INSTALL SURVEY APP
+      </button>
+    );
+  }
+
+  function downloadButtonAppBar() {
+    if (!canInstall()) {
+      return null;
+    }
+
+    return (
+      <button
+        aria-haspopup="true"
+        aria-label="Install Application"
+        onClick={handleInstall}
+        className="download-button"
+      >
+        <span className="large">INSTALL APP</span>
+        <span className="small">INSTALL</span>
       </button>
     );
   }
@@ -227,7 +245,7 @@ function App() {
     );
   }
 
-  function getTitle() {
+  function titleText() {
     if (!hasSeenSplashPage || isAuthenticating(authState)) {
       return (
         <>
@@ -235,7 +253,6 @@ function App() {
             Welcome to the Learning Through Landscapes
             <br />
             Learning and Play Audit Survey
-            {!isLive && " (" + ENVIRONMENT_NAME + ")"}
           </h1>
           <h1 className="title small">
             Welcome to the
@@ -243,7 +260,6 @@ function App() {
             <span className="ltl-title">Learning Through Landscapes</span>
             <br />
             Learning and Play Audit Survey
-            {!isLive && " (" + ENVIRONMENT_NAME + ")"}
           </h1>
         </>
       );
@@ -254,28 +270,27 @@ function App() {
         Learning Through Landscapes
         <br />
         Learning and Play Audit Survey
-        {!isLive && " (" + ENVIRONMENT_NAME + ")"}
       </h1>
+    );
+  }
+
+  function titleLogo() {
+    return (
+      <img className="title-logo" src="./assets/LTL_logo_large.png" alt="" />
     );
   }
 
   if (isAuthenticating(authState)) {
     return (
       <div className="root">
+        <div className="background-overlay" />
         <div className="app-bar authenticating">
-          <img
-            className="title-logo-small"
-            src="./assets/LTL_logo_small.png"
-            alt=""
-          />
-          <img
-            className="title-logo-large"
-            src="./assets/LTL_logo_large.png"
-            alt=""
-          />
-          {getTitle()}
+          {titleLogo()}
+          {titleText()}
         </div>
-        <Authenticator />
+        <main className="content authenticating">
+          <Authenticator />
+        </main>
       </div>
     );
   }
@@ -283,32 +298,26 @@ function App() {
   if (!hasSeenSplashPage) {
     return (
       <div className="root">
+        <div className="background-overlay" />
         <div className="app-bar authenticating">
-          <img
-            className="title-logo-small"
-            src="./assets/LTL_logo_small.png"
-            alt=""
-          />
-          <img
-            className="title-logo-large"
-            src="./assets/LTL_logo_large.png"
-            alt=""
-          />
-          {getTitle()}
+          {titleLogo()}
+          {titleText()}
           <AuthSignInOut />
           <AuthCurrentUser />
         </div>
-        <GetStartedScreen
-          canInstall={canInstall()}
-          downloadButton={downloadButton()}
-        />
+        <main className="content authenticating">
+          <GetStartedScreen
+            canInstall={canInstall()}
+            downloadButton={downloadButtonMain()}
+          />
+        </main>
       </div>
     );
   }
 
   return (
     <div className="root">
-      <div className="app-bar">
+      <div className="app-bar main">
         <button
           aria-label="open drawer"
           onClick={handleDrawerToggle}
@@ -317,29 +326,21 @@ function App() {
           {menuButtonSvg()}
         </button>
 
-        <img
-          className="title-logo-small"
-          src="./assets/LTL_logo_small.png"
-          alt=""
-        />
-        <img
-          className="title-logo-large"
-          src="./assets/LTL_logo_large.png"
-          alt=""
-        />
-        {getTitle()}
+        {titleLogo()}
+        {titleText()}
         <AuthSignInOut />
         <AuthCurrentUser />
-        {downloadButton()}
+        {downloadButtonAppBar()}
+        {!isLive && <div className="environment-name">{ENVIRONMENT_NAME}</div>}
       </div>
-      <main className="content">
+      <main className="content main">
         <NavDrawer
           mobileOpen={mobileOpen}
           handleDrawerToggle={handleDrawerToggle}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
         />
-        <div className="section-container">{getCurrentSection()}</div>
+        {getCurrentSection()}
       </main>
     </div>
   );
