@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { sectionsContent } from "../model/Content";
-import NavDrawerSectionItem from "./NavDrawerSectionItem";
+import SectionSummary from "./SectionSummary";
 import Modal from "@material-ui/core/Modal";
 import { INTRODUCTION, RESULTS, GALLERY, SUBMIT } from "./FixedSectionTypes";
 import { menuButtonSvg } from "./SvgUtils";
@@ -49,11 +49,11 @@ export default function NavDrawer({
 
   function createSectionMenuItem(section) {
     return (
-      <NavDrawerSectionItem
+      <SectionSummary
         key={section.id}
         section={section}
-        currentSection={currentSection}
-        setCurrentSection={setCurrentSection}
+        currentSectionId={currentSection}
+        onClick={setCurrentSection}
         totalQuestions={
           totalQuestionsMap === null ? 0 : totalQuestionsMap.get(section.id)
         }

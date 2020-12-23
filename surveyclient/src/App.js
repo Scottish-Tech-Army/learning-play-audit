@@ -54,10 +54,6 @@ function App() {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.authentication.state);
   const hasSeenSplashPage = useSelector((state) => state.hasSeenSplashPage);
-  const hasEverLoggedIn = useSelector((state) => state.hasEverLoggedIn);
-
-  console.log("hasSeenSplashPage", hasSeenSplashPage);
-  console.log("hasEverLoggedIn", hasEverLoggedIn);
 
   const [currentSection, _setCurrentSection] = useState("introduction");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -139,10 +135,6 @@ function App() {
       window.removeEventListener("DOMContentLoaded", outerListener);
     };
   }, []);
-
-  useEffect(() => {
-    console.log("canInstall", deferredInstallEvent !== null, appInstalled);
-  }, [deferredInstallEvent, appInstalled]);
 
   function handleInstall() {
     if (deferredInstallEvent != null) {

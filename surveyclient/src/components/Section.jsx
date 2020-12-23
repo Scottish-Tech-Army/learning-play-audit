@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import "../App.css";
 import QuestionSelectWithComment from "./QuestionSelectWithComment";
 import QuestionText from "./QuestionText";
@@ -6,7 +7,7 @@ import QuestionTextWithYear from "./QuestionTextWithYear";
 import QuestionUserSelect from "./QuestionUserSelect";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { BACKGROUND } from "./FixedSectionTypes";
-
+import SectionSummary from "./SectionSummary";
 import {
   SCALE_WITH_COMMENT,
   TEXT_AREA,
@@ -16,7 +17,23 @@ import {
 } from "../model/QuestionTypes";
 
 function Section({ section, sections, setCurrentSection }) {
+  const SCROLL_OFFSET = 220;
+
   const sectionId = section.id;
+
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const sectionRef = useRef();
+
+  useEffect(() => {
+    var questionCount = 0;
+    section.content((type, id) => (questionCount += 1));
+    setTotalQuestions(questionCount);
+  }, [section]);
+
+  const answerCounts = useSelector(
+    (state) => state.answerCounts[sectionId]["answer"]
+  );
+  const sectionAnswers = useSelector((state) => state.answers[sectionId]);
 
   var questionIndex = 0;
 
@@ -73,11 +90,68 @@ function Section({ section, sections, setCurrentSection }) {
     throw new Error("unknown question type: " + type);
   }
 
-  console.log("Render section " + section.title);
+  function findUnansweredQuestion() {
+    let unansweredQuestionId = null;
+    section.content((type, id) => {
+      if (unansweredQuestionId !== null) {
+        return;
+      }
+
+      let hasPreviousValue = false;
+      if (type === TEXT_WITH_YEAR) {
+        const previousValues = sectionAnswers[id];
+        hasPreviousValue =
+          Object.values(previousValues).find(
+            (value) => value !== null && value.length > 0
+          ) !== undefined;
+      } else {
+        const answer = sectionAnswers[id]["answer"];
+        hasPreviousValue =
+          answer !== null && answer !== undefined && answer.length > 0;
+      }
+
+      if (!hasPreviousValue) {
+        unansweredQuestionId = id;
+      }
+    });
+    return unansweredQuestionId;
+  }
+
+  function scrollToUnansweredQuestion() {
+    if (answerCounts >= totalQuestions) {
+      return;
+    }
+
+    const unansweredQuestionId = findUnansweredQuestion();
+    if (unansweredQuestionId == null) {
+      console.log("Unanswered question not found");
+      return;
+    }
+
+    const element = document.getElementById(
+      sectionId + "-" + unansweredQuestionId
+    );
+    window.scrollBy(
+      window.scrollX,
+      element.getBoundingClientRect().top - SCROLL_OFFSET
+    );
+  }
+
   return (
     <div
-      className={"section" + (section.id === BACKGROUND ? " background" : "")}
+      className={
+        "section survey" + (section.id === BACKGROUND ? " background" : "")
+      }
+      ref={sectionRef}
     >
+      <div className="mobile-header">
+        <SectionSummary
+          key={section.id}
+          section={section}
+          onClick={scrollToUnansweredQuestion}
+          totalQuestions={totalQuestions}
+        />
+      </div>
       <h1 className="title">
         {section.number}. {section.title}
       </h1>
