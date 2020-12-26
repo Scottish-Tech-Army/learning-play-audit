@@ -12,8 +12,11 @@ import {
   CLEAR_AUTH_ERROR,
   CONFIRM_WELCOME,
 } from "./ActionTypes.js";
-import { sectionsContent, SURVEY_VERSION } from "./Content";
-import { TEXT_WITH_YEAR } from "./QuestionTypes";
+import {
+  sectionsContent,
+  SURVEY_VERSION,
+  TEXT_WITH_YEAR,
+} from "learning-play-audit-shared";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
 import { REGISTER, SIGNED_IN } from "./AuthStates";
@@ -237,21 +240,19 @@ function updatePhotoDescription(state, action) {
 }
 
 export function refreshState() {
-  console.log("refreshState start");
   return function (dispatch, getState) {
     Promise.all([readAnswers(), readPhotos()])
       .then(([storedAnswers, storedPhotos]) => {
-        console.log("read local store", storedAnswers, storedPhotos);
         const state = { ...getState(), initialisingState: false };
         if (storedAnswers === null) {
-            console.log("writeAnswers");
-            console.log(state);
-            writeAnswers(state);
+          console.log("writeAnswers");
+          console.log(state);
+          writeAnswers(state);
         }
         if (storedPhotos === null) {
-            console.log("writePhotos");
-            console.log(state);
-            writePhotos(state);
+          console.log("writePhotos");
+          console.log(state);
+          writePhotos(state);
         }
         dispatch({
           type: REFRESH_STATE,
@@ -261,7 +262,6 @@ export function refreshState() {
             ...(storedPhotos !== null ? storedPhotos : {}),
           },
         });
-        console.log("refreshState end");
       })
       .catch((err) => console.log(err));
   };
@@ -300,9 +300,6 @@ const writePhotos = ({ photos, initialisingState }) => {
   localforage.setItem("photos", { photos: photos });
 };
 const readPhotos = () => localforage.getItem("photos");
-
-// removeData = key => localforage.removeItem(key)
-// clear = () => localforage.clear()
 
 function setAnswer(state, { sectionId, questionId, field, value }) {
   if (sectionId === "community" && questionId === "datedImprovements") {

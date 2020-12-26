@@ -1,11 +1,11 @@
 import {
+  sectionsContent,
   SCALE_WITH_COMMENT,
-  TEXT,
-  TEXT_INLINE_LABEL,
+  TEXT_AREA,
+  TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "./QuestionTypes";
-import { sectionsContent } from "./Content";
+} from "learning-play-audit-shared";
 import { saveAs } from "file-saver";
 import {
   Document,
@@ -367,7 +367,7 @@ function renderSection(section, sectionResponses) {
         0,
         ...questionUserSelect(question, questionIndex, responses)
       );
-    } else if (TEXT === type || TEXT_INLINE_LABEL === type) {
+    } else if (TEXT_AREA === type || TEXT_FIELD === type) {
       docQuestions.splice(
         docQuestions.length,
         0,

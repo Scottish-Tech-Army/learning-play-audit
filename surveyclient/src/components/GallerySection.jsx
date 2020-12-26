@@ -6,7 +6,7 @@ import GalleryPhoto from "./GalleryPhoto";
 import { GALLERY } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { addPhotoSvg } from "./SvgUtils";
-import { sectionsContent } from "../model/Content";
+import { sectionsContent } from "learning-play-audit-shared";
 
 function GallerySection({ sections, setCurrentSection }) {
   const dispatch = useDispatch();
@@ -103,9 +103,9 @@ function GallerySection({ sections, setCurrentSection }) {
   }
 
   return (
-    <div className="gallery-section">
-      <div className="gallery-section-header">
-        <h1>Photos</h1>
+    <div className="section gallery">
+      <div className="section-header">
+        <h1 className="title">Photos</h1>
         <input
           accept="image/*"
           style={{ display: "none" }}

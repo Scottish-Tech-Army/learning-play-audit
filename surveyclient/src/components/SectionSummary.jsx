@@ -2,10 +2,10 @@ import React from "react";
 import CircularProgressWithLabel from "./CircularProgressWithLabel";
 import { useSelector } from "react-redux";
 
-function NavDrawerSectionItem({
+function SectionSummary({
   section,
-  currentSection,
-  setCurrentSection,
+  currentSectionId,
+  onClick,
   totalQuestions,
 }) {
   const answerCounts = useSelector((state) => state.answerCounts[section.id]);
@@ -19,9 +19,9 @@ function NavDrawerSectionItem({
 
   return (
     <div
-      onClick={(event) => setCurrentSection(section.id)}
+      onClick={(event) => onClick(section.id)}
       className={
-        "nav-menu-item" + (currentSection === section.id ? " selected" : "")
+        "nav-menu-item" + (currentSectionId === section.id ? " selected" : "")
       }
     >
       <span className="section-number">{section.number}</span>
@@ -35,4 +35,4 @@ function NavDrawerSectionItem({
   );
 }
 
-export default NavDrawerSectionItem;
+export default SectionSummary;

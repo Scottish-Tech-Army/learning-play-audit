@@ -152,7 +152,7 @@ function SubmitSection({ sections, setCurrentSection }) {
   const progressValue = Math.round((submitProgress * 100) / maxProgressCount);
 
   return (
-    <div className="submit-section">
+    <div className="section submit">
       {authState !== SIGNED_IN ? (
         <p>Login before submitting survey.</p>
       ) : (
@@ -180,7 +180,7 @@ function SubmitSection({ sections, setCurrentSection }) {
             justifyContent: "center",
           }}
         >
-          <div className="submit-dialog" aria-labelledby="form-dialog-title">
+          <div className="dialog submit" aria-labelledby="form-dialog-title">
             <h2 className="title">Uploading Survey Response</h2>
             {submitState !== SUBMIT_COMPLETE &&
               submitState !== SUBMIT_FAILED && <p>Please wait...</p>}

@@ -73,7 +73,7 @@ export default function RequireNewPassword() {
 
       <div className="action-row">
         <button onClick={completeNewPassword} disbled={loading}>
-          {loading ? <amplify-loading-spinner /> : <span>CHANGE</span>}
+          {loading ? <div class="loader" /> : <span>CHANGE</span>}
         </button>
         <ContinueSignedOutButton />
       </div>

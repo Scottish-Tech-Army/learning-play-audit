@@ -29,7 +29,7 @@ function GalleryPhoto({ photoId }) {
   };
 
   return (
-    <div className="photo-section">
+    <div className="photo-container">
       <img
         className="photo"
         src={"data:image/jpeg;base64," + imageData}

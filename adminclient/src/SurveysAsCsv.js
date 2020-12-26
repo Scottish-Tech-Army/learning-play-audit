@@ -1,11 +1,11 @@
 import {
+  sectionsContent,
   SCALE_WITH_COMMENT,
-  TEXT,
-  TEXT_INLINE_LABEL,
+  TEXT_AREA,
+  TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "./QuestionTypes";
-import { sectionsContent } from "./Content";
+} from "learning-play-audit-shared";
 import { saveAs } from "file-saver";
 
 const headerRows = [[""], [""], ["Id"]];
@@ -57,7 +57,7 @@ function renderSectionHeader(data, section) {
     } else if (USER_TYPE_WITH_COMMENT === type) {
       questionData[0].push(question.id, "");
       questionData[1].push("role", "details");
-    } else if (TEXT === type || TEXT_INLINE_LABEL === type) {
+    } else if (TEXT_AREA === type || TEXT_FIELD === type) {
       questionData[0].push(question.id);
       questionData[1].push("answer");
     } else if (TEXT_WITH_YEAR === type) {
@@ -91,7 +91,7 @@ function renderSectionAnswers(rowData, section, sectionResponse) {
 
     if (SCALE_WITH_COMMENT === type || USER_TYPE_WITH_COMMENT === type) {
       addAnswers(rowData, response.answer, response.comments);
-    } else if (TEXT === type || TEXT_INLINE_LABEL === type) {
+    } else if (TEXT_AREA === type || TEXT_FIELD === type) {
       addAnswers(rowData, response.answer);
     } else if (TEXT_WITH_YEAR === type) {
       addAnswers(

@@ -46,7 +46,7 @@ export default function QuestionPhotosDialog({
         justifyContent: "center",
       }}
     >
-      <div className="add-photos-dialog" aria-labelledby="form-dialog-title">
+      <div className="dialog add-photos" aria-labelledby="form-dialog-title">
         <h2 className="title">Add Photos</h2>
         <div className="question-line">
           <div className="question-number">{questionNumber}</div>

@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
 import Chart from "chart.js";
-import { sectionsContent } from "../model/Content";
+import { sectionsContent } from "learning-play-audit-shared";
 import { RESULTS } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 
@@ -288,7 +288,7 @@ function ResultsSection({ sections, setCurrentSection }) {
   }, [answers, answerWeights]);
 
   return (
-    <div className="section results-section">
+    <div className="section results">
       <h2>How Good Is Our Outdoor Space?</h2>
       <div className="results-chart five-bars">
         <canvas className="small-chart" ref={chartContainer1small} />

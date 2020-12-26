@@ -43,7 +43,7 @@ export default function QuestionCommentDialog({
         justifyContent: "center",
       }}
     >
-      <div className="add-note-dialog" aria-labelledby="form-dialog-title">
+      <div className="dialog add-note" aria-labelledby="form-dialog-title">
         <h2 className="title">Add Note</h2>
         <div className="question-line">
           <div className="question-number">{questionNumber}</div>

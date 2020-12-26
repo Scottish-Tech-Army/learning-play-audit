@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "learning-play-audit-shared": "file:../sharedmodel",
     "@aws-amplify/auth": "^3.4.15",
     "@aws-amplify/core": "^3.8.7",
     "@aws-amplify/ui-react": "^0.2.32",
@@ -25,7 +26,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-
     "build:ltltest": "env-cmd -f .env.ltltest npm run build",
     "build:ltllive": "env-cmd -f .env.ltllive npm run build"
   },

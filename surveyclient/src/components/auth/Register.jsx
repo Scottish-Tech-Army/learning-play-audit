@@ -20,6 +20,10 @@ export default function Register() {
 
   const dispatch = useDispatch();
 
+  const EMAIL_USE_TEXT = `Learning Through Landscapes may use this email address to contact
+you in relation to this survey. Your email address will not be used
+for any other purpose.`;
+
   async function signUp(event) {
     if (event) {
       event.preventDefault();
@@ -99,11 +103,7 @@ export default function Register() {
         <label htmlFor={EMAIL_ID}>Email Address*</label>
         <div className="tooltip large">
           Why do we need this?
-          <span className="tooltip-text">
-            Learning Through Landscapes may use this email address to contact
-            you in relation to this survey. Your email address will not be used
-            for any other purpose.
-          </span>
+          <span className="tooltip-text">{EMAIL_USE_TEXT}</span>
         </div>
         <button className="tooltip small" onClick={() => setGdprPopup(true)}>
           ?
@@ -129,9 +129,7 @@ export default function Register() {
             >
               X
             </button>
-            Learning Through Landscapes may use this email address to contact
-            you in relation to this survey. Your email address will not be used
-            for any other purpose.
+            {EMAIL_USE_TEXT}
           </div>
         </Modal>
       </div>
@@ -167,7 +165,7 @@ export default function Register() {
           onClick={signUp}
           disabled={loading || !formComplete()}
         >
-          {loading ? <amplify-loading-spinner /> : <span>REGISTER</span>}
+          {loading ? <div class="loader" /> : <span>REGISTER</span>}
         </button>
         <ContinueSignedOutButton />
       </div>

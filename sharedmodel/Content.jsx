@@ -1,15 +1,17 @@
+// Survey content Copyright 2020 Learning Through Landscapes https://www.ltl.org.uk/
+
 import React from "react";
-import {
-  SCALE_WITH_COMMENT,
-  TEXT_AREA,
-  TEXT_FIELD,
-  TEXT_WITH_YEAR,
-  USER_TYPE_WITH_COMMENT,
-} from "./QuestionTypes";
-import { BACKGROUND } from "../components/FixedSectionTypes";
 
 // Update the version when any changes are made to the survey. Use semantic versioning.
 export const SURVEY_VERSION = "0.9.0";
+
+export const BACKGROUND = "background";
+
+export const SCALE_WITH_COMMENT = "scaleWithComment";
+export const USER_TYPE_WITH_COMMENT = "userTypeWithComment";
+export const TEXT_AREA = "textArea";
+export const TEXT_FIELD = "textField";
+export const TEXT_WITH_YEAR = "textWithYear";
 
 // For each of the sections, provide a content function that takes a addQuestion(SCALE_WITH_COMMENT,id, text) function as an argument.
 // Section uses this to create the React render output for each question, while SurveyModel uses this to gather a list
