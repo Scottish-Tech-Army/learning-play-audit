@@ -6,7 +6,7 @@ import GalleryPhoto from "./GalleryPhoto";
 import { GALLERY } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { addPhotoSvg } from "./SvgUtils";
-import { sectionsContent } from "../model/Content";
+import { sectionsContent } from "learning-play-audit-shared";
 
 function GallerySection({ sections, setCurrentSection }) {
   const dispatch = useDispatch();

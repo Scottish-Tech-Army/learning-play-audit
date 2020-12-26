@@ -6,15 +6,15 @@ import QuestionText from "./QuestionText";
 import QuestionTextWithYear from "./QuestionTextWithYear";
 import QuestionUserSelect from "./QuestionUserSelect";
 import SectionBottomNavigation from "./SectionBottomNavigation";
-import { BACKGROUND } from "./FixedSectionTypes";
-import SectionSummary from "./SectionSummary";
 import {
+  BACKGROUND,
   SCALE_WITH_COMMENT,
   TEXT_AREA,
   TEXT_WITH_YEAR,
   TEXT_FIELD,
   USER_TYPE_WITH_COMMENT,
-} from "../model/QuestionTypes";
+} from "learning-play-audit-shared";
+import SectionSummary from "./SectionSummary";
 
 function Section({ section, sections, setCurrentSection }) {
   const SCROLL_OFFSET = 220;

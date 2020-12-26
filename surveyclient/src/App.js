@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { sectionsContentMap, sectionsContent } from "./model/Content";
+import { sectionsContentMap, sectionsContent } from "learning-play-audit-shared";
 import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
 import GallerySection from "./components/GallerySection";

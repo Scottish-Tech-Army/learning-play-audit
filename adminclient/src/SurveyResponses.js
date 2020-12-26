@@ -2,14 +2,14 @@ import React from "react";
 import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
 import {
+  sectionsContent,
   SCALE_WITH_COMMENT,
-  TEXT,
-  TEXT_INLINE_LABEL,
+  TEXT_AREA,
+  TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "./QuestionTypes";
+} from "learning-play-audit-shared";
 import Box from "@material-ui/core/Box";
-import { sectionsContent } from "./Content";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -336,13 +336,13 @@ function Section({ section, sectionResponses }) {
       );
     }
 
-    if (TEXT === type || TEXT_INLINE_LABEL === type) {
+    if (TEXT_AREA === type || TEXT_FIELD === type) {
       return (
         <QuestionText
           key={key}
           question={question}
           questionNumber={questionIndex}
-          inlineLabel={TEXT_INLINE_LABEL === type}
+          inlineLabel={TEXT_FIELD === type}
           responses={responses}
         />
       );

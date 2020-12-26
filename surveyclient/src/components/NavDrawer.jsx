@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { sectionsContent } from "../model/Content";
+import { sectionsContent } from "learning-play-audit-shared";
 import SectionSummary from "./SectionSummary";
 import Modal from "@material-ui/core/Modal";
 import { INTRODUCTION, RESULTS, GALLERY, SUBMIT } from "./FixedSectionTypes";

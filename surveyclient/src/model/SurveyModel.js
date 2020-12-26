@@ -12,8 +12,11 @@ import {
   CLEAR_AUTH_ERROR,
   CONFIRM_WELCOME,
 } from "./ActionTypes.js";
-import { sectionsContent, SURVEY_VERSION } from "./Content";
-import { TEXT_WITH_YEAR } from "./QuestionTypes";
+import {
+  sectionsContent,
+  SURVEY_VERSION,
+  TEXT_WITH_YEAR,
+} from "learning-play-audit-shared";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
 import { REGISTER, SIGNED_IN } from "./AuthStates";

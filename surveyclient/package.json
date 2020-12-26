@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "learning-play-audit-shared": "file:../sharedmodel",
     "@aws-amplify/api": "^3.2.15",
     "@aws-amplify/auth": "^3.4.15",
     "@aws-amplify/core": "^3.8.7",

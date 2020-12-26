@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
 import Chart from "chart.js";
-import { sectionsContent } from "../model/Content";
+import { sectionsContent } from "learning-play-audit-shared";
 import { RESULTS } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 

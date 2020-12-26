@@ -1,0 +1,15 @@
+{
+  "name": "learning-play-audit-shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+      "react": "^17.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.8.26"
+  },
+"scripts": {
+   "build": "esbuild Content.jsx --outfile=index.js"
+ }
+}
