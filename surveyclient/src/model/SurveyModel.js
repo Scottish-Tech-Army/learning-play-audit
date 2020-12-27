@@ -22,11 +22,9 @@ import { v4 as uuidv4 } from "uuid";
 import { REGISTER, SIGNED_IN } from "./AuthStates";
 
 localforage.config({
-  // driver      : localforage.WEBSQL, // Force WebSQL; same as using setDriver()
   name: "learning-play-audit",
   version: 1.0,
-  // size        : 4980736, // Size of database, in bytes. WebSQL-only for now.
-  storeName: "surveyanswers", // Should be alphanumeric, with underscores.
+  storeName: "surveyanswers",
   description: "survey answers",
 });
 
@@ -57,15 +55,6 @@ function createEmptyAnswers() {
   );
 }
 
-// function listQuestionIds() {
-//   sectionsContent.forEach((section, i) => {
-//     // Use addQuestion to gather question ids
-//     section.content((type, id) =>
-//       console.log(section.id + "-" + id + "   " + type)
-//     );
-//   });
-// }
-
 function createAnswerCounts() {
   return sectionsContent.reduce((sections, section) => {
     sections[section.id] = { answer: 0, comments: 0 };
@@ -75,7 +64,6 @@ function createAnswerCounts() {
 
 function initialState() {
   console.log("Setting initialState");
-  // listQuestionIds();
   return {
     answers: createEmptyAnswers(),
     answerCounts: createAnswerCounts(),
