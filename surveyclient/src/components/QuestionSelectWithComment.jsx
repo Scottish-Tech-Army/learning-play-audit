@@ -24,13 +24,14 @@ export default function QuestionSelectWithComment({
       sectionId: sectionId,
       questionId: questionId,
       field: "answer",
-      value: questionAnswers.answer === newValue ? null : newValue,
+      value: questionAnswers.answer === newValue ? "" : newValue,
     });
   }
 
   function toggleButton(value, label) {
     return (
       <button
+        id={value}
         className={questionAnswers.answer === value ? "selected" : ""}
         onClick={() => handleClick(value)}
         aria-label={label}

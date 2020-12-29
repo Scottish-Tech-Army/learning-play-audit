@@ -45,9 +45,8 @@ function createEmptyAnswers() {
                   year2: "",
                   answer3: "",
                   year3: "",
-                  photocount: 0,
                 }
-              : { answer: "", comments: "", photocount: 0 })
+              : { answer: "", comments: "" })
       );
       return sections;
     },
@@ -63,7 +62,7 @@ function createAnswerCounts() {
 }
 
 function initialState() {
-  console.log("Setting initialState");
+  // console.log("Setting initialState");
   return {
     answers: createEmptyAnswers(),
     answerCounts: createAnswerCounts(),
@@ -85,37 +84,37 @@ export function surveyReducer(state = initialState(), action) {
   let newState;
   switch (action.type) {
     case CONFIRM_WELCOME:
-      console.log("CONFIRM_WELCOME");
+      // console.log("CONFIRM_WELCOME");
       newState = { ...state, hasSeenSplashPage: true };
       writeAnswers(newState);
       return newState;
 
     case SET_ANSWER:
-      console.log("SET_ANSWER");
+      // console.log("SET_ANSWER");
       newState = setAnswer(state, action);
       writeAnswers(newState);
       return newState;
 
     case RESET_STATE:
-      console.log("RESET_STATE");
+      // console.log("RESET_STATE");
       newState = { ...initialState(), initialisingState: false };
       writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case REFRESH_STATE:
-      console.log("REFRESH_STATE", action.state);
+      // console.log("REFRESH_STATE", action.state);
       return action.state;
 
     case ADD_PHOTO:
-      console.log("ADD_PHOTO");
+      // console.log("ADD_PHOTO");
       newState = addPhoto(state, action);
       writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case DELETE_PHOTO:
-      console.log("DELETE_PHOTO");
+      // console.log("DELETE_PHOTO");
       newState = deletePhoto(state, action);
       writeAnswers(newState);
       writePhotos(newState);
@@ -159,39 +158,24 @@ function addPhoto(state, action) {
   };
   result.photos = state.photos ? { ...state.photos } : {};
   result.photos[photoId] = { imageData: action.imageData };
-  console.log(state);
-  console.log(result);
   return result;
 }
 
 export function loadPhoto(file, sectionId = null, questionId = null) {
   console.log("loadPhoto", sectionId, questionId);
   return function (dispatch) {
-    if (window.FileReader) {
-      return readFileAsync(file)
-        .then((data) => {
-          dispatch({
-            type: ADD_PHOTO,
-            imageData: btoa(data),
-            sectionId: sectionId,
-            questionId: questionId,
-          });
-        })
-        .catch((err) => {
-          console.log("Error");
-          console.log(err);
-          if (err.target.error.name === "NotReadableError") {
-            alert("Cannot read file !");
-          }
-        });
-    } else {
-      alert("FileReader is not supported in this browser.");
-    }
+    return readFileAsync(file).then((data) => {
+      dispatch({
+        type: ADD_PHOTO,
+        imageData: btoa(data),
+        sectionId: sectionId,
+        questionId: questionId,
+      });
+    });
   };
 }
 
 function readFileAsync(file) {
-  console.log("readFileAsync");
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
 
@@ -199,7 +183,6 @@ function readFileAsync(file) {
       console.log("photo loaded");
       resolve(reader.result);
     };
-
     reader.onerror = reject;
 
     reader.readAsBinaryString(file);
@@ -207,8 +190,7 @@ function readFileAsync(file) {
 }
 
 function deletePhoto(state, action) {
-  console.log("deletePhoto");
-  console.log(action);
+  console.log("deletePhoto", action);
   const result = { ...state };
   result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
   delete result.photoDetails[action.photoId];
@@ -229,18 +211,14 @@ function updatePhotoDescription(state, action) {
 
 export function refreshState() {
   return function (dispatch, getState) {
-    Promise.all([readAnswers(), readPhotos()])
+    return Promise.all([readAnswers(), readPhotos()])
       .then(([storedAnswers, storedPhotos]) => {
         const state = { ...getState(), initialisingState: false };
         if (storedAnswers === null) {
-          console.log("writeAnswers");
-          console.log(state);
-          writeAnswers(state);
+          writeAnswers(state).catch((err) => console.error(err));
         }
         if (storedPhotos === null) {
-          console.log("writePhotos");
-          console.log(state);
-          writePhotos(state);
+          writePhotos(state).catch((err) => console.error(err));
         }
         dispatch({
           type: REFRESH_STATE,
@@ -251,7 +229,7 @@ export function refreshState() {
           },
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error(err));
   };
 }
 
@@ -263,12 +241,12 @@ const writeAnswers = ({
   hasEverLoggedIn,
   initialisingState,
 }) => {
-  console.log("Calling writeAnswers");
+  // console.log("writeAnswers");
   if (initialisingState) {
     console.log("Still initialisingState, skipping writeAnswers");
-    return;
+    return Promise.resolve();
   }
-  localforage.setItem("answers", {
+  return localforage.setItem("answers", {
     answers: answers,
     answerCounts: answerCounts,
     photoDetails: photoDetails,
@@ -279,13 +257,12 @@ const writeAnswers = ({
 const readAnswers = () => localforage.getItem("answers");
 
 const writePhotos = ({ photos, initialisingState }) => {
-  console.log("writePhotos");
+  // console.log("writePhotos");
   if (initialisingState) {
     console.log("Still initialisingState, skipping writePhotos");
-    return;
+    return Promise.resolve();
   }
-  console.log({ photos: photos });
-  localforage.setItem("photos", { photos: photos });
+  return localforage.setItem("photos", { photos: photos });
 };
 const readPhotos = () => localforage.getItem("photos");
 
@@ -304,6 +281,8 @@ function setAnswer(state, { sectionId, questionId, field, value }) {
   const previousValue = state.answers[sectionId][questionId][field];
   const answer = { ...state.answers[sectionId][questionId], [field]: value };
   const result = { ...state };
+  result.answers = { ...state.answers };
+  result.answers[sectionId] = { ...state.answers[sectionId] };
   result.answers[sectionId][questionId] = answer;
 
   const hasPreviousValue = previousValue !== null && previousValue.length > 0;
@@ -324,18 +303,31 @@ function setDatedImprovementsAnswer(
   field,
   value
 ) {
+  const FIELDNAMES = [
+    "answer1",
+    "answer2",
+    "answer3",
+    "year1",
+    "year2",
+    "year3",
+  ];
+
   const previousValues = state.answers[sectionId][questionId];
   const answer = { ...state.answers[sectionId][questionId], [field]: value };
   const result = { ...state };
+  result.answers = { ...result.answers };
+  result.answers[sectionId] = { ...result.answers[sectionId] };
   result.answers[sectionId][questionId] = answer;
 
   const hasPreviousValue =
-    Object.values(previousValues).find(
-      (value) => value !== null && value.length > 0
+    FIELDNAMES.find(
+      (fieldName) =>
+        previousValues[fieldName] !== null &&
+        previousValues[fieldName].length > 0
     ) !== undefined;
   const hasCurrentValue =
-    Object.values(answer).find(
-      (value) => value !== null && value.length > 0
+    FIELDNAMES.find(
+      (fieldName) => answer[fieldName] !== null && answer[fieldName].length > 0
     ) !== undefined;
 
   if (hasPreviousValue !== hasCurrentValue) {
@@ -346,19 +338,18 @@ function setDatedImprovementsAnswer(
 }
 
 function setAuthState(state, { authState, user }) {
-  console.log("setAuthState", authState);
-
   if (authState === undefined) {
     console.error("authState cannot be undefined");
     return state;
   }
 
-  const result = { ...state };
-  result.authentication.state = authState;
-  result.authentication.user = user;
-  // Show welcome screen on every login
-  result.hasSeenSplashPage = state.hasSeenSplashPage && authState !== SIGNED_IN;
-  result.hasEverLoggedIn = state.hasEverLoggedIn || authState === SIGNED_IN;
+  const result = {
+    ...state,
+    authentication: { state: authState, user: user, errorMessage: "" },
+    // Show welcome screen on every login
+    hasSeenSplashPage: state.hasSeenSplashPage && authState !== SIGNED_IN,
+    hasEverLoggedIn: state.hasEverLoggedIn || authState === SIGNED_IN,
+  };
 
   // TODO necessary?
   // if (authState === SIGNED_IN) {
@@ -369,21 +360,20 @@ function setAuthState(state, { authState, user }) {
   //   }
   // }
 
-  return clearAuthError(result);
+  return result;
 }
 
 function setAuthError(state, { message }) {
-  console.log("setAuthError", message);
   if (state.authentication.errorMessage === message) {
     return state;
   }
   const result = { ...state };
+  result.authentication = { ...result.authentication };
   result.authentication.errorMessage = message;
   return result;
 }
 
 function clearAuthError(state) {
-  console.log("clearAuthError");
   if (state.authentication.errorMessage === "") {
     return state;
   }
@@ -393,10 +383,6 @@ function clearAuthError(state) {
 }
 
 export default createStore(surveyReducer, applyMiddleware(thunk));
-
-export function getResultsJson(state) {
-  return state.answers;
-}
 
 /*
 const getCircularReplacer = () => {

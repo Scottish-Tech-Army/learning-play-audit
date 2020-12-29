@@ -59,7 +59,6 @@ function Section({ section, sections, setCurrentSection }) {
           key={key}
           sectionId={sectionId}
           question={question}
-          questionNumber={questionIndex}
         />
       );
     }
