@@ -9,7 +9,6 @@ export default function QuestionCommentDialog({
   questionId,
   questionNumber,
   questionText,
-  showComment,
   closeDialog,
 }) {
   const dispatch = useDispatch();
@@ -33,6 +32,7 @@ export default function QuestionCommentDialog({
 
   return (
     <Modal
+      id="dialog-container"
       container={window !== undefined ? () => window.document.body : undefined}
       keepMounted={false}
       open={true}

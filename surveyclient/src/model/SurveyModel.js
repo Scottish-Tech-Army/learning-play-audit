@@ -90,7 +90,7 @@ export function surveyReducer(state = initialState(), action) {
       return newState;
 
     case SET_ANSWER:
-      // console.log("SET_ANSWER");
+      // console.log("SET_ANSWER", action);
       newState = setAnswer(state, action);
       writeAnswers(newState);
       return newState;
