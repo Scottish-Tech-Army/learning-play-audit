@@ -147,7 +147,7 @@ export function surveyReducer(state = initialState(), action) {
 }
 
 function addPhoto(state, action) {
-  console.log("addPhoto", action.sectionId, action.questionId);
+  // console.log("addPhoto", action.sectionId, action.questionId);
   const photoId = uuidv4();
   const result = { ...state };
   result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
