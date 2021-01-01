@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { sectionsContentMap, sectionsContent } from "learning-play-audit-shared";
+import {
+  sectionsContentMap,
+  sectionsContent,
+} from "learning-play-audit-shared";
 import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
 import GallerySection from "./components/GallerySection";
@@ -24,10 +27,10 @@ import Authenticator, {
 import { menuButtonSvg } from "./components/SvgUtils";
 import "./App.css";
 
-const API_NAME = "ltlClientApi";
-
 // Configure these properties in .env.local
+const AWS_CLIENT_API_ENDPOINT = process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT;
 const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
+
 const isLive = ENVIRONMENT_NAME === "LIVE";
 
 const awsConfig = {
@@ -36,19 +39,11 @@ const awsConfig = {
     userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
     userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
   },
-  API: {
-    endpoints: [
-      {
-        name: API_NAME,
-        endpoint: process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT,
-      },
-    ],
-  },
 };
 
 console.log("Configure", Amplify.configure(awsConfig));
 
-// window.LOG_LEVEL = "DEBUG";
+//window.LOG_LEVEL = "DEBUG";
 
 function App() {
   const dispatch = useDispatch();
@@ -223,6 +218,7 @@ function App() {
         <SubmitSection
           sections={sections}
           setCurrentSection={setCurrentSection}
+          endpoint={AWS_CLIENT_API_ENDPOINT}
         />
       );
     }

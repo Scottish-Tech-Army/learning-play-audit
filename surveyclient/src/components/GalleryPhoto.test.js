@@ -109,10 +109,10 @@ describe("component GalleryPhoto", () => {
     checkDescriptionValue("");
   });
 
-
   const photoContainer = () => document.querySelector(".photo-container");
   const photoData = () => document.querySelector(".photo").src;
-  const descriptionField = () => document.querySelector(".photo-container textarea");
+  const descriptionField = () =>
+    document.querySelector(".photo-container textarea");
   const deleteButton = () => document.querySelector(".delete-button");
 
   function checkDescriptionValue(expectedValue) {
@@ -127,7 +127,6 @@ describe("component GalleryPhoto", () => {
   function clickDeleteButton() {
     deleteButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
-
 
   function setDescription(value) {
     const element = descriptionField();

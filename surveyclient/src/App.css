@@ -511,7 +511,7 @@ textarea {
 
 /** Submit section **/
 
-.section.submit {
+.section.submit, .section.submit .content {
   align-items: center;
 }
 

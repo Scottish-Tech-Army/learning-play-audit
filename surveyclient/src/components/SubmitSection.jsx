@@ -3,11 +3,11 @@ import "../App.css";
 import { useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { Auth } from "@aws-amplify/auth";
-import { API } from "@aws-amplify/api";
 import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { SIGNED_IN } from "../model/AuthStates";
 import Modal from "@material-ui/core/Modal";
+import axios from "axios";
 
 export const SUBMITTING_START = "Uploading survey response";
 export const SUBMITTING_PHOTOS = "Uploading photos";
@@ -15,50 +15,33 @@ export const SUBMITTING_CONFIRM = "Confirming upload";
 export const SUBMIT_COMPLETE = "Upload complete";
 export const SUBMIT_FAILED = "Upload failed - please try again";
 
-const API_NAME = "ltlClientApi";
-
-function submitSurvey(request) {
-  console.log("API configure", API.configure());
-
-  console.log("POST survey", request);
-  return API.post(API_NAME, "/survey", request);
-}
-
-async function uploadPhoto(
-  photoId,
-  uploadUrl,
-  photos,
-  progressIncrementCallback
-) {
+function uploadPhoto(photoId, uploadUrl, photo, progressIncrementCallback) {
   console.log("uploadPhoto", photoId, uploadUrl);
 
-  const photo = photos[photoId];
-  if (photo === undefined) {
-    return Promise.reject("Photo not found: " + photoId);
-  }
   const imageData = Buffer.from(photo.imageData, "base64");
 
-  const response = await fetch(uploadUrl, {
-    method: "put",
-    body: imageData,
-    headers: {
-      "Content-Type": "image",
-    },
-  });
-  console.log("uploadPhoto response", response);
-  if (response.ok) {
-    console.log("uploadPhoto succeeded");
-    progressIncrementCallback();
-    return Promise.resolve("uploadPhoto succeeded");
-  } else {
-    console.log("uploadPhoto failed");
-    return Promise.reject("uploadPhoto failed");
-  }
+  return axios
+    .put(uploadUrl, imageData, { headers: { "Content-Type": "image" } })
+    .then((response) => {
+      console.log("uploadPhoto response", response);
+      if (response.status === 200) {
+        console.log("uploadPhoto succeeded");
+        progressIncrementCallback();
+        return Promise.resolve("uploadPhoto succeeded");
+      } else {
+        console.log("uploadPhoto failed");
+        return Promise.reject("uploadPhoto failed");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
 }
 
 function uploadPhotos({ uploadUrls }, photos, progressIncrementCallback) {
   console.log("uploadPhotos", uploadUrls);
-  const photoIds = Object.keys(uploadUrls);
+  const photoIds = photos ? Object.keys(photos) : [];
   console.log("photoIDs", photoIds);
 
   return Promise.all(
@@ -66,19 +49,44 @@ function uploadPhotos({ uploadUrls }, photos, progressIncrementCallback) {
       uploadPhoto(
         photoId,
         uploadUrls[photoId],
-        photos,
+        photos[photoId],
         progressIncrementCallback
       )
     )
   );
 }
 
-function confirmsurvey(request) {
-  console.log("POST confirmsurvey", request);
-  return API.post(API_NAME, "/confirmsurvey", request);
+function checkUploadPhotoUrls({ uploadUrls }, photos) {
+  console.log("checkUploadPhotoUrls", uploadUrls);
+  const photoIds = photos ? Object.keys(photos) : [];
+
+  photoIds.forEach((photoId) => {
+    if (!uploadUrls || !uploadUrls[photoId]) {
+      throw new Error("Upload URL not found for photoId " + photoId);
+    }
+  });
 }
 
-function SubmitSection({ sections, setCurrentSection }) {
+function submitSurvey(endpoint, headers, body) {
+  console.log("POST survey");//, headers, body);
+  return post(endpoint, "/survey", headers, body);
+}
+
+function confirmsurvey(endpoint, headers, body) {
+  console.log("POST confirmsurvey", headers, body);
+  return post(endpoint, "/confirmsurvey", headers, body);
+}
+
+function post(endpoint, action, headers, body) {
+  return axios
+    .post(endpoint + action, JSON.stringify(body), { headers: headers })
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
+}
+
+function SubmitSection({ sections, setCurrentSection, endpoint }) {
   const state = useSelector((state) => state);
   const authState = useSelector((state) => state.authentication.state);
   const user = useSelector((state) => state.authentication.user);
@@ -88,62 +96,74 @@ function SubmitSection({ sections, setCurrentSection }) {
 
   const incrementProgress = () => setSubmitProgress((progress) => progress + 1);
 
-  async function uploadResults() {
-    console.log("Results:");
-    console.log(JSON.stringify(state.answers));
-    console.log(JSON.stringify(state.photoDetails));
+  function uploadResults() {
+    // console.log("Results:");
+    // console.log(JSON.stringify(state.answers));
+    // console.log(JSON.stringify(state.photoDetails));
 
-    const authToken = `Bearer ${(await Auth.currentSession())
-      .getIdToken()
-      .getJwtToken()}`;
+    const uuid = uuidv4();
+    let confirmId = null;
 
-    const requestTemplate = {
-      mode: "cors",
-      body: {
-        uuid: uuidv4(),
-      },
-      headers: {
-        Authorization: authToken,
-      },
+    const headers = {
+      "Content-Type": "application/json; charset=UTF-8",
     };
 
-    const submitRequest = { ...requestTemplate };
-    submitRequest.body = {
-      ...requestTemplate.body,
-      survey: state.answers,
-      // photos: state.photos,
-      photoDetails: state.photoDetails,
-    };
-    submitRequest.body.survey.background.email = {
-      answer: user.attributes.email,
-    };
+    return Auth.currentSession()
+      .then((session) => {
+        headers.Authorization = `Bearer ${session.getIdToken().getJwtToken()}`;
 
-    const confirmRequest = { ...requestTemplate };
+        if (!user || !user.attributes || !user.attributes.email) {
+            throw new Error("User email missing");
+        }
+        const submitRequest = {
+          uuid: uuid,
+          survey: state.answers,
+          photoDetails: state.photoDetails,
+        };
+        submitRequest.survey.background.email = {
+          answer: user.attributes.email,
+        };
 
-    setSubmitState(SUBMITTING_START);
-    setSubmitProgress(0);
+        setSubmitState(SUBMITTING_START);
+        setSubmitProgress(0);
 
-    submitSurvey(submitRequest)
+        return submitSurvey(endpoint, headers, submitRequest);
+      })
       .then((response) => {
         console.log("submitSurvey complete", response);
-        incrementProgress();
-        confirmRequest.body.confirmId = response.confirmId;
+        if (
+          response.status !== 200 ||
+          !response.data ||
+          !response.data.confirmId
+        ) {
+          throw new Error(JSON.stringify(response));
+        }
+        checkUploadPhotoUrls(response.data, state.photos);
+
+        confirmId = response.data.confirmId;
         setSubmitState(SUBMITTING_PHOTOS);
-        return uploadPhotos(response, state.photos, incrementProgress);
+        incrementProgress();
+
+        return uploadPhotos(response.data, state.photos, incrementProgress);
       })
       .then((response) => {
         console.log("uploadPhotos complete", response);
         setSubmitState(SUBMITTING_CONFIRM);
-        return confirmsurvey(confirmRequest);
+        return confirmsurvey(endpoint, headers, {
+          uuid: uuid,
+          confirmId: confirmId,
+        });
       })
       .then((response) => {
         console.log("confirmsurvey complete", response);
+        if (response.status !== 200) {
+          throw new Error(response);
+        }
         incrementProgress();
         setSubmitState(SUBMIT_COMPLETE);
       })
       .catch((err) => {
-        console.log("Error");
-        console.log(err);
+        console.error(err);
         setSubmitState(SUBMIT_FAILED);
       });
   }
@@ -153,13 +173,15 @@ function SubmitSection({ sections, setCurrentSection }) {
 
   return (
     <div className="section submit">
-      {authState !== SIGNED_IN ? (
-        <p>Login before submitting survey.</p>
-      ) : (
-        <button className="submit-survey-button" onClick={uploadResults}>
-          <span>UPLOAD…</span>
-        </button>
-      )}
+      <div className="content">
+        {authState !== SIGNED_IN ? (
+          <p>Login before submitting survey.</p>
+        ) : (
+          <button className="submit-survey-button" onClick={uploadResults}>
+            <span>UPLOAD…</span>
+          </button>
+        )}
+      </div>
       <SectionBottomNavigation
         sections={sections}
         currentSectionId={SUBMIT}
@@ -197,7 +219,7 @@ function SubmitSection({ sections, setCurrentSection }) {
             {(submitState === SUBMIT_COMPLETE ||
               submitState === SUBMIT_FAILED) && (
               <button
-                className="save-photos-button"
+                className="close-button"
                 onClick={() => setSubmitState(null)}
                 aria-label="Done"
               >
