@@ -1,6 +1,7 @@
 /* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "checkCommentValue"] }] */
 
 import React from "react";
+import { uploadResults } from "../model/SubmitAction";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import SubmitSection from "./SubmitSection";
@@ -10,17 +11,19 @@ import { REFRESH_STATE, SET_AUTH_STATE } from "../model/ActionTypes";
 import { SUBMIT } from "./FixedSectionTypes";
 import { SIGNED_IN, SIGNED_OUT } from "../model/AuthStates";
 import { Auth } from "@aws-amplify/auth";
-import axios from "axios";
-import { waitFor } from "@testing-library/dom";
 import { INPUT_STATE } from "../model/TestUtils";
+import {
+  SUBMITTING_START,
+  SUBMITTING_PHOTOS,
+  SUBMITTING_CONFIRM,
+  SUBMIT_COMPLETE,
+  SUBMIT_FAILED,
+} from "../model/SubmitStates";
 
 const TEST_ENDPOINT = "http://localhost:9999/testEndpoint";
 
-const FIXED_UUID = "00000000-0000-0000-0000-000000000000";
-jest.mock("uuid", () => ({ v4: () => "00000000-0000-0000-0000-000000000000" }));
-
+jest.mock("../model/SubmitAction");
 jest.mock("@aws-amplify/auth");
-jest.mock("axios");
 
 var storedSectionId = null;
 function setSectionId(sectionId) {
@@ -37,15 +40,10 @@ describe("component SubmitSection", () => {
     document.body.appendChild(container);
 
     // Populate state and auth state
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: INPUT_STATE_WITH_PHOTOS,
-    });
-    setSignedIn();
+    surveyStore.dispatch({ type: REFRESH_STATE, state: INPUT_STATE });
 
     Auth.currentSession.mockReset();
-    axios.post.mockReset();
-    axios.put.mockReset();
+    uploadResults.mockReset();
 
     Auth.currentSession.mockImplementation(() => {
       return Promise.resolve({
@@ -54,7 +52,6 @@ describe("component SubmitSection", () => {
         },
       });
     });
-    axios.put.mockImplementation(() => Promise.resolve({ status: 200 }));
   });
 
   afterEach(() => {
@@ -64,20 +61,13 @@ describe("component SubmitSection", () => {
     container = null;
   });
 
-  function setSignedIn() {
+  it("initial state logged in", () => {
+    // Default test data is signed in - just making sure
     surveyStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGNED_IN,
-      user: {
-        attributes: {
-          email: "test@example.com",
-        },
-      },
+      user: { attributes: { email: "test@example.com" } },
     });
-  }
-
-  it("initial state logged in", () => {
-    setSignedIn();
     renderComponent();
 
     expect(sectionContent().textContent).toStrictEqual("UPLOAD…");
@@ -100,498 +90,112 @@ describe("component SubmitSection", () => {
     expect(storedSectionId).toStrictEqual("section2");
   });
 
-  it("upload without photos", () => {
-    const inputState = { ...INPUT_STATE, photos: {}, photoDetails: {} };
-    surveyStore.dispatch({ type: REFRESH_STATE, state: inputState });
-    setSignedIn();
-
-    axios.post
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: {
-            result: "Pending upload",
-            confirmId: "confirmId1",
-            uploadUrls: {},
-          },
-          status: 200,
-        })
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: CONFIRM_SURVEY_RESPONSE,
-          status: 200,
-        })
-      );
-
+  it("upload success and close", () => {
     renderComponent();
+    expect(uploadResults).toHaveBeenCalledTimes(0);
     clickUploadButton();
 
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(inputState);
-        checkConfirmSurveyCalled();
-        checkPhotoUploadNotCalled();
-        checkDialogComplete();
-      });
-  });
+    const { setSubmitState, setProgressValue } = checkUploadAndGetCallbacks(
+      INPUT_STATE,
+      TEST_ENDPOINT
+    );
 
-  it("upload with photos", () => {
-    axios.post
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-          status: 200,
-        })
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: CONFIRM_SURVEY_RESPONSE,
-          status: 200,
-        })
-      );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkConfirmSurveyCalled();
-        checkPhotosUploaded();
-        checkDialogComplete();
-      });
-  });
-
-  it("user.attributes.email not set", () => {
-    surveyStore.dispatch({
-      type: SET_AUTH_STATE,
-      authState: SIGNED_IN,
-      user: {
-        attributes: {},
-      },
+    act(() => {
+      setSubmitState(SUBMIT_COMPLETE);
+      setProgressValue(100);
     });
 
-    renderComponent();
+    checkDialogComplete();
 
-    clickUploadButton();
-    expect(axios.post).not.toHaveBeenCalled();
+    clickCloseButton();
+
+    renderComponent();
+    expect(dialog()).toBeNull();
   });
 
-  it("user.attributes not set", () => {
-    surveyStore.dispatch({
-      type: SET_AUTH_STATE,
-      authState: SIGNED_IN,
-      user: {},
+  it("upload failure and close", () => {
+    renderComponent();
+    expect(uploadResults).toHaveBeenCalledTimes(0);
+    clickUploadButton();
+
+    const { setSubmitState, setProgressValue } = checkUploadAndGetCallbacks(
+      INPUT_STATE,
+      TEST_ENDPOINT
+    );
+
+    act(() => {
+      setSubmitState(SUBMIT_FAILED);
+      setProgressValue(50);
     });
 
-    renderComponent();
+    checkDialogFailed("50%");
 
-    clickUploadButton();
-    expect(axios.post).not.toHaveBeenCalled();
+    clickCloseButton();
+
+    renderComponent();
+    expect(dialog()).toBeNull();
   });
 
   it("progress changes during upload", () => {
-    // Set mock network requests with delays
-    axios.post
-      .mockImplementationOnce(() =>
-        sleep(200).then(() =>
-          Promise.resolve({
-            data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-            status: 200,
-          })
-        )
-      )
-      .mockImplementationOnce(() =>
-        sleep(200).then(() =>
-          Promise.resolve({
-            data: CONFIRM_SURVEY_RESPONSE,
-            status: 200,
-          })
-        )
-      );
-    axios.put
-      .mockImplementationOnce(() =>
-        sleep(200).then(() => Promise.resolve({ status: 200 }))
-      )
-      .mockImplementationOnce(() =>
-        sleep(400).then(() => Promise.resolve({ status: 200 }))
-      )
-      .mockImplementationOnce(() =>
-        sleep(600).then(() => Promise.resolve({ status: 200 }))
-      );
-
     renderComponent();
+    expect(uploadResults).toHaveBeenCalledTimes(0);
     clickUploadButton();
 
-    // Use waitFor(network request) and delays matching mocks above to test UX during upload
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(100)) // To give component time to process POST response
-      .then(() => {
-        checkDialogInProgress("0%", "Uploading survey response");
-        return waitFor(() => expect(axios.put).toHaveBeenCalledTimes(3))
-          .then(() => sleep(100)) // To give component time to process POST response
-          .then(() => {
-            checkDialogInProgress("20%", "Uploading photos");
-            return sleep(200) // To match difference in photo upload put response times
-              .then(() => {
-                checkDialogInProgress("40%", "Uploading photos");
-                return sleep(200) // To match difference in photo upload put response times
-                  .then(() => {
-                    checkDialogInProgress("60%", "Uploading photos");
-                    return waitFor(() =>
-                      expect(axios.post).toHaveBeenCalledTimes(2)
-                    )
-                      .then(() => sleep(100)) // To give component time to process POST response
-                      .then(() => {
-                        checkDialogInProgress("80%", "Confirming upload");
-                        return sleep(300) // To give confirm upload response time to arrive
-                          .then(() => {
-                            checkDialogComplete();
-                          });
-                      });
-                  });
-              });
-          });
-      });
+    const { setSubmitState, setProgressValue } = checkUploadAndGetCallbacks(
+      INPUT_STATE,
+      TEST_ENDPOINT
+    );
+
+    // Test progress updates
+    act(() => {
+      setSubmitState(SUBMITTING_START);
+      setProgressValue(0);
+    });
+    checkDialogInProgress("0%", "Uploading survey response");
+
+    act(() => {
+      setSubmitState(SUBMITTING_PHOTOS);
+      setProgressValue(20);
+    });
+    checkDialogInProgress("20%", "Uploading photos");
+
+    act(() => {
+      setProgressValue(40);
+    });
+    checkDialogInProgress("40%", "Uploading photos");
+
+    act(() => {
+      setProgressValue(60);
+    });
+    checkDialogInProgress("60%", "Uploading photos");
+
+    act(() => {
+      setSubmitState(SUBMITTING_CONFIRM);
+      setProgressValue(80);
+    });
+    checkDialogInProgress("80%", "Confirming upload");
+
+    act(() => {
+      setSubmitState(SUBMIT_COMPLETE);
+      setProgressValue(100);
+    });
+    checkDialogComplete();
   });
 
-  it("fail initial upload - non 200 response", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: { message: "Failure in test" },
-        status: 403,
-      })
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkPhotoUploadNotCalled();
-        checkDialogFailed("0%");
-      });
-  });
-
-  it("fail initial upload - axios error", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.reject(
-        new Error({
-          data: { message: "Failure in test" },
-          status: 403,
-        })
-      )
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkPhotoUploadNotCalled();
-        checkDialogFailed("0%");
-      });
-  });
-
-  it("fail photo upload - non 200 response", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-        status: 200,
-      })
-    );
-    axios.put.mockImplementation(() => Promise.resolve({ status: 401 }));
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.put).toHaveBeenCalledTimes(3))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkPhotosUploaded();
-        checkDialogFailed("20%");
-      });
-  });
-
-  it("fail photo upload - put error", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-        status: 200,
-      })
-    );
-    axios.put.mockImplementation(() =>
-      Promise.reject(new Error("fake error message"))
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.put).toHaveBeenCalledTimes(3))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkPhotosUploaded();
-        checkDialogFailed("20%");
-      });
-  });
-
-  it("fail confirm upload - non 200 response", () => {
-    axios.post
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-          status: 200,
-        })
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: CONFIRM_SURVEY_RESPONSE,
-          status: 502,
-        })
-      );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkConfirmSurveyCalled();
-        checkPhotosUploaded();
-        checkDialogFailed("80%");
-      });
-  });
-
-  it("fail confirm upload - axios error", () => {
-    axios.post
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-          status: 200,
-        })
-      )
-      .mockImplementationOnce(() =>
-        Promise.reject(
-          new Error({
-            data: { message: "Failure in test" },
-            status: 403,
-          })
-        )
-      );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkConfirmSurveyCalled();
-        checkPhotosUploaded();
-        checkDialogFailed("80%");
-      });
-  });
-
-  it("fail photo url missing", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: {
-          result: "Pending upload",
-          confirmId: "confirmId1",
-          uploadUrls: {
-            testPhotoId1: "http://localhost:9999/uploadUrl1",
-            // testPhotoId2 missing
-            testPhotoId3: "http://localhost:9999/uploadUrl3",
-          },
-        },
-        status: 200,
-      })
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkPhotoUploadNotCalled();
-        checkDialogFailed("0%");
-      });
-  });
-
-  it("fail photo urls block missing", async () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: {
-          result: "Pending upload",
-          confirmId: "confirmId1",
-        },
-        status: 200,
-      })
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        checkPhotoUploadNotCalled();
-        checkDialogFailed("0%");
-      });
-  });
-
-  it("fail confirmId missing", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: {
-          result: "Pending upload",
-          uploadUrls: {
-            testPhotoId1: "http://localhost:9999/uploadUrl1",
-            testPhotoId2: "http://localhost:9999/uploadUrl2",
-            testPhotoId3: "http://localhost:9999/uploadUrl3",
-          },
-        },
-        status: 200,
-      })
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkUploadSurveyCalled(INPUT_STATE_WITH_PHOTOS);
-        expect(axios.put).not.toHaveBeenCalled();
-        checkDialogFailed("0%");
-      });
-  });
-
-  it("close dialog after complete", () => {
-    axios.post
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS,
-          status: 200,
-        })
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({
-          data: CONFIRM_SURVEY_RESPONSE,
-          status: 200,
-        })
-      );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkDialogComplete();
-
-        act(() => clickCloseButton());
-
-        renderComponent();
-        expect(dialog()).toBeNull();
-      });
-  });
-
-  it("close dialog after failure", () => {
-    axios.post.mockImplementationOnce(() =>
-      Promise.resolve({
-        data: { message: "Failure in test" },
-        status: 403,
-      })
-    );
-
-    renderComponent();
-    clickUploadButton();
-
-    return waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1))
-      .then(() => sleep(200)) // To give component time to process POST response
-      .then(() => {
-        checkDialogFailed("0%");
-
-        act(() => clickCloseButton());
-
-        renderComponent();
-        expect(dialog()).toBeNull();
-      });
-  });
-
-  function checkUploadSurveyCalled(state) {
-    expect(axios.post).toHaveBeenNthCalledWith(
-      1,
-      TEST_ENDPOINT + "/survey",
-      JSON.stringify({
-        uuid: FIXED_UUID,
-        survey: state.answers,
-        photoDetails: state.photoDetails,
-      }),
-      {
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-          Authorization: "Bearer test jwt token",
-        },
-      }
-    );
-  }
-
-  function checkConfirmSurveyCalled() {
-    expect(axios.post).toHaveBeenNthCalledWith(
-      2,
-      TEST_ENDPOINT + "/confirmsurvey",
-      JSON.stringify({ uuid: FIXED_UUID, confirmId: "confirmId1" }),
-      {
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-          Authorization: "Bearer test jwt token",
-        },
-      }
-    );
-  }
-
-  function checkPhotoUploadNotCalled() {
-    expect(axios.put).not.toHaveBeenCalled();
-  }
-
-  function checkPhotosUploaded() {
-    expect(axios.put).toHaveBeenCalledTimes(3);
-    expect(axios.put).toHaveBeenNthCalledWith(
-      1,
-      "http://localhost:9999/uploadUrl1",
-      Buffer.from("image data1"),
-      { headers: { "Content-Type": "image" } }
-    );
-    expect(axios.put).toHaveBeenNthCalledWith(
-      2,
-      "http://localhost:9999/uploadUrl2",
-      Buffer.from("image data2"),
-      { headers: { "Content-Type": "image" } }
-    );
-    expect(axios.put).toHaveBeenNthCalledWith(
-      3,
-      "http://localhost:9999/uploadUrl3",
-      Buffer.from("image data3"),
-      { headers: { "Content-Type": "image" } }
-    );
+  function checkUploadAndGetCallbacks(expectedState, expectedEndpoint) {
+    expect(uploadResults).toHaveBeenCalledTimes(1);
+    const calls = uploadResults.mock.calls;
+    expect(calls[0]).toHaveLength(4);
+    expect(calls[0][2]).toStrictEqual(expectedState);
+    expect(calls[0][3]).toStrictEqual(expectedEndpoint);
+    return {
+      setSubmitState: calls[0][0],
+      setProgressValue: calls[0][1],
+    };
   }
 
   function checkDialogInProgress(progress, status) {
-    // check final dialog state
+    // check dialog state
     renderComponent();
     expect(dialogMessage().textContent).toStrictEqual("Please wait...");
     expect(progressBarValue()).toStrictEqual(progress);
@@ -646,9 +250,7 @@ describe("component SubmitSection", () => {
     previousButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
   function clickUploadButton() {
-    act(() => {
-      uploadButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
+    uploadButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function renderComponent() {
@@ -665,44 +267,4 @@ describe("component SubmitSection", () => {
       );
     });
   }
-
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  const INPUT_STATE_WITH_PHOTOS = {
-    ...INPUT_STATE,
-    photos: {
-      testPhotoId1: { imageData: btoa("image data1") },
-      testPhotoId2: { imageData: btoa("image data2") },
-      testPhotoId3: { imageData: btoa("image data3") },
-    },
-    photoDetails: {
-      testPhotoId1: {
-        description: "test photo1",
-        sectionId: "wellbeing",
-        questionId: "colourful",
-      },
-      testPhotoId2: {
-        description: "test photo2",
-        sectionId: "wellbeing",
-        questionId: "colourful",
-      },
-      testPhotoId3: {
-        description: "test photo3",
-      },
-    },
-  };
-
-  const UPLOAD_SURVEY_RESPONSE_WITH_PHOTOS = {
-    result: "Pending upload",
-    confirmId: "confirmId1",
-    uploadUrls: {
-      testPhotoId1: "http://localhost:9999/uploadUrl1",
-      testPhotoId2: "http://localhost:9999/uploadUrl2",
-      testPhotoId3: "http://localhost:9999/uploadUrl3",
-    },
-  };
-
-  const CONFIRM_SURVEY_RESPONSE = { result: "Submission complete" };
 });

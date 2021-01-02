@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
 import Chart from "chart.js";
-import { sectionsContent } from "learning-play-audit-shared";
+import { sectionsContent, SCALE_WITH_COMMENT } from "learning-play-audit-shared";
 import { RESULTS } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 
@@ -28,7 +28,7 @@ function ResultsSection({ sections, setCurrentSection }) {
       var questions = {};
       sections[section.id] = questions;
       // Use addQuestion to gather question weights
-      section.content((type, id, text, weight = 1) => (questions[id] = weight));
+      section.content((type, id, text, weight = 1) => (questions[id] = type === SCALE_WITH_COMMENT ? weight : 0));
       return sections;
     }, {});
   }

@@ -1,5 +1,3 @@
-import { SIGN_IN } from "./AuthStates";
-
 export const EMPTY_STATE = {
   answerCounts: {
     background: { answer: 0, comments: 0 },
@@ -212,16 +210,28 @@ function createTestState() {
     hasSeenSplashPage: !EMPTY_STATE.hasSeenSplashPage,
     initialisingState: false,
     authentication: {
-      errorMessage: "error",
-      state: SIGN_IN,
-      user: "test user",
+      errorMessage: "",
+      state: "SignedIn",
+      user: { attributes: { email: "test@example.com" } },
     },
-    photos: { testPhotoId: { imageData: "image data" } },
+    photos: {
+      testPhotoId1: { imageData: btoa("image data1") },
+      testPhotoId2: { imageData: btoa("image data2") },
+      testPhotoId3: { imageData: btoa("image data3") },
+    },
     photoDetails: {
-      testPhotoId: {
-        description: "test photo",
+      testPhotoId1: {
+        description: "test photo1",
         sectionId: "wellbeing",
         questionId: "colourful",
+      },
+      testPhotoId2: {
+        description: "test photo2",
+        sectionId: "wellbeing",
+        questionId: "colourful",
+      },
+      testPhotoId3: {
+        description: "test photo3",
       },
     },
   };
