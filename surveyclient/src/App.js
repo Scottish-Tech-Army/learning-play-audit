@@ -51,11 +51,7 @@ function App() {
   const hasSeenSplashPage = useSelector((state) => state.hasSeenSplashPage);
 
   const [currentSection, _setCurrentSection] = useState("introduction");
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen((mobileOpen) => !mobileOpen);
-  };
+  const [popupNavDrawerOpen, setPopupNavDrawerOpen] = useState(false);
 
   // Restore locally stored answers if existing
   useEffect(() => {
@@ -178,7 +174,7 @@ function App() {
 
   function setCurrentSection(sectionId) {
     _setCurrentSection(sectionId);
-    setMobileOpen(false);
+    setPopupNavDrawerOpen(false);
     window.scrollTo({
       top: 0,
     });
@@ -294,10 +290,7 @@ function App() {
           <AuthCurrentUser />
         </div>
         <main className="content authenticating">
-          <GetStartedScreen
-            canInstall={canInstall()}
-            downloadButton={downloadButtonMain()}
-          />
+          <GetStartedScreen downloadButton={downloadButtonMain()} />
         </main>
       </div>
     );
@@ -308,7 +301,7 @@ function App() {
       <div className="app-bar main">
         <button
           aria-label="open drawer"
-          onClick={handleDrawerToggle}
+          onClick={() => setPopupNavDrawerOpen(true)}
           className="menu-button"
         >
           {menuButtonSvg()}
@@ -323,8 +316,8 @@ function App() {
       </div>
       <main className="content main">
         <NavDrawer
-          mobileOpen={mobileOpen}
-          handleDrawerToggle={handleDrawerToggle}
+          popupDrawerOpen={popupNavDrawerOpen}
+          onPopupClose={() => setPopupNavDrawerOpen(false)}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
         />

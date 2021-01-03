@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CONFIRM_WELCOME } from "../model/ActionTypes.js";
 
-export default function GetStartedScreen({ canInstall, downloadButton }) {
+export default function GetStartedScreen({ downloadButton }) {
   const dispatch = useDispatch();
   const hasEverLoggedIn = useSelector((state) => state.hasEverLoggedIn);
 
@@ -23,14 +23,17 @@ export default function GetStartedScreen({ canInstall, downloadButton }) {
         However you will need to have access to a reliable internet connection
         to be able to submit your completed answers at the end of the survey.
       </p>
-      {canInstall && (
+      {downloadButton && (
         <p>
           You can either fill in the survey here in your brower, or download it
           as an app using the Install button.
         </p>
       )}
       <div className="action-row">
-        <button onClick={() => dispatch({ type: CONFIRM_WELCOME })}>
+        <button
+          className="confirm-button"
+          onClick={() => dispatch({ type: CONFIRM_WELCOME })}
+        >
           <span>{buttonText()}</span>
         </button>
         {downloadButton}

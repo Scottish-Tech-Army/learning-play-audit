@@ -283,16 +283,16 @@ textarea {
   background-color: var(--colour-ltl-orange);
 }
 
-.nav-menu-item.introduction {
+.nav-menu-item#introduction {
   border-color: black;
 }
 
-.nav-menu-item.results,
-.nav-menu-item.gallery {
+.nav-menu-item#results,
+.nav-menu-item#gallery {
   border-color: var(--colour-ltl-purple);
 }
 
-.nav-menu-item.submit {
+.nav-menu-item#submit {
   border-color: var(--colour-ltl-blue);
 }
 

@@ -6,8 +6,8 @@ import { INTRODUCTION, RESULTS, GALLERY, SUBMIT } from "./FixedSectionTypes";
 import { menuButtonSvg } from "./SvgUtils";
 
 export default function NavDrawer({
-  mobileOpen,
-  handleDrawerToggle,
+  popupDrawerOpen,
+  onPopupClose,
   currentSection,
   setCurrentSection,
 }) {
@@ -36,11 +36,10 @@ export default function NavDrawer({
   function createMenuItem(title, id) {
     return (
       <div
-        className={
-          "nav-menu-item " + id + (currentSection === id ? " selected" : "")
-        }
-        onClick={(event) => setCurrentSection(id)}
         key={id}
+        id={id}
+        className={"nav-menu-item" + (currentSection === id ? " selected" : "")}
+        onClick={(event) => setCurrentSection(id)}
       >
         <span className="section-title">{title}</span>
       </div>
@@ -65,20 +64,22 @@ export default function NavDrawer({
     <>
       <Modal
         className="nav-menu-popup-modal"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
+        open={popupDrawerOpen}
+        onClose={onPopupClose}
         container={
           window !== undefined ? () => window.document.body : undefined
         }
         keepMounted={true}
       >
         <nav
-          className={"nav-menu-container popup" + (mobileOpen ? "" : " hidden")}
+          className={
+            "nav-menu-container popup" + (popupDrawerOpen ? "" : " hidden")
+          }
           aria-label="survey sections"
         >
           <button
             aria-label="close drawer"
-            onClick={handleDrawerToggle}
+            onClick={onPopupClose}
             className="menu-button"
           >
             {menuButtonSvg()}

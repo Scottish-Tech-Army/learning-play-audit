@@ -19,6 +19,7 @@ function SectionSummary({
 
   return (
     <div
+      id={section.id}
       onClick={(event) => onClick(section.id)}
       className={
         "nav-menu-item" + (currentSectionId === section.id ? " selected" : "")

@@ -57,7 +57,7 @@ function GallerySection({ sections, setCurrentSection }) {
     );
     if (generalPhotoIds.length > 0) {
       output.push(
-        <div key="general" className="gallery-section-question">
+        <div key="general" id="general" className="gallery-section-question">
           <h3>General</h3>
           {generalPhotoIds.map((photoId) => (
             <GalleryPhoto key={photoId} photoId={photoId} />
@@ -86,6 +86,7 @@ function GallerySection({ sections, setCurrentSection }) {
         output.push(
           <div
             key={sectionId + "-" + questionId}
+            id={sectionId + "-" + questionId}
             className="gallery-section-question"
           >
             <h3>

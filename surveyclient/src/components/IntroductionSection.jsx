@@ -8,6 +8,7 @@ function ExampleQuestion() {
   function toggleButton(value, label) {
     return (
       <button
+        id={value}
         className={answer === value ? "selected" : ""}
         onClick={() => setAnswer(answer === value ? null : value)}
         aria-label={label}
