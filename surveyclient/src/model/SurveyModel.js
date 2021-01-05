@@ -200,12 +200,16 @@ function deletePhoto(state, action) {
 }
 
 function updatePhotoDescription(state, action) {
-  const result = state;
-  const photo = result.photoDetails[action.photoId];
-  if (photo === undefined) {
-    return result;
+  if (state.photoDetails === undefined) {
+    return state;
   }
-  photo.description = action.description;
+  const photoId = action.photoId;
+  const photo = state.photoDetails[photoId];
+  if (photo === undefined) {
+    return state;
+  }
+  const result = { ...state, photoDetails: { ...state.photoDetails } };
+  result.photoDetails[photoId] = { ...photo, description: action.description };
   return result;
 }
 
