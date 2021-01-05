@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGNED_OUT } from "../../model/AuthStates";
-import { setAuthState } from "./utils";
+import { setAuthState } from "../../model/AuthActions";
 import "../../App.css";
 
 export default function ContinueSignedOutButton() {

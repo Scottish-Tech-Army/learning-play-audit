@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { handleSignIn, setAuthState } from "./utils";
+import { handleSignIn, setAuthState } from "../../model/AuthActions";
 import { useDispatch, useSelector } from "react-redux";
 import { REGISTER, FORGOT_PASSWORD } from "../../model/AuthStates";
 import ContinueSignedOutButton from "./ContinueSignedOutButton";

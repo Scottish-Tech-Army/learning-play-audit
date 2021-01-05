@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { checkContact } from "./utils";
 import { Auth } from "@aws-amplify/auth";
 import { ConsoleLogger as Logger } from "@aws-amplify/core";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
-import { setAuthError, setAuthState } from "./utils";
+import { checkContact, setAuthError, setAuthState } from "../../model/AuthActions";
 import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const logger = new Logger("amplify-require-new-password");
@@ -79,7 +78,7 @@ export default function RequireNewPassword() {
       </div>
       <div className="question">
         <button
-          className="inline-action"
+          className="inline-action start-of-line"
           onClick={() => dispatch(setAuthState(SIGN_IN))}
         >
           Back to Sign In

@@ -127,7 +127,7 @@ textarea {
 
 .app-bar .auth-signin-signout:active,
 .app-bar .download-button:active,
-.section.authenticator button.disabled,
+.section.authenticator button:disabled,
 .section.authenticator button:active,
 .dialog button:active,
 .submit-survey-button:active,
@@ -511,7 +511,8 @@ textarea {
 
 /** Submit section **/
 
-.section.submit, .section.submit .content {
+.section.submit,
+.section.submit .content {
   align-items: center;
 }
 
@@ -821,7 +822,7 @@ textarea {
   margin-bottom: 20px;
 }
 
-.section.authenticator button.disabled {
+.section.authenticator button:disabled {
   background-color: darkGrey;
   color: white;
 }
@@ -835,6 +836,9 @@ textarea {
   font-size: inherit;
   padding: 0px 10px;
   margin: 0;
+}
+.section.authenticator button.inline-action.start-of-line {
+  padding: 0;
 }
 
 .section.authenticator button.continue-signed-out-button {
@@ -859,19 +863,31 @@ textarea {
 }
 
 .section.authenticator input[type="email"],
-.section.authenticator input[type="password"] {
+.section.authenticator input[type="password"],
+.section.authenticator input[type="number"] {
   margin-top: 5px;
   margin-bottom: 5px;
   height: 39px;
   border: solid 1px black;
   padding: 5px 10px;
+  font-size: 18px;
+}
+.section.authenticator input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  -webkit-appearance: textfield;
 }
 
-.section.authenticator #emailInput {
+.section.authenticator #emailInput,
+.section.authenticator #confirmEmailInput {
   margin-bottom: 20px;
 }
 .section.authenticator #passwordInput {
   margin-bottom: 40px;
+}
+
+.section.authenticator #confirmEmailInput {
+  background-color: lightgray;
 }
 
 .section.authenticator .email-label-line {

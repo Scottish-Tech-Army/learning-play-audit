@@ -17,7 +17,7 @@ import {
   FORGOT_PASSWORD,
   RESET_PASSWORD,
 } from "../../model/AuthStates";
-import { setAuthState } from "./utils";
+import { setAuthState } from "../../model/AuthActions";
 
 const logger = new Logger("Authenticator");
 

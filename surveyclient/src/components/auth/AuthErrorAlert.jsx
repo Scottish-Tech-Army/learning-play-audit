@@ -2,7 +2,7 @@ import React from "react";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { clearAuthError } from "./utils";
+import { clearAuthError } from "../../model/AuthActions";
 
 export default function AuthErrorAlert() {
   const dispatch = useDispatch();

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Auth } from "@aws-amplify/auth";
-import { handleSignIn, setAuthError, setAuthState } from "./utils";
+import { handleSignIn, setAuthError, setAuthState } from "../../model/AuthActions";
 import { useDispatch } from "react-redux";
 import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
 import Modal from "@material-ui/core/Modal";
@@ -161,7 +161,7 @@ for any other purpose.`;
 
       <div className="action-row">
         <button
-          className={"register-button" + (!formComplete() ? " disabled" : "")}
+          className="register-button"
           onClick={signUp}
           disabled={loading || !formComplete()}
         >

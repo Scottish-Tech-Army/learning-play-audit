@@ -3,7 +3,7 @@ import { Auth } from "@aws-amplify/auth";
 import { Logger } from "@aws-amplify/core";
 import { useDispatch } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
-import { setAuthError, setAuthState } from "./utils";
+import { setAuthError, setAuthState } from "../../model/AuthActions";
 import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
@@ -106,7 +106,7 @@ export default function ForgotPassword() {
       </div>
       <div className="question">
         <button
-          className="inline-action"
+          className="inline-action start-of-line"
           onClick={() => dispatch(setAuthState(SIGN_IN))}
         >
           Back to Sign In

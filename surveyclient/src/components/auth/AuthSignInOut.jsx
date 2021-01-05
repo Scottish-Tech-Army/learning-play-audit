@@ -2,7 +2,7 @@ import { Auth } from "@aws-amplify/auth";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN, SIGNED_OUT, SIGNED_IN } from "../../model/AuthStates";
-import { setAuthError, setAuthState } from "./utils";
+import { setAuthError, setAuthState } from "../../model/AuthActions";
 import "../../App.css";
 
 export default function AuthSignInOut() {
