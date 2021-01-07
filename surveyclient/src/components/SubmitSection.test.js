@@ -10,7 +10,6 @@ import { Provider } from "react-redux";
 import { REFRESH_STATE, SET_AUTH_STATE } from "../model/ActionTypes";
 import { SUBMIT } from "./FixedSectionTypes";
 import { SIGNED_IN, SIGNED_OUT } from "../model/AuthStates";
-import { Auth } from "@aws-amplify/auth";
 import { INPUT_STATE } from "../model/TestUtils";
 import {
   SUBMITTING_START,
@@ -42,16 +41,7 @@ describe("component SubmitSection", () => {
     // Populate state and auth state
     surveyStore.dispatch({ type: REFRESH_STATE, state: INPUT_STATE });
 
-    Auth.currentSession.mockReset();
     uploadResults.mockReset();
-
-    Auth.currentSession.mockImplementation(() => {
-      return Promise.resolve({
-        getIdToken: () => {
-          return { getJwtToken: () => "test jwt token" };
-        },
-      });
-    });
   });
 
   afterEach(() => {

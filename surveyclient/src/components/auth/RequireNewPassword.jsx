@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Auth } from "@aws-amplify/auth";
-import { ConsoleLogger as Logger } from "@aws-amplify/core";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
-import { checkContact, setAuthError, setAuthState } from "../../model/AuthActions";
+import { setAuthState, completeNewPassword } from "../../model/AuthActions";
 import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
-const logger = new Logger("amplify-require-new-password");
-
 const PASSWORD_ID = "passwordInput";
+const MIN_PASSWORD_LENGTH = 8;
 
 export default function RequireNewPassword() {
   const dispatch = useDispatch();
@@ -17,43 +14,15 @@ export default function RequireNewPassword() {
   const authError = useSelector((state) => state.authentication.errorMessage);
 
   const [loading, setLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState(user);
   const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    if (!user) {
-      async function getAuthenticatedUser() {
-        // Check for authenticated user
-        try {
-          const authenticatedUser = await Auth.currentAuthenticatedUser();
-          if (authenticatedUser) setCurrentUser(authenticatedUser);
-        } catch (error) {
-          dispatch(setAuthError(error));
-        }
-      }
-
-      getAuthenticatedUser();
-    }
-  }, [user, dispatch]);
 
   useEffect(() => {
     setLoading(false);
   }, [authState, authError]);
 
-  async function completeNewPassword(event: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-
+  function handleComplete() {
     setLoading(true);
-    try {
-      const user = await Auth.completeNewPassword(currentUser, password, {});
-
-      logger.debug("complete new password", user);
-      dispatch(checkContact(user));
-    } catch (error) {
-      dispatch(setAuthError(error));
-    }
+    dispatch(completeNewPassword(user, password));
   }
 
   return (
@@ -71,15 +40,20 @@ export default function RequireNewPassword() {
       />
 
       <div className="action-row">
-        <button onClick={completeNewPassword} disbled={loading}>
+        <button
+          id="change-button"
+          onClick={handleComplete}
+          disabled={loading || password.length < MIN_PASSWORD_LENGTH}
+        >
           {loading ? <div class="loader" /> : <span>CHANGE</span>}
         </button>
         <ContinueSignedOutButton />
       </div>
       <div className="question">
         <button
+          id="signin-button"
           className="inline-action start-of-line"
-          onClick={() => dispatch(setAuthState(SIGN_IN))}
+          onClick={() => dispatch(setAuthState(SIGN_IN, user))}
         >
           Back to Sign In
         </button>

@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { Auth } from "@aws-amplify/auth";
-import { handleSignIn, setAuthError, setAuthState } from "../../model/AuthActions";
-import { useDispatch } from "react-redux";
-import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
+import React, { useState, useEffect } from "react";
+import { setAuthState, register } from "../../model/AuthActions";
+import { useDispatch, useSelector } from "react-redux";
+import { SIGN_IN } from "../../model/AuthStates";
 import Modal from "@material-ui/core/Modal";
 import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
@@ -15,66 +14,40 @@ export default function Register() {
   const [tcChecked, setTcChecked] = useState(false);
   const [gdprChecked, setGdprChecked] = useState(false);
   const [gdprPopup, setGdprPopup] = useState(false);
-  const [email, setEmail] = useState();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const authState = useSelector((state) => state.authentication.state);
+  const authError = useSelector((state) => state.authentication.errorMessage);
   const dispatch = useDispatch();
 
   const EMAIL_USE_TEXT = `Learning Through Landscapes may use this email address to contact
 you in relation to this survey. Your email address will not be used
 for any other purpose.`;
 
-  async function signUp(event) {
-    if (event) {
-      event.preventDefault();
-    }
+  useEffect(() => {
+    setLoading(false);
+  }, [authState, authError]);
 
-    const signUpAttributes = {
-      username: email,
-      password: password,
-    };
-    try {
-      setLoading(true);
-      const data = await Auth.signUp(signUpAttributes);
-      if (!data) {
-        throw new Error("Sign Up Failed");
-      }
-      if (data.userConfirmed) {
-        await handleSignIn(
-          dispatch,
-          signUpAttributes.username,
-          signUpAttributes.password
-        );
-      } else {
-        dispatch(
-          setAuthState(CONFIRM_REGISTRATION, {
-            ...data.user,
-            signUpAttrs: { ...signUpAttributes },
-          })
-        );
-      }
-    } catch (error) {
-      dispatch(setAuthError(error));
-    } finally {
-      setLoading(false);
-    }
+  function handleRegister() {
+    setLoading(true);
+    dispatch(register(email, password));
   }
 
   function formComplete() {
     return (
       tcChecked &&
       gdprChecked &&
-      email &&
       email.length > 0 &&
-      password &&
       password.length >= MIN_PASSWORD_LENGTH
     );
   }
 
-  function checkbox(labelText, value, setValue) {
+  function checkbox(id, labelText, value, setValue) {
     return (
       <div className="checkbox-line">
         <span
+          id={id}
           className={"checkmark" + (value ? " checked" : "")}
           onClick={() => setValue((value) => !value)}
         ></span>
@@ -105,10 +78,15 @@ for any other purpose.`;
           Why do we need this?
           <span className="tooltip-text">{EMAIL_USE_TEXT}</span>
         </div>
-        <button className="tooltip small" onClick={() => setGdprPopup(true)}>
+        <button
+          id="gdpr-popup-button"
+          className="tooltip small"
+          onClick={() => setGdprPopup(true)}
+        >
           ?
         </button>
         <Modal
+          id="popup-container"
           container={
             window !== undefined ? () => window.document.body : undefined
           }
@@ -149,11 +127,13 @@ for any other purpose.`;
       />
 
       {checkbox(
+        "tnc-check",
         <div>I agree to the {policyLink("Terms & Conditions")}</div>,
         tcChecked,
         setTcChecked
       )}
       {checkbox(
+        "gdpr-check",
         <span>I agree to the {policyLink("LTL GDPR Policy")}</span>,
         gdprChecked,
         setGdprChecked
@@ -161,8 +141,8 @@ for any other purpose.`;
 
       <div className="action-row">
         <button
-          className="register-button"
-          onClick={signUp}
+          id="register-button"
+          onClick={handleRegister}
           disabled={loading || !formComplete()}
         >
           {loading ? <div class="loader" /> : <span>REGISTER</span>}
@@ -172,6 +152,7 @@ for any other purpose.`;
       <div className="question">
         Already have an account?{" "}
         <button
+          id="signin-button"
           className="inline-action"
           onClick={() => dispatch(setAuthState(SIGN_IN))}
         >

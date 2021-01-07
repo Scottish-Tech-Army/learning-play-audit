@@ -12,16 +12,14 @@ export default function AuthErrorAlert() {
   );
 
   const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+    if (reason !== "clickaway") {
+      dispatch(clearAuthError());
     }
-
-    dispatch(clearAuthError());
   };
 
   return (
     <Snackbar open={errorMessage !== ""}>
-      <Alert onClose={handleClose} severity="error">
+      <Alert className="auth-alert" onClose={handleClose} severity="error">
         {errorMessage}
       </Alert>
     </Snackbar>

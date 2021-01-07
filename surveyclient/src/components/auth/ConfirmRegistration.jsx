@@ -26,19 +26,11 @@ export default function ConfirmRegistration() {
     setLoading(false);
   }, [authState, authError]);
 
-  function handleResend(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    setLoading(true);
+  function handleResend() {
     dispatch(resendConfirmCode(user));
   }
 
-  function handleConfirm(event) {
-    console.log("Confirm clicked");
-    if (event) {
-      event.preventDefault();
-    }
+  function handleConfirm() {
     setLoading(true);
     dispatch(confirmRegistration(user, code, _signUpAttrs));
   }

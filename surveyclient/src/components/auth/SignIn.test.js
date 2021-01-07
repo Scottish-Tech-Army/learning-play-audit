@@ -1,7 +1,7 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
-import ConfirmRegistration from "./ConfirmRegistration";
+import SignIn from "./SignIn";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
 import {
@@ -12,21 +12,17 @@ import {
 import {
   SIGN_IN,
   SIGNED_OUT,
-  CONFIRM_REGISTRATION,
+  SIGNED_IN,
+  REGISTER,
+  FORGOT_PASSWORD_REQUEST,
 } from "../../model/AuthStates";
-import {
-  resendConfirmCode,
-  confirmRegistration,
-  setAuthState,
-} from "../../model/AuthActions";
+import { setAuthState, signIn } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
-const TEST_CODE = "65431";
-const TEST_PASSWORD = "test password";
 
 jest.mock("../../model/AuthActions");
 
-describe("component ConfirmRegistration", () => {
+describe("component SignIn", () => {
   var container = null;
   beforeEach(() => {
     // setup a DOM element as a render target
@@ -35,15 +31,13 @@ describe("component ConfirmRegistration", () => {
 
     surveyStore.dispatch({
       type: SET_AUTH_STATE,
-      authState: CONFIRM_REGISTRATION,
+      authState: SIGN_IN,
       user: { username: TEST_USER },
     });
 
-    resendConfirmCode.mockReset();
-    confirmRegistration.mockReset();
+    signIn.mockReset();
     setAuthState.mockReset();
-    resendConfirmCode.mockImplementation(() => () => "dummy action");
-    confirmRegistration.mockImplementation(() => () => "dummy action");
+    signIn.mockImplementation(() => () => "dummy action");
     setAuthState.mockImplementation(() => () => "dummy action");
   });
 
@@ -54,100 +48,99 @@ describe("component ConfirmRegistration", () => {
     container = null;
   });
 
-  it("initial render and code entry - first login", () => {
+  it("initial render and enable signIn action - first login", () => {
     renderComponent();
-    expect(emailInput().value).toStrictEqual(TEST_USER);
-    expect(codeInput().value).toStrictEqual("");
-    expect(confirmButton()).toBeDisabled();
+    expect(emailInput().value).toStrictEqual("");
+    expect(passwordInput().value).toStrictEqual("");
+    expect(signInButton()).toBeDisabled();
     expect(continueButton()).toBeNull();
 
-    enterCode(TEST_CODE);
+    // Form complete
+    enterEmail(TEST_USER);
+    enterPassword("12345678");
     renderComponent();
-    expect(confirmButton()).not.toBeDisabled();
+    expect(signInButton()).not.toBeDisabled();
+
+    // Email empty
+    enterEmail("");
+    renderComponent();
+    expect(signInButton()).toBeDisabled();
+
+    // Restore
+    enterEmail(TEST_USER);
+    renderComponent();
+    expect(signInButton()).not.toBeDisabled();
+
+    // Password empty
+    enterPassword("");
+    renderComponent();
+    expect(signInButton()).toBeDisabled();
+
+    // Restore
+    enterPassword("12345678");
+    renderComponent();
+    expect(signInButton()).not.toBeDisabled();
   });
 
   it("confirm success", () => {
     renderComponent();
-    enterCode(TEST_CODE);
-    renderComponent();
-    click(confirmButton());
-
-    expect(confirmRegistration).toHaveBeenCalledTimes(1);
-    expect(confirmRegistration).toHaveBeenCalledWith(
-      { username: TEST_USER },
-      TEST_CODE,
-      null
-    );
-    renderComponent();
-    expect(confirmButton()).toBeDisabled();
-  });
-
-  it("confirm success with signUpAttrs", () => {
-    surveyStore.dispatch({
-      type: SET_AUTH_STATE,
-      authState: CONFIRM_REGISTRATION,
-      user: { username: TEST_USER, signUpAttrs: { password: TEST_PASSWORD } },
-    });
-
-    renderComponent();
-    enterCode(TEST_CODE);
-    renderComponent();
-    click(confirmButton());
-
-    expect(confirmRegistration).toHaveBeenCalledTimes(1);
-    expect(confirmRegistration).toHaveBeenCalledWith(
-      { username: TEST_USER, signUpAttrs: { password: TEST_PASSWORD } },
-      TEST_CODE,
-      { password: TEST_PASSWORD }
-    );
-    renderComponent();
-    expect(confirmButton()).toBeDisabled();
-  });
-
-  it("resend confirm code", () => {
-    renderComponent();
-    click(resendCodeButton());
-
-    expect(resendConfirmCode).toHaveBeenCalledTimes(1);
-    expect(resendConfirmCode).toHaveBeenCalledWith({ username: TEST_USER });
-  });
-
-  it("back to sign in", () => {
+    enterEmail(TEST_USER);
+    enterPassword("12345678");
     renderComponent();
     click(signInButton());
 
+    expect(signIn).toHaveBeenCalledTimes(1);
+    expect(signIn).toHaveBeenCalledWith(TEST_USER, "12345678");
+    renderComponent();
+    expect(signInButton()).toBeDisabled();
+  });
+
+  it("go to register", () => {
+    renderComponent();
+    click(registerButton());
+
     expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGN_IN, { username: TEST_USER });
+    expect(setAuthState).toHaveBeenCalledWith(REGISTER);
+  });
+
+  it("go to forgot password", () => {
+    renderComponent();
+    click(forgotPasswordButton());
+
+    expect(setAuthState).toHaveBeenCalledTimes(1);
+    expect(setAuthState).toHaveBeenCalledWith(FORGOT_PASSWORD_REQUEST);
   });
 
   it("end loading spinner on auth state update", () => {
     renderComponent();
-    enterCode(TEST_CODE);
+    enterEmail(TEST_USER);
+    enterPassword("12345678");
     renderComponent();
-    click(confirmButton());
+    click(signInButton());
     renderComponent();
-    expect(confirmButton()).toBeDisabled();
+    expect(signInButton()).toBeDisabled();
 
     surveyStore.dispatch({
       type: SET_AUTH_STATE,
-      authState: SIGN_IN,
+      authState: SIGNED_IN,
       user: { username: TEST_USER },
     });
     renderComponent();
-    expect(confirmButton()).not.toBeDisabled();
+    expect(signInButton()).not.toBeDisabled();
   });
 
   it("end loading spinner on auth error", () => {
     renderComponent();
-    enterCode(TEST_CODE);
+    enterEmail(TEST_USER);
+    enterPassword("12345678");
     renderComponent();
-    click(confirmButton());
+    click(signInButton());
     renderComponent();
-    expect(confirmButton()).toBeDisabled();
+    expect(signInButton()).toBeDisabled();
 
     surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
-    expect(confirmButton()).not.toBeDisabled();
+    expect(signInButton()).not.toBeDisabled();
   });
 
   it("not first login can continue", () => {
@@ -157,7 +150,7 @@ describe("component ConfirmRegistration", () => {
         hasEverLoggedIn: true,
         authentication: {
           errorMessage: "",
-          state: CONFIRM_REGISTRATION,
+          state: SIGN_IN,
           user: undefined,
         },
       },
@@ -171,17 +164,26 @@ describe("component ConfirmRegistration", () => {
     expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
   });
 
-  const emailInput = () => container.querySelector("#confirmEmailInput");
-  const codeInput = () => container.querySelector("#codeInput");
-  const confirmButton = () => container.querySelector("#confirm-button");
-  const resendCodeButton = () => container.querySelector("#resend-code-button");
+  const emailInput = () => container.querySelector("#emailInput");
+  const passwordInput = () => container.querySelector("#passwordInput");
+  const registerButton = () => container.querySelector("#register-button");
+  const forgotPasswordButton = () =>
+    container.querySelector("#forgot-password-button");
   const signInButton = () => container.querySelector("#signin-button");
   const continueButton = () =>
     container.querySelector("#continue-signed-out-button");
 
-  function enterCode(value) {
+  function enterEmail(value) {
     act(() => {
-      const element = codeInput();
+      const element = emailInput();
+      element.value = value;
+      Simulate.input(element);
+    });
+  }
+
+  function enterPassword(value) {
+    act(() => {
+      const element = passwordInput();
       element.value = value;
       Simulate.input(element);
     });
@@ -197,7 +199,7 @@ describe("component ConfirmRegistration", () => {
     act(() => {
       render(
         <Provider store={surveyStore}>
-          <ConfirmRegistration />
+          <SignIn />
         </Provider>,
         container
       );

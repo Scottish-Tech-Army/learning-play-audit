@@ -7,9 +7,11 @@ import {
 } from "./ActionTypes";
 import {
   SIGNED_IN,
+  SIGNED_OUT,
   SIGN_IN,
   CONFIRM_REGISTRATION,
-  FORGOT_PASSWORD,
+  FORGOT_PASSWORD_REQUEST,
+  FORGOT_PASSWORD_SUBMIT,
   RESET_PASSWORD,
 } from "./AuthStates";
 
@@ -45,8 +47,8 @@ export function checkContact(user) {
   };
 }
 
-export function handleSignIn(username, password) {
-  // console.log("handleSignIn");
+export function signIn(username, password) {
+  // console.log("signIn");
   return function (dispatch) {
     return Auth.signIn(username, password)
       .then((user) => {
@@ -65,7 +67,7 @@ export function handleSignIn(username, password) {
           dispatch(setAuthState(CONFIRM_REGISTRATION, { username }));
         } else if (error.code === "PasswordResetRequiredException") {
           logger.debug("the user requires a new password");
-          dispatch(setAuthState(FORGOT_PASSWORD, { username }));
+          dispatch(setAuthState(FORGOT_PASSWORD_REQUEST, { username }));
         }
       });
   };
@@ -82,7 +84,7 @@ export function resendConfirmCode(user) {
   };
 }
 
-export function confirmRegistration(user, code, _signUpAttrs) {
+export function confirmRegistration(user, code, signUpAttrs) {
   // console.log("confirmRegistration");
   return function (dispatch) {
     return Auth.confirmSignUp(user.username, code)
@@ -91,16 +93,101 @@ export function confirmRegistration(user, code, _signUpAttrs) {
           throw new Error("Confirm Sign Up Failed");
         }
         if (
-          _signUpAttrs &&
-          _signUpAttrs.password &&
-          _signUpAttrs.password !== ""
+          signUpAttrs &&
+          signUpAttrs.password &&
+          signUpAttrs.password !== ""
         ) {
           // Auto sign in user if password is available from previous workflow
-          return dispatch(handleSignIn(user.username, _signUpAttrs.password));
+          return dispatch(signIn(user.username, signUpAttrs.password));
         } else {
           dispatch(setAuthState(SIGN_IN, user));
         }
       })
       .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function register(username, password) {
+  // console.log("register");
+  return function (dispatch) {
+    const signUpAttributes = { username: username, password: password };
+    return Auth.signUp(signUpAttributes)
+      .then((result) => {
+        if (!result) {
+          throw new Error("Sign Up Failed");
+        }
+        if (result.userConfirmed) {
+          // Auto sign in user if pre-confirmed
+          return dispatch(signIn(username, password));
+        } else {
+          dispatch(
+            setAuthState(CONFIRM_REGISTRATION, {
+              ...result.user,
+              signUpAttrs: { ...signUpAttributes },
+            })
+          );
+        }
+      })
+      .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function completeNewPassword(user, newPassword) {
+  // console.log("completeNewPassword");
+  return function (dispatch) {
+    let getUserPromise = null;
+    if (!user) {
+      getUserPromise = () => Auth.currentAuthenticatedUser();
+    } else {
+      getUserPromise = () => Promise.resolve(user);
+    }
+
+    return getUserPromise()
+      .then((user) => Auth.completeNewPassword(user, newPassword, {}))
+      .then((user) => {
+        return dispatch(checkContact(user));
+      })
+      .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function signOut() {
+  // console.log("signOut");
+  return function (dispatch) {
+    return Auth.signOut()
+      .then(() => dispatch(setAuthState(SIGNED_OUT)))
+      .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function forgotPasswordRequest(username) {
+  // console.log("forgotPasswordRequest");
+  return function (dispatch) {
+    return Auth.forgotPassword(username)
+      .then(() =>
+        dispatch(setAuthState(FORGOT_PASSWORD_SUBMIT, { username: username }))
+      )
+      .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function forgotPasswordSubmit(username, code, newPassword) {
+  // console.log("forgotPasswordSubmit");
+  return function (dispatch) {
+    return Auth.forgotPasswordSubmit(username, code, newPassword)
+      .then(() => dispatch(setAuthState(SIGN_IN)))
+      .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function signInCurrentUser(username, code, newPassword) {
+  // console.log("signInCurrentUser");
+  return function (dispatch) {
+    return Auth.currentAuthenticatedUser()
+      .then((user) => dispatch(setAuthState(SIGNED_IN, user)))
+      .catch(() => {
+          logger.info("User not logged in");
+          return Promise.resolve("User not logged in");
+      })
   };
 }

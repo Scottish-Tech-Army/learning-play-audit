@@ -137,12 +137,7 @@ function Section({ section, sections, setCurrentSection }) {
   }
 
   return (
-    <div
-      className={
-        "section survey" + (section.id === BACKGROUND ? " background" : "")
-      }
-      ref={sectionRef}
-    >
+    <div className={"section survey " + section.id} ref={sectionRef}>
       <div className="mobile-header">
         <SectionSummary
           key={section.id}

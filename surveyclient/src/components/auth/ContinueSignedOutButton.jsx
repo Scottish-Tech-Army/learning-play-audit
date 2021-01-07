@@ -14,7 +14,7 @@ export default function ContinueSignedOutButton() {
 
   return (
     <button
-      className="continue-signed-out-button"
+      id="continue-signed-out-button"
       aria-label="continue survey"
       onClick={() => dispatch(setAuthState(SIGNED_OUT))}
     >

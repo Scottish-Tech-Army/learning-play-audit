@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-import { Auth } from "@aws-amplify/auth";
-import { Logger } from "@aws-amplify/core";
 import Register from "./Register";
 import ConfirmRegistration from "./ConfirmRegistration";
 import SignIn from "./SignIn";
-import ForgotPassword from "./ForgotPassword";
+import ForgotPasswordRequest from "./ForgotPasswordRequest";
+import ForgotPasswordSubmit from "./ForgotPasswordSubmit";
 import RequireNewPassword from "./RequireNewPassword";
 import AuthErrorAlert from "./AuthErrorAlert";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,12 +13,11 @@ import {
   SIGNED_OUT,
   SIGNED_IN,
   CONFIRM_REGISTRATION,
-  FORGOT_PASSWORD,
+  FORGOT_PASSWORD_REQUEST,
+  FORGOT_PASSWORD_SUBMIT,
   RESET_PASSWORD,
 } from "../../model/AuthStates";
-import { setAuthState } from "../../model/AuthActions";
-
-const logger = new Logger("Authenticator");
+import { signInCurrentUser } from "../../model/AuthActions";
 
 export function isAuthenticating(state) {
   return state !== SIGNED_IN && state !== SIGNED_OUT;
@@ -30,21 +28,7 @@ export default function Authenticator() {
   const authState = useSelector((state) => state.authentication.state);
 
   useEffect(() => {
-    async function checkUser() {
-      return Auth.currentAuthenticatedUser()
-        .then((user) => {
-          dispatch(setAuthState(SIGNED_IN, user));
-        })
-        .catch(() => {
-          logger.info("User not logged in");
-        });
-    }
-
-    async function waitCheckUser() {
-      await checkUser();
-    }
-
-    waitCheckUser();
+    dispatch(signInCurrentUser());
   }, [dispatch]);
 
   function renderAuthComponent() {
@@ -55,12 +39,14 @@ export default function Authenticator() {
         return <Register />;
       case CONFIRM_REGISTRATION:
         return <ConfirmRegistration />;
-      case FORGOT_PASSWORD:
-        return <ForgotPassword />;
+      case FORGOT_PASSWORD_REQUEST:
+        return <ForgotPasswordRequest />;
+      case FORGOT_PASSWORD_SUBMIT:
+        return <ForgotPasswordSubmit />;
       case RESET_PASSWORD:
         return <RequireNewPassword />;
       default:
-        throw new Error(`Unhandled auth state: ${authState}`);
+        console.error(`Unhandled auth state: ${authState}`);
     }
   }
 
