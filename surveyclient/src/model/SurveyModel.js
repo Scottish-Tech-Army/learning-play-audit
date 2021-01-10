@@ -85,7 +85,7 @@ export function surveyReducer(state = initialState(), action) {
   switch (action.type) {
     case CONFIRM_WELCOME:
       // console.log("CONFIRM_WELCOME");
-      newState = { ...state, hasSeenSplashPage: true };
+      newState = { ...state, hasSeenSplashPage: true, hasEverLoggedIn: true };
       writeAnswers(newState);
       return newState;
 
@@ -352,7 +352,6 @@ function setAuthState(state, { authState, user }) {
     authentication: { state: authState, user: user, errorMessage: "" },
     // Show welcome screen on every login
     hasSeenSplashPage: state.hasSeenSplashPage && authState !== SIGNED_IN,
-    hasEverLoggedIn: state.hasEverLoggedIn || authState === SIGNED_IN,
   };
 
   // TODO necessary?

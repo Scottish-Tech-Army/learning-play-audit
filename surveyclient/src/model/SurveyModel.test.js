@@ -71,20 +71,25 @@ describe("surveyReducer", () => {
     const inputState = {
       ...INITIALISED_EMPTY_STATE,
       hasSeenSplashPage: false,
+      hasEverLoggedIn: false,
     };
 
     expect(
       surveyReducer(inputState, {
         type: CONFIRM_WELCOME,
       })
-    ).toStrictEqual({ ...inputState, hasSeenSplashPage: true });
+    ).toStrictEqual({
+      ...inputState,
+      hasEverLoggedIn: true,
+      hasSeenSplashPage: true,
+    });
 
     // Check calls
     expect(localforage.setItem).toHaveBeenCalledTimes(1);
     expect(localforage.setItem).toHaveBeenCalledWith("answers", {
       answerCounts: EMPTY_STATE.answerCounts,
       answers: EMPTY_STATE.answers,
-      hasEverLoggedIn: EMPTY_STATE.hasEverLoggedIn,
+      hasEverLoggedIn: true,
       hasSeenSplashPage: true,
       photoDetails: EMPTY_STATE.photoDetails,
     });
@@ -191,7 +196,7 @@ describe("surveyReducer", () => {
         user: "new user",
       },
       hasSeenSplashPage: false,
-      hasEverLoggedIn: true,
+      hasEverLoggedIn: false,
     });
 
     // Check calls
@@ -199,7 +204,7 @@ describe("surveyReducer", () => {
     expect(localforage.setItem).toHaveBeenCalledWith("answers", {
       answerCounts: INPUT_STATE.answerCounts,
       answers: INPUT_STATE.answers,
-      hasEverLoggedIn: true,
+      hasEverLoggedIn: false,
       hasSeenSplashPage: false,
       photoDetails: INPUT_STATE.photoDetails,
     });
@@ -772,7 +777,11 @@ describe("surveyReducer actions pre-initialisation should not write to storage",
       surveyReducer(inputState, {
         type: CONFIRM_WELCOME,
       })
-    ).toStrictEqual({ ...EMPTY_STATE, hasSeenSplashPage: true });
+    ).toStrictEqual({
+      ...EMPTY_STATE,
+      hasSeenSplashPage: true,
+      hasEverLoggedIn: true,
+    });
 
     // Check calls
     expect(localforage.setItem).not.toHaveBeenCalled();
