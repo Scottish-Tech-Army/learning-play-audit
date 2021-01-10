@@ -1,8 +1,8 @@
 {
-  "name": "cdk-backend",
+  "name": "cdk-stacks",
   "version": "0.1.0",
   "bin": {
-    "cdk-backend": "bin/cdk-backend.js"
+    "cdk-stacks": "bin/cdk-stacks.js"
   },
   "scripts": {
     "build": "echo \"The build step is not required when using JavaScript!\" && exit 0",

@@ -6,9 +6,6 @@ const lambda = require("@aws-cdk/aws-lambda");
 const apigateway = require("@aws-cdk/aws-apigateway");
 const cognito = require("@aws-cdk/aws-cognito");
 const iam = require("@aws-cdk/aws-iam");
-const cloudfront = require("@aws-cdk/aws-cloudfront");
-const origins = require("@aws-cdk/aws-cloudfront-origins");
-const s3deploy = require("@aws-cdk/aws-s3-deployment");
 
 class CdkBackendStack extends cdk.Stack {
   /**
@@ -23,7 +20,7 @@ class CdkBackendStack extends cdk.Stack {
     // Common resources
     const stack = cdk.Stack.of(this);
     const region = stack.region;
-    const { envStageName } = props;
+    const { environment, resourcePrefix } = props;
 
     //provisionedthroughput - cost of lower
     //perhaps remove s3 abort
@@ -31,10 +28,10 @@ class CdkBackendStack extends cdk.Stack {
     // The following are fixed resource names with environment stage suffixes
     // These resources will not be replaced during updates
     const SURVEY_RESOURCES_BUCKET_NAME =
-      stackId.toLowerCase() + "-surveyresources";
-    const SURVEY_RESPONSES_TABLE_NAME = stackId + "-SurveyResponses";
-    const SURVEY_CLIENT_USERPOOL_ID = stackId + "-SurveyUserPool";
-    const SURVEY_ADMIN_USERPOOL_ID = stackId + "-SurveyAdminPool";
+      resourcePrefix.toLowerCase() + "-surveyresources";
+    const SURVEY_RESPONSES_TABLE_NAME = resourcePrefix + "-SurveyResponses";
+    const SURVEY_CLIENT_USERPOOL_ID = resourcePrefix + "-SurveyUserPool";
+    const SURVEY_ADMIN_USERPOOL_ID = resourcePrefix + "-SurveyAdminPool";
 
     const surveyResourcesBucket = new Bucket(this, "SurveyResources", {
       bucketName: SURVEY_RESOURCES_BUCKET_NAME,
@@ -81,7 +78,8 @@ class CdkBackendStack extends cdk.Stack {
         "uploadState",
         "responderEmail",
       ],
-      readCapacity: 10,
+      // Only increase RTU for live site
+      readCapacity: environment === "live" ? 10 : 5,
     });
     new cdk.CfnOutput(this, "SurveyResponseSummaries index", {
       value: "SummaryIndex",
@@ -91,7 +89,7 @@ class CdkBackendStack extends cdk.Stack {
     // Survey client resources
 
     const restApi = new apigateway.RestApi(this, "SurveyClientApi", {
-      restApiName: "LTL Survey Client Service (" + envStageName + ")",
+      restApiName: "LTL Survey Client Service (" + environment + ")",
       description: "This service receives LTL Audit Survey reponses.",
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
@@ -167,6 +165,11 @@ class CdkBackendStack extends cdk.Stack {
         SURVEY_RESOURCES_BUCKET: surveyResourcesBucket.bucketName,
       },
       timeout: cdk.Duration.seconds(30),
+      commandHooks: {
+        beforeBundling(inputDir) {
+          return [`cd ${inputDir} && npm install`];
+        },
+      },
     });
 
     surveyResponsesTable.grant(addSurveyLambda, "dynamodb:PutItem");
@@ -307,16 +310,6 @@ class CdkBackendStack extends cdk.Stack {
       }
     );
 
-    //       adminClientAuthenticatedRole.role.addToPolicy(
-    //   // IAM policy granting users permission to a specific folder in the S3 bucket
-    //   new iam.PolicyStatement({
-    //     actions: ["s3:*"],
-    //     effect: iam.Effect.ALLOW,
-    //     resources: [
-    //       bucketArn + "/private/${cognito-identity.amazonaws.com:sub}/*",
-    //     ],
-    //   })
-    // );
     surveyResponsesTable.grant(
       adminClientAuthenticatedRole,
       "dynamodb:BatchGetItem",
@@ -325,45 +318,6 @@ class CdkBackendStack extends cdk.Stack {
     );
 
     surveyResourcesBucket.grantRead(adminClientAuthenticatedRole); // TODO restrict to object move?
-
-    // React website hosting - survey client
-    addHostedWebsite(this, "SurveyWebClient", "../surveyclient/build");
-
-    // React website hosting - admin client
-    addHostedWebsite(this, "AdminWebClient", "../adminclient/build");
-
-    function addHostedWebsite(scope, name, pathToWebsiteContents) {
-      const BUCKET_NAME = name;
-      const DISTRIBUTION_NAME = name + "Distribution";
-      const DEPLOY_NAME = name + "DeployWithInvalidation";
-
-      const bucket = new Bucket(scope, BUCKET_NAME, {});
-
-      const distribution = new cloudfront.Distribution(
-        scope,
-        DISTRIBUTION_NAME,
-        {
-          defaultBehavior: {
-            origin: new origins.S3Origin(bucket),
-            allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-            viewerProtocolPolicy:
-              cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          },
-          defaultRootObject: "index.html",
-        }
-      );
-
-      new s3deploy.BucketDeployment(scope, DEPLOY_NAME, {
-        sources: [s3deploy.Source.asset(pathToWebsiteContents)],
-        destinationBucket: bucket,
-        distribution,
-      });
-
-      new cdk.CfnOutput(scope, name + " URL", {
-        value: "https://" + distribution.domainName,
-        description: "External URL for " + name + " website",
-      });
-    }
 
     function addApiGatewayMethod(
       restApi,
