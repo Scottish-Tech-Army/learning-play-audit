@@ -1,17 +1,11 @@
 # Learning Through Landscapes - Learning and Play Audit Survey
 
-
-
 This monorepo contains the following projects:
 
-- [cdk-backend](cdk-backend) - AWS CDK project to build required AWS components and deploy web applications.
+- [cdk-stacks](cdk-stacks) - AWS CDK project to build required AWS components and deploy web applications.
 - [surveyclient](surveyclient) - React (PWA) web application for completing the LTL audit surveys.
 - [adminclient](adminclient) - React web application for review and retrieval of LTL audit survey responses.
 - [sharedmodel](sharedmodel) - content common to surveyclient and adminclient - the survey questions and description.
-
-To build and deploy this application, start with building [sharedmodel](sharedmodel), then build the two web
-applications [adminclient](adminclient) and [surveyclient](surveyclient), finally build the AWS CDK project
-[cdk-backend](cdk-backend), as described in each project.
 
 Built by [Scottish Tech Army](https://www.scottishtecharmy.org/) volunteers.
 
@@ -24,3 +18,199 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+## Building and deploying
+
+To build the components of the application and deploy to AWS, follow these instructions after cloning the repo. The instructions are environment specific. In the instructions below, the environment being created is `dev`. Other options are `test` and `live`.
+
+### Prerequisites
+
+The following tools are needed in the build and deploy process, install them first
+
+- Register or use an existing AWS account with [CLI access keys](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html).
+- Install [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/)
+- Install the [AWS CDK](https://docs.aws.amazon.com/cdk/index.html), described here: https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install
+- Install and start [Docker](https://www.docker.com/get-started) to build the Lambda functions
+
+### Build and deploy the backend components
+
+In the following, `PROJECT_ROOT` is the directory where you have cloned the repo.
+
+#### Install dependencies for node projects
+
+```
+cd PROJECT_ROOT/cdk-stacks; npm install
+cd resources/addSurveyLambda; npm install
+cd ../confirmSurveyLambda; npm install
+```
+
+#### Deploy backend
+
+```
+cd PROJECT_ROOT/cdk-stacks
+cdk deploy PREFIX-Backend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX`
+```
+
+Here `PREFIX` is the resource prefix for your deployment, e.g. '`MySurvey`'. This needs to be unique to your deployment as it is used for resource name generation and S3 resource names must be unique within their AWS region.
+Use `--profile AWS_PROFILE` if necessary to choose the correct [AWS CLI access keys](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+
+The CDK will create and deploy a CloudFormation stack of the backend AWS components. If it completes successfully, it will return output like:
+
+```
+ ✅  PREFIX-Backend-dev
+
+Outputs:
+PREFIX-Backend-dev.LTLclientAPIendpoint = https://0000000000.execute-api.eu-west-2.amazonaws.com/prod/
+PREFIX-Backend-dev.SurveyClientApiEndpointEBB28C68 = https://0000000000.execute-api.eu-west-2.amazonaws.com/prod/
+PREFIX-Backend-dev.SurveyResourcesbucket = PREFIX-dev-surveyresources
+PREFIX-Backend-dev.SurveyResponseSummariesindex = SummaryIndex
+PREFIX-Backend-dev.SurveyResponsestable = PREFIX-dev-SurveyResponses
+PREFIX-Backend-dev.Surveyadminidentitypoolid = eu-west-2:00000000-0000-0000-0000-000000000000
+PREFIX-Backend-dev.Surveyadminuserpoolid = eu-west-2_000000000
+PREFIX-Backend-dev.Surveyadminuserpoolwebclientid = 00000000000000000000000000
+PREFIX-Backend-dev.Surveyuserpoolid = eu-west-2_000000000
+PREFIX-Backend-dev.Surveyuserpoolwebclientid = 00000000000000000000000000
+
+Stack ARN:
+arn:aws:cloudformation:eu-west-2:ACCOUNT_NUMBER:stack/PREFIX-Backend-dev/00000000-0000-0000-0000-000000000000
+```
+
+These outputs are also shown in the outputs section of the CloudformationStack in the AWS Console. They are used to populate the environment specific parameters in the build of the frontend clients below.
+
+### Build the frontend components
+
+#### Configure environment specific settings
+
+Copy `PROJECT_ROOT/adminclient/.env` to `PROJECT_ROOT/adminclient/.env.local` and fill in the AWS backend parameters (from the outputs above):
+
+```
+# AWS configuration
+
+REACT_APP_DEPLOY_ENVIRONMENT=DEV
+
+# Authentication
+REACT_APP_AWS_REGION=eu-west-2
+REACT_APP_AWS_IDENTITY_POOL_ID=[PREFIX-Backend-dev.Surveyadminidentitypoolid]
+REACT_APP_AWS_USER_POOL_ID=[PREFIX-Backend-dev.Surveyadminuserpoolid]
+REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID=[PREFIX-Backend-dev.Surveyadminuserpoolwebclientid]
+
+# Photo Storage
+REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET=[PREFIX-Backend-dev.SurveyResourcesbucket]
+
+# Dynamo DB Table
+REACT_APP_AWS_SURVEY_RESPONSES_TABLE=[PREFIX-Backend-dev.SurveyResponsestable]
+REACT_APP_AWS_SURVEY_RESPONSES_SUMMARY_INDEX=SummaryIndex
+```
+
+for example:
+
+```
+# AWS configuration
+
+REACT_APP_DEPLOY_ENVIRONMENT=DEV
+
+# Authentication
+REACT_APP_AWS_REGION=eu-west-2
+REACT_APP_AWS_IDENTITY_POOL_ID=eu-west-2:00000000-0000-0000-0000-000000000000
+REACT_APP_AWS_USER_POOL_ID=eu-west-2_000000000
+REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID=00000000000000000000000000
+
+# Photo Storage
+REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET=PREFIX-dev-surveyresources
+
+# Dynamo DB Table
+REACT_APP_AWS_SURVEY_RESPONSES_TABLE=PREFIX-dev-SurveyResponses
+REACT_APP_AWS_SURVEY_RESPONSES_SUMMARY_INDEX=SummaryIndex
+```
+
+Copy `PROJECT_ROOT/surveyclient/.env` to `PROJECT_ROOT/surveyclient/.env.local` and fill in the AWS backend parameters (from the outputs above):
+
+```
+# AWS configuration
+
+REACT_APP_DEPLOY_ENVIRONMENT=DEV
+
+# Authentication
+REACT_APP_AWS_REGION=eu-west-2
+REACT_APP_AWS_USER_POOL_ID=[PREFIX-Backend-dev.Surveyuserpoolid]
+REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID=[PREFIX-Backend-dev.Surveyuserpoolwebclientid]
+
+# Survey Client API Gateway
+REACT_APP_AWS_CLIENT_API_ENDPOINT=[PREFIX-Backend-dev.LTLclientAPIendpoint]
+```
+
+#### Build the shared component
+
+Create a production build of the [sharedmodel](../sharedmodel)
+
+```
+cd PROJECT_ROOT/sharedmodel
+npm install
+npm run build
+```
+
+#### Build the web clients
+
+Create a production build of the [adminclient](../adminclient)
+
+```
+cd PROJECT_ROOT/adminclient
+npm install
+npm run build
+```
+
+Create a production build of the [surveyclient](../surveyclient)
+
+```
+cd PROJECT_ROOT/surveyclient
+npm install
+npm run build
+```
+
+### Deploy the frontend components - hosted with AWS
+
+As the two web clients are static sites, you can either deploy to AWS and direct incoming traffic to the correct CloudFront distribution, or just host them on your own websites. To deploy to AWS:
+
+```
+cd PROJECT_ROOT/cdk-stacks
+cdk deploy PREFIX-Frontend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX`
+```
+
+Use the same environment and prefix as for the backend above. The CDK will create and deploy a CloudFormation stack of the frontend AWS components. If it completes successfully, it will return output like:
+
+```
+✅  LTLSurvey2-Frontend-dev
+
+Outputs:
+LTLSurvey2-Frontend-dev.AdminWebClientURL = https://0000000000000.cloudfront.net
+LTLSurvey2-Frontend-dev.SurveyWebClientURL = https://0000000000000.cloudfront.net
+
+Stack ARN:
+arn:aws:cloudformation:eu-west-2:ACCOUNT_NUMBER:stack/LTLSurvey2-Frontend-dev/00000000-0000-0000-0000-000000000000
+```
+
+The web client URLs are the endpoints of the two web clients in cloudfront. These can then be set up with DNS, Route53, etc.
+
+### or deploy the frontend components - hosted elsewhere
+
+To host on your own website, build the web clients as described above and the copy the contents of the web client builds at `surveyclient/build` and `adminclient/build` to appropriate locations on your website.
+
+## Building and deploying on other environments
+
+The process is basically the same:
+
+- Create an environment specific backend with the CDK backend stack
+- Use the output to populate environment specific configuration for the web clients
+- Build and deploy the frontend stack.
+
+Multiple `.env.CONFIG` files can be maintained in the web client folders. The `package.json` of each of the web clients can be set to look for particular config files for particular builds:
+
+```
+"scripts": {
+  ...
+  "build:ltltest": "env-cmd -f .env.ltltest npm run build",
+  "build:ltllive": "env-cmd -f .env.ltllive npm run build"
+},
+```
+
+For example, `npm run build:ltltest` will create a build using the configuration in `.env.ltltest`.

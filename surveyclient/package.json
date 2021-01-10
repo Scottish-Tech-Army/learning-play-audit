@@ -2,6 +2,7 @@
   "name": "learning-play-audit",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@aws-amplify/auth": "^3.4.15",
     "@aws-amplify/core": "^3.8.7",
