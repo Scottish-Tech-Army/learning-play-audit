@@ -3,14 +3,10 @@
 This project contains the React web application for the LTL survey.
 It was created using [Create React App](https://facebook.github.io/create-react-app/docs/getting-started).
 
-## Prerequisites
+## Building
 
-- Install [npm]([https://docs.npmjs.com/)
-- Build [sharedmodel](../sharedmodel)
-- Create environment specific `.env.[ENVIRONMENT]` files by copying `.env` and filling in the missing values from the appropriate AWS deployment. See building for the first time in the [cdk-backend](../cdk-backend) documentation.
-  - `.env.local` - DEV environment file
-  - `.env.ltltest` - TEST environment file
-  - `.env.ltllive` - LIVE environment file
+See the [monorepo build and deploy instructions](../README.md)
+
 
 ## Available Scripts
 

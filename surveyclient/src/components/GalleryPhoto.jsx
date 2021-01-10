@@ -6,12 +6,8 @@ import { deletePhotoSvg } from "./SvgUtils";
 
 function GalleryPhoto({ photoId }) {
   const dispatch = useDispatch();
-  const imageData = useSelector((state) =>
-    state.photos[photoId] ? state.photos[photoId].imageData : ""
-  );
-  const description = useSelector(
-    (state) => state.photoDetails[photoId].description
-  );
+  const photo = useSelector((state) => state.photos[photoId]);
+  const photoDetails = useSelector((state) => state.photoDetails[photoId]);
 
   const handleDescriptionChange = (photoId, event) => {
     dispatch({
@@ -22,23 +18,24 @@ function GalleryPhoto({ photoId }) {
   };
 
   const deletePhoto = () => {
-    dispatch({
-      type: DELETE_PHOTO,
-      photoId: photoId,
-    });
+    dispatch({ type: DELETE_PHOTO, photoId: photoId });
   };
+
+  if (!photo || !photoDetails) {
+    return <div className="photo-container">Photo not found</div>;
+  }
 
   return (
     <div className="photo-container">
       <img
         className="photo"
-        src={"data:image/jpeg;base64," + imageData}
+        src={"data:image/jpeg;base64," + photo.imageData}
         alt={"survey view"}
       />
       <textarea
         className="photo-description"
         onChange={(e) => handleDescriptionChange(photoId, e)}
-        value={description}
+        value={photoDetails.description}
       />
       <button
         aria-haspopup="true"

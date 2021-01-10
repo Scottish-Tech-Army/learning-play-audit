@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGNED_OUT } from "../../model/AuthStates";
-import { setAuthState } from "./utils";
+import { setAuthState } from "../../model/AuthActions";
 import "../../App.css";
 
 export default function ContinueSignedOutButton() {
@@ -14,7 +14,7 @@ export default function ContinueSignedOutButton() {
 
   return (
     <button
-      className="continue-signed-out-button"
+      id="continue-signed-out-button"
       aria-label="continue survey"
       onClick={() => dispatch(setAuthState(SIGNED_OUT))}
     >

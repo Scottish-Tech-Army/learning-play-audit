@@ -36,6 +36,7 @@ export default function QuestionPhotosDialog({
 
   return (
     <Modal
+      id="dialog-container"
       container={window !== undefined ? () => window.document.body : undefined}
       keepMounted={false}
       open={true}
@@ -58,11 +59,18 @@ export default function QuestionPhotosDialog({
             type="file"
             onChange={addPhoto}
           />
-          <label htmlFor="icon-button-add-photo">{addPhotoSvg()}</label>
+          <label htmlFor="icon-button-add-photo">
+            <span className="label-text">
+              Select
+              <br />
+              photo
+            </span>
+            {addPhotoSvg()}
+          </label>
         </div>
         <div className="add-photos-scroll">{questionPhotos()}</div>
         <button
-          className="save-photos-button"
+          className="close-button"
           onClick={closeDialog}
           aria-label="Done"
         >

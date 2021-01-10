@@ -20,6 +20,7 @@ function SectionBottomNavigation({
   }
 
   function hasPreviousSection() {
+    // Don't go back to introduction section (> 1)
     return sections.findIndex((section) => section.id === currentSectionId) > 1;
   }
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { handleSignIn, setAuthState } from "./utils";
+import { signIn, setAuthState } from "../../model/AuthActions";
 import { useDispatch, useSelector } from "react-redux";
-import { REGISTER, FORGOT_PASSWORD } from "../../model/AuthStates";
+import { REGISTER, FORGOT_PASSWORD_REQUEST } from "../../model/AuthStates";
 import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
@@ -21,15 +21,9 @@ export default function SignIn() {
     setLoading(false);
   }, [authState, authError]);
 
-  async function signIn(event: Event) {
-    // avoid submitting the form
-    if (event) {
-      event.preventDefault();
-    }
-
+  function handleSignIn() {
     setLoading(true);
-
-    dispatch(handleSignIn(email, password));
+    dispatch(signIn(email, password));
   }
 
   return (
@@ -54,15 +48,17 @@ export default function SignIn() {
       <div className="question">
         Forgot your password?{" "}
         <button
+          id="forgot-password-button"
           className="inline-action"
-          onClick={() => dispatch(setAuthState(FORGOT_PASSWORD))}
+          onClick={() => dispatch(setAuthState(FORGOT_PASSWORD_REQUEST))}
         >
           Reset password
         </button>
       </div>
       <div className="action-row">
         <button
-          onClick={signIn}
+          id="signin-button"
+          onClick={handleSignIn}
           disabled={loading || email.length === 0 || password.length === 0}
         >
           {loading ? <div class="loader" /> : <span>LOGIN</span>}
@@ -72,6 +68,7 @@ export default function SignIn() {
       <div className="question">
         Don't have an account?{" "}
         <button
+          id="register-button"
           className="inline-action"
           onClick={() => dispatch(setAuthState(REGISTER))}
         >

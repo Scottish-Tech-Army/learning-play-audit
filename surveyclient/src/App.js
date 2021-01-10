@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { sectionsContentMap, sectionsContent } from "learning-play-audit-shared";
+import {
+  sectionsContentMap,
+  sectionsContent,
+} from "learning-play-audit-shared";
 import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
 import GallerySection from "./components/GallerySection";
@@ -24,10 +27,10 @@ import Authenticator, {
 import { menuButtonSvg } from "./components/SvgUtils";
 import "./App.css";
 
-const API_NAME = "ltlClientApi";
-
 // Configure these properties in .env.local
+const AWS_CLIENT_API_ENDPOINT = process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT;
 const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
+
 const isLive = ENVIRONMENT_NAME === "LIVE";
 
 const awsConfig = {
@@ -36,19 +39,11 @@ const awsConfig = {
     userPoolId: process.env.REACT_APP_AWS_USER_POOL_ID,
     userPoolWebClientId: process.env.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID,
   },
-  API: {
-    endpoints: [
-      {
-        name: API_NAME,
-        endpoint: process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT,
-      },
-    ],
-  },
 };
 
 console.log("Configure", Amplify.configure(awsConfig));
 
-// window.LOG_LEVEL = "DEBUG";
+//window.LOG_LEVEL = "DEBUG";
 
 function App() {
   const dispatch = useDispatch();
@@ -56,11 +51,7 @@ function App() {
   const hasSeenSplashPage = useSelector((state) => state.hasSeenSplashPage);
 
   const [currentSection, _setCurrentSection] = useState("introduction");
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen((mobileOpen) => !mobileOpen);
-  };
+  const [popupNavDrawerOpen, setPopupNavDrawerOpen] = useState(false);
 
   // Restore locally stored answers if existing
   useEffect(() => {
@@ -183,7 +174,7 @@ function App() {
 
   function setCurrentSection(sectionId) {
     _setCurrentSection(sectionId);
-    setMobileOpen(false);
+    setPopupNavDrawerOpen(false);
     window.scrollTo({
       top: 0,
     });
@@ -223,6 +214,7 @@ function App() {
         <SubmitSection
           sections={sections}
           setCurrentSection={setCurrentSection}
+          endpoint={AWS_CLIENT_API_ENDPOINT}
         />
       );
     }
@@ -298,10 +290,7 @@ function App() {
           <AuthCurrentUser />
         </div>
         <main className="content authenticating">
-          <GetStartedScreen
-            canInstall={canInstall()}
-            downloadButton={downloadButtonMain()}
-          />
+          <GetStartedScreen downloadButton={downloadButtonMain()} />
         </main>
       </div>
     );
@@ -312,7 +301,7 @@ function App() {
       <div className="app-bar main">
         <button
           aria-label="open drawer"
-          onClick={handleDrawerToggle}
+          onClick={() => setPopupNavDrawerOpen(true)}
           className="menu-button"
         >
           {menuButtonSvg()}
@@ -327,8 +316,8 @@ function App() {
       </div>
       <main className="content main">
         <NavDrawer
-          mobileOpen={mobileOpen}
-          handleDrawerToggle={handleDrawerToggle}
+          popupDrawerOpen={popupNavDrawerOpen}
+          onPopupClose={() => setPopupNavDrawerOpen(false)}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
         />

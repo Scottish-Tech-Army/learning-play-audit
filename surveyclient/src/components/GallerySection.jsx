@@ -57,7 +57,7 @@ function GallerySection({ sections, setCurrentSection }) {
     );
     if (generalPhotoIds.length > 0) {
       output.push(
-        <div key="general" className="gallery-section-question">
+        <div key="general" id="general" className="gallery-section-question">
           <h3>General</h3>
           {generalPhotoIds.map((photoId) => (
             <GalleryPhoto key={photoId} photoId={photoId} />
@@ -86,6 +86,7 @@ function GallerySection({ sections, setCurrentSection }) {
         output.push(
           <div
             key={sectionId + "-" + questionId}
+            id={sectionId + "-" + questionId}
             className="gallery-section-question"
           >
             <h3>
@@ -113,7 +114,14 @@ function GallerySection({ sections, setCurrentSection }) {
           type="file"
           onChange={addPhoto}
         />
-        <label htmlFor="icon-button-add-photo">{addPhotoSvg()}</label>
+        <label htmlFor="icon-button-add-photo">
+          <span className="label-text">
+            Select
+            <br />
+            photo
+          </span>
+          {addPhotoSvg()}
+        </label>
       </div>
       {orderedPhotos()}
       <SectionBottomNavigation

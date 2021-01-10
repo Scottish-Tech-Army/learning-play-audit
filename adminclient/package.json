@@ -2,6 +2,7 @@
   "name": "adminclient",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "learning-play-audit-shared": "file:../sharedmodel",
     "@aws-amplify/auth": "^3.4.15",

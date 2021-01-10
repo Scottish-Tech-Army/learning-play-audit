@@ -171,7 +171,7 @@ function LTLTableHead({
     { id: FIELD_CONTACT_NAME, disablePadding: false, label: "Contact Name" },
     { id: FIELD_EMAIL, disablePadding: false, label: "Email" },
     { id: FIELD_ID, disablePadding: false, label: "Id" },
-    { id: FIELD_STATE, disablePadding: false, label: "State" },
+    { id: FIELD_STATE, disablePadding: false, label: "Upload State" },
   ];
 
   return (

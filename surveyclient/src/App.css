@@ -114,7 +114,7 @@ textarea {
 
 /** Active shadows **/
 
-.app-bar .auth-signin-signout,
+.app-bar #auth-signin-signout,
 .app-bar .download-button,
 .section.authenticator button,
 .dialog button,
@@ -125,9 +125,9 @@ textarea {
   box-shadow: 0px 2px 4px #00000080;
 }
 
-.app-bar .auth-signin-signout:active,
+.app-bar #auth-signin-signout:active,
 .app-bar .download-button:active,
-.section.authenticator button.disabled,
+.section.authenticator button:disabled,
 .section.authenticator button:active,
 .dialog button:active,
 .submit-survey-button:active,
@@ -194,7 +194,7 @@ textarea {
   margin-right: 130px;
 }
 
-.app-bar .auth-signin-signout,
+.app-bar #auth-signin-signout,
 .app-bar .download-button {
   position: absolute;
   width: 100px;
@@ -204,7 +204,7 @@ textarea {
   font-weight: normal;
   border: none;
 }
-.app-bar .auth-signin-signout {
+.app-bar #auth-signin-signout {
   background-color: var(--colour-ltl-blue);
   color: white;
   top: 70px;
@@ -283,16 +283,16 @@ textarea {
   background-color: var(--colour-ltl-orange);
 }
 
-.nav-menu-item.introduction {
+.nav-menu-item#introduction {
   border-color: black;
 }
 
-.nav-menu-item.results,
-.nav-menu-item.gallery {
+.nav-menu-item#results,
+.nav-menu-item#gallery {
   border-color: var(--colour-ltl-purple);
 }
 
-.nav-menu-item.submit {
+.nav-menu-item#submit {
   border-color: var(--colour-ltl-blue);
 }
 
@@ -484,6 +484,22 @@ textarea {
   align-items: center;
 }
 
+.section.gallery .section-header label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.section.gallery .section-header label .label-text {
+  font-family: var(--font-family-ltl-bold);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.section.gallery .section-header label svg {
+  margin-left: 10px;
+}
+
 /** Results charts section **/
 
 .section.results h2 {
@@ -511,7 +527,8 @@ textarea {
 
 /** Submit section **/
 
-.section.submit {
+.section.submit,
+.section.submit .submit-content {
   align-items: center;
 }
 
@@ -545,7 +562,7 @@ textarea {
 
 .dialog.add-note .question-text {
   margin-right: 0;
-  margin-left: 20px;
+  margin-left: 50px;
 }
 
 .dialog.add-note textarea {
@@ -570,13 +587,26 @@ textarea {
 
 .dialog.add-photos .question-line label {
   position: absolute;
-  right: 15px;
+  right: 0;
   top: -15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.dialog.add-photos .question-line label .label-text {
+  font-family: var(--font-family-ltl-bold);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.dialog.add-photos .question-line label svg {
+  margin-left: 10px;
 }
 
 .dialog.add-photos .question-text {
-  margin-right: 70px;
-  margin-left: 20px;
+  margin-right: 110px;
+  margin-left: 50px;
 }
 
 /** Submit progress dialog **/
@@ -821,7 +851,7 @@ textarea {
   margin-bottom: 20px;
 }
 
-.section.authenticator button.disabled {
+.section.authenticator button:disabled {
   background-color: darkGrey;
   color: white;
 }
@@ -836,8 +866,11 @@ textarea {
   padding: 0px 10px;
   margin: 0;
 }
+.section.authenticator button.inline-action.start-of-line {
+  padding: 0;
+}
 
-.section.authenticator button.continue-signed-out-button {
+.section.authenticator button#continue-signed-out-button {
   margin-left: 40px;
   background-color: var(--colour-ltl-orange);
   color: black;
@@ -859,19 +892,31 @@ textarea {
 }
 
 .section.authenticator input[type="email"],
-.section.authenticator input[type="password"] {
+.section.authenticator input[type="password"],
+.section.authenticator input[type="number"] {
   margin-top: 5px;
   margin-bottom: 5px;
   height: 39px;
   border: solid 1px black;
   padding: 5px 10px;
+  font-size: 18px;
+}
+.section.authenticator input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  -webkit-appearance: textfield;
 }
 
-.section.authenticator #emailInput {
+.section.authenticator #emailInput,
+.section.authenticator #confirmEmailInput {
   margin-bottom: 20px;
 }
 .section.authenticator #passwordInput {
   margin-bottom: 40px;
+}
+
+.section.authenticator #confirmEmailInput {
+  background-color: lightgray;
 }
 
 .section.authenticator .email-label-line {
@@ -1137,12 +1182,12 @@ textarea {
   }
 
   .app-bar .download-button,
-  .app-bar .auth-signin-signout {
+  .app-bar #auth-signin-signout {
     width: 75px;
     height: 30px;
   }
 
-  .app-bar .auth-signin-signout {
+  .app-bar #auth-signin-signout {
     right: 20px;
     top: 60px;
   }
@@ -1161,7 +1206,7 @@ textarea {
     margin-top: 0;
   }
 
-  .section .title {
+  .section.survey .title {
     display: none;
   }
 

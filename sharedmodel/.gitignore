@@ -7,7 +7,7 @@
 /coverage
 
 # production
-index.js
+/dist
 
 # misc
 .eslintcache

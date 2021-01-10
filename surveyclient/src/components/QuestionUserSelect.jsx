@@ -3,7 +3,7 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes.js";
 
-function QuestionUserSelect({ sectionId, question, questionNumber }) {
+function QuestionUserSelect({ sectionId, question, }) {
   const questionId = question.id;
   const id = sectionId + "-" + questionId;
 
@@ -46,9 +46,10 @@ function QuestionUserSelect({ sectionId, question, questionNumber }) {
   function toggleButton(value, label) {
     return (
       <button
+        id={value}
         className={questionAnswers.answer === value ? "selected" : ""}
         onClick={() =>
-          handleClick(questionAnswers.answer === value ? null : value)
+          handleClick(questionAnswers.answer === value ? "" : value)
         }
         aria-label={label}
       >

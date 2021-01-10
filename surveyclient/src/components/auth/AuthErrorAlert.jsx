@@ -2,7 +2,7 @@ import React from "react";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { clearAuthError } from "./utils";
+import { clearAuthError } from "../../model/AuthActions";
 
 export default function AuthErrorAlert() {
   const dispatch = useDispatch();
@@ -12,16 +12,14 @@ export default function AuthErrorAlert() {
   );
 
   const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
+    if (reason !== "clickaway") {
+      dispatch(clearAuthError());
     }
-
-    dispatch(clearAuthError());
   };
 
   return (
     <Snackbar open={errorMessage !== ""}>
-      <Alert onClose={handleClose} severity="error">
+      <Alert className="auth-alert" onClose={handleClose} severity="error">
         {errorMessage}
       </Alert>
     </Snackbar>

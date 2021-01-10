@@ -70,9 +70,4 @@ function QuestionTextWithYear({ sectionId, question, questionNumber }) {
   );
 }
 
-// <Box flexDirection="row">
-//   <div className=questionNumber}>{questionNumber}</div>
-//   <p className=questionText}>{question.text}</p>
-// </Box>
-
 export default QuestionTextWithYear;
