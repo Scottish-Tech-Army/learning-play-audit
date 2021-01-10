@@ -21,7 +21,8 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
 
   return (
     <div className="section submit">
-      <div className="content">
+      <h1 className="title">Upload survey response</h1>
+      <div className="submit-content">
         {authState !== SIGNED_IN ? (
           <p>Login before submitting survey.</p>
         ) : (

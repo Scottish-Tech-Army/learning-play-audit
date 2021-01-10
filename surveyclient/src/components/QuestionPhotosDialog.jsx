@@ -59,7 +59,14 @@ export default function QuestionPhotosDialog({
             type="file"
             onChange={addPhoto}
           />
-          <label htmlFor="icon-button-add-photo">{addPhotoSvg()}</label>
+          <label htmlFor="icon-button-add-photo">
+            <span className="label-text">
+              Select
+              <br />
+              photo
+            </span>
+            {addPhotoSvg()}
+          </label>
         </div>
         <div className="add-photos-scroll">{questionPhotos()}</div>
         <button

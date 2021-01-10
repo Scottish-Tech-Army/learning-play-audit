@@ -59,7 +59,7 @@ describe("component QuestionAddPhotosButton", () => {
     clickAddPhotosButton();
 
     expect(questionLine().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + "Selectphotoadd photo"
     );
     expect(photoContainers()).toHaveLength(0);
   });
@@ -71,7 +71,7 @@ describe("component QuestionAddPhotosButton", () => {
     clickAddPhotosButton();
 
     expect(questionLine().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + "Selectphotoadd photo"
     );
     expect(photoContainers()).toHaveLength(2);
   });
@@ -80,7 +80,7 @@ describe("component QuestionAddPhotosButton", () => {
     renderComponent();
     clickAddPhotosButton();
     expect(questionLine().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + "Selectphotoadd photo"
     );
 
     clickCloseButton();

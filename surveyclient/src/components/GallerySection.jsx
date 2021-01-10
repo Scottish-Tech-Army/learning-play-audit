@@ -114,7 +114,14 @@ function GallerySection({ sections, setCurrentSection }) {
           type="file"
           onChange={addPhoto}
         />
-        <label htmlFor="icon-button-add-photo">{addPhotoSvg()}</label>
+        <label htmlFor="icon-button-add-photo">
+          <span className="label-text">
+            Select
+            <br />
+            photo
+          </span>
+          {addPhotoSvg()}
+        </label>
       </div>
       {orderedPhotos()}
       <SectionBottomNavigation

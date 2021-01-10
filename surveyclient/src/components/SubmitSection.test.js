@@ -215,7 +215,7 @@ describe("component SubmitSection", () => {
     expect(closeButton()).not.toBeNull();
   }
 
-  const sectionContent = () => container.querySelector(".section .content");
+  const sectionContent = () => container.querySelector(".section .submit-content");
   const previousButton = () =>
     container.querySelector(".section .previous-section-button");
   const uploadButton = () =>

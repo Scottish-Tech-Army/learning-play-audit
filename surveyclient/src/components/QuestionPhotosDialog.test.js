@@ -43,7 +43,7 @@ describe("component QuestionPhotosDialog", () => {
     renderComponent();
 
     expect(questionLine().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + "Selectphotoadd photo"
     );
     expect(photoContainers()).toHaveLength(0);
   });
@@ -71,7 +71,7 @@ describe("component QuestionPhotosDialog", () => {
     renderComponent();
 
     expect(questionLine().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + "Selectphotoadd photo"
     );
     expect(photoContainers()).toHaveLength(2);
     expect(photoDescriptions()).toStrictEqual(["new description1", ""]);
