@@ -22,6 +22,15 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
   return (
     <div className="section submit">
       <h1 className="title">Upload survey response</h1>
+      <p>
+        Upload your completed survey to send your answers to Learning Through
+        Landscapes.
+      </p>
+      <p>
+        You still make changes to your survey answers or add anything you've
+        missed after uploading, as long as you upload the survey again after you
+        have finished making your changes.
+      </p>
       <div className="submit-content">
         {authState !== SIGNED_IN ? (
           <p>Login before submitting survey.</p>

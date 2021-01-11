@@ -155,7 +155,7 @@ export function signOut() {
   // console.log("signOut");
   return function (dispatch) {
     return Auth.signOut()
-      .then(() => dispatch(setAuthState(SIGNED_OUT)))
+      .then(() => dispatch(setAuthState(SIGN_IN)))
       .catch((error) => dispatch(setAuthError(error)));
   };
 }

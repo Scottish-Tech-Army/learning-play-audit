@@ -816,7 +816,7 @@ describe("signOut", () => {
     expect(Auth.signOut).toHaveBeenCalledTimes(1);
     expect(surveyStore.getState().authentication).toStrictEqual({
       errorMessage: "",
-      state: SIGNED_OUT,
+      state: SIGN_IN,
       user: undefined,
     });
   });
