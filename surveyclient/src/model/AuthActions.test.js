@@ -22,7 +22,6 @@ import {
 } from "./ActionTypes";
 import {
   SIGNED_IN,
-  SIGNED_OUT,
   SIGN_IN,
   REGISTER,
   RESET_PASSWORD,
