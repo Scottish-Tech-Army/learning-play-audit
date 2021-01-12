@@ -1,21 +1,14 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import AuthSignInOut from "./AuthSignInOut";
+import AuthSignOut from "./AuthSignOut";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE } from "../../model/ActionTypes";
-import {
-  SIGNED_OUT,
-  SIGNED_IN,
-  SIGN_IN,
-  REGISTER,
-} from "../../model/AuthStates";
-import { signOut, setAuthState } from "../../model/AuthActions";
+import { signOut } from "../../model/AuthActions";
 
 jest.mock("../../model/AuthActions");
 
-describe("component AuthSignInOut", () => {
+describe("component AuthSignOut", () => {
   var container = null;
   beforeEach(() => {
     // setup a DOM element as a render target
@@ -24,8 +17,6 @@ describe("component AuthSignInOut", () => {
 
     signOut.mockReset();
     signOut.mockImplementation(() => () => "dummy action");
-    setAuthState.mockReset();
-    setAuthState.mockImplementation(() => () => "dummy action");
   });
 
   afterEach(() => {
@@ -35,48 +26,56 @@ describe("component AuthSignInOut", () => {
     container = null;
   });
 
-  it("signed in", () => {
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: SIGNED_IN });
+  it("confirm dialog appears", () => {
     renderComponent();
+    expect(confirmYesButton()).toBeNull();
 
-    expect(signInOutButton().textContent).toStrictEqual("LOG OUT");
-    click(signInOutButton());
-
-    expect(signOut).toHaveBeenCalledTimes(1);
-    expect(setAuthState).not.toHaveBeenCalledTimes(1);
+    click(signOutButton());
+    expect(confirmYesButton()).not.toBeNull();
   });
 
-  it("signed out", () => {
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: SIGNED_OUT });
+  it("signed out cancel", () => {
+    renderComponent();
+    click(signOutButton());
     renderComponent();
 
-    expect(signInOutButton().textContent).toStrictEqual("LOG IN");
-    click(signInOutButton());
+    click(confirmNoButton());
+    renderComponent();
 
+    expect(confirmYesButton()).toBeNull();
     expect(signOut).not.toHaveBeenCalled();
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGN_IN);
   });
 
-  it("auth state changes", () => {
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: SIGNED_IN });
+  it("signed out cancel click background", () => {
     renderComponent();
-    expect(signInOutButton().textContent).toStrictEqual("LOG OUT");
+    click(signOutButton());
+    renderComponent();
 
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: REGISTER });
+    click(backdrop());
     renderComponent();
-    expect(signInOutButton().textContent).toStrictEqual("LOG OUT");
 
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: SIGNED_OUT });
-    renderComponent();
-    expect(signInOutButton().textContent).toStrictEqual("LOG IN");
-
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: REGISTER });
-    renderComponent();
-    expect(signInOutButton().textContent).toStrictEqual("LOG IN");
+    expect(confirmYesButton()).toBeNull();
+    expect(signOut).not.toHaveBeenCalled();
   });
 
-  const signInOutButton = () => container.querySelector("#auth-signin-signout");
+  it("signed out confirm", () => {
+    renderComponent();
+    click(signOutButton());
+    renderComponent();
+
+    click(confirmYesButton());
+    renderComponent();
+
+    expect(confirmYesButton()).toBeNull();
+    expect(signOut).toHaveBeenCalledTimes(1);
+  });
+
+  const signOutButton = () => container.querySelector("#auth-signout");
+
+  const confirmYesButton = () => document.querySelector(".dialog #yes-button");
+  const confirmNoButton = () => document.querySelector(".dialog #no-button");
+  const backdrop = () =>
+    document.querySelector("#dialog-container div:first-child");
 
   function click(element) {
     act(() => {
@@ -88,7 +87,7 @@ describe("component AuthSignInOut", () => {
     act(() => {
       render(
         <Provider store={surveyStore}>
-          <AuthSignInOut />
+          <AuthSignOut />
         </Provider>,
         container
       );
