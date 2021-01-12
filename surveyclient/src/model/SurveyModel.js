@@ -3,6 +3,7 @@ import thunk from "redux-thunk";
 import {
   SET_ANSWER,
   REFRESH_STATE,
+  RESTART_SURVEY,
   RESET_STATE,
   ADD_PHOTO,
   DELETE_PHOTO,
@@ -11,7 +12,7 @@ import {
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
   CONFIRM_WELCOME,
-} from "./ActionTypes.js";
+} from "./ActionTypes";
 import {
   sectionsContent,
   SURVEY_VERSION,
@@ -98,6 +99,20 @@ export function surveyReducer(state = initialState(), action) {
     case RESET_STATE:
       // console.log("RESET_STATE");
       newState = { ...initialState(), initialisingState: false };
+      writeAnswers(newState);
+      writePhotos(newState);
+      return newState;
+
+    case RESTART_SURVEY:
+      // console.log("RESTART_SURVEY");
+      newState = {
+        ...state,
+        answers: createEmptyAnswers(),
+        answerCounts: createAnswerCounts(),
+        photos: {},
+        photoDetails: {},
+        initialisingState: false,
+      };
       writeAnswers(newState);
       writePhotos(newState);
       return newState;

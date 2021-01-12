@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_ANSWER } from "../model/ActionTypes.js";
+import { SET_ANSWER } from "../model/ActionTypes";
 import Modal from "@material-ui/core/Modal";
 
 export default function QuestionCommentDialog({
@@ -43,7 +43,7 @@ export default function QuestionCommentDialog({
         justifyContent: "center",
       }}
     >
-      <div className="dialog add-note" aria-labelledby="form-dialog-title">
+      <div className="dialog add-note">
         <h2 className="title">Add Note</h2>
         <div className="question-line">
           <div className="question-number">{questionNumber}</div>

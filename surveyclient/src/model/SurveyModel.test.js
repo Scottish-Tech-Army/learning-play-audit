@@ -1,9 +1,10 @@
-import { surveyReducer, refreshState, loadPhoto } from "./SurveyModel.js";
+import { surveyReducer, refreshState, loadPhoto } from "./SurveyModel";
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import {
   SET_ANSWER,
   REFRESH_STATE,
+  RESTART_SURVEY,
   RESET_STATE,
   ADD_PHOTO,
   DELETE_PHOTO,
@@ -12,7 +13,7 @@ import {
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
   CONFIRM_WELCOME,
-} from "./ActionTypes.js";
+} from "./ActionTypes";
 import { SIGNED_IN, SIGN_IN } from "./AuthStates";
 import rfdc from "rfdc";
 // local forage is mocked in setupTests.js
@@ -49,6 +50,21 @@ describe("surveyReducer", () => {
         type: RESET_STATE,
       })
     ).toStrictEqual({ ...EMPTY_STATE, initialisingState: false });
+  });
+
+  it("action RESTART_SURVEY", () => {
+    expect(
+      surveyReducer(INPUT_STATE, {
+        type: RESTART_SURVEY,
+      })
+    ).toStrictEqual({
+      ...INPUT_STATE,
+      answers: EMPTY_STATE.answers,
+      answerCounts: EMPTY_STATE.answerCounts,
+      initialisingState: false,
+      photoDetails: {},
+      photos: {},
+    });
   });
 
   it("action REFRESH_STATE", () => {

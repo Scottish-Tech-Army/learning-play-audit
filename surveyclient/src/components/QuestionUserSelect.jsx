@@ -1,7 +1,7 @@
 import React from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_ANSWER } from "../model/ActionTypes.js";
+import { SET_ANSWER } from "../model/ActionTypes";
 
 function QuestionUserSelect({ sectionId, question, }) {
   const questionId = question.id;
