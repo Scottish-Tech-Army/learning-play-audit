@@ -6,7 +6,6 @@ import {
   resendConfirmCode,
   confirmRegistration,
 } from "../../model/AuthActions";
-import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "confirmEmailInput";
 const CODE_ID = "codeInput";
@@ -74,7 +73,6 @@ export default function ConfirmRegistration() {
         >
           {loading ? <div className="loader" /> : <span>CONFIRM</span>}
         </button>
-        <ContinueSignedOutButton />
       </div>
       <div className="question">
         <button

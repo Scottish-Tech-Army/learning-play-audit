@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import { setAuthState, forgotPasswordRequest } from "../../model/AuthActions";
-import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 
@@ -42,7 +41,6 @@ export default function ForgotPasswordRequest() {
         >
           {loading ? <div class="loader" /> : <span>SEND CODE</span>}
         </button>
-        <ContinueSignedOutButton />
       </div>
       <div className="question">
         <button

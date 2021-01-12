@@ -4,12 +4,8 @@ import { act, Simulate } from "react-dom/test-utils";
 import ForgotPasswordSubmit from "./ForgotPasswordSubmit";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import {
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  REFRESH_STATE,
-} from "../../model/ActionTypes";
-import { SIGN_IN, SIGNED_OUT, FORGOT_PASSWORD_SUBMIT } from "../../model/AuthStates";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SIGN_IN, FORGOT_PASSWORD_SUBMIT } from "../../model/AuthStates";
 import { setAuthState, forgotPasswordSubmit } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
@@ -42,13 +38,12 @@ describe("component ForgotPasswordSubmit", () => {
     container = null;
   });
 
-  it("initial render and enable submit action - first login", () => {
+  it("initial render and enable submit action", () => {
     renderComponent();
     expect(emailInput().value).toStrictEqual(TEST_USER);
     expect(codeInput().value).toStrictEqual("");
     expect(passwordInput().value).toStrictEqual("");
     expect(submitButton()).toBeDisabled();
-    expect(continueButton()).toBeNull();
 
     // Form complete
     enterCode("123456");
@@ -88,21 +83,21 @@ describe("component ForgotPasswordSubmit", () => {
   });
 
   it("render missing user", () => {
-      surveyStore.dispatch({
-        type: SET_AUTH_STATE,
-        authState: FORGOT_PASSWORD_SUBMIT,
-        user: {},
-      });
-      renderComponent();
-      expect(emailInput().value).toStrictEqual("");
+    surveyStore.dispatch({
+      type: SET_AUTH_STATE,
+      authState: FORGOT_PASSWORD_SUBMIT,
+      user: {},
+    });
+    renderComponent();
+    expect(emailInput().value).toStrictEqual("");
 
-      surveyStore.dispatch({
-        type: SET_AUTH_STATE,
-        authState: FORGOT_PASSWORD_SUBMIT,
-        user: undefined,
-      });
-      renderComponent();
-      expect(emailInput().value).toStrictEqual("");
+    surveyStore.dispatch({
+      type: SET_AUTH_STATE,
+      authState: FORGOT_PASSWORD_SUBMIT,
+      user: undefined,
+    });
+    renderComponent();
+    expect(emailInput().value).toStrictEqual("");
   });
 
   it("confirm success", () => {
@@ -113,7 +108,11 @@ describe("component ForgotPasswordSubmit", () => {
     click(submitButton());
 
     expect(forgotPasswordSubmit).toHaveBeenCalledTimes(1);
-    expect(forgotPasswordSubmit).toHaveBeenCalledWith(TEST_USER, "123456", "12345678");
+    expect(forgotPasswordSubmit).toHaveBeenCalledWith(
+      TEST_USER,
+      "123456",
+      "12345678"
+    );
     renderComponent();
     expect(submitButton()).toBeDisabled();
   });
@@ -158,35 +157,11 @@ describe("component ForgotPasswordSubmit", () => {
     expect(submitButton()).not.toBeDisabled();
   });
 
-  it("not first login can continue", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        hasEverLoggedIn: true,
-        authentication: {
-          errorMessage: "",
-          state: FORGOT_PASSWORD_SUBMIT,
-          user: undefined,
-        },
-      },
-    });
-    renderComponent();
-
-    expect(continueButton()).not.toBeNull();
-    click(continueButton());
-
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
-  });
-
-
   const emailInput = () => container.querySelector("#emailInput");
   const codeInput = () => container.querySelector("#codeInput");
   const passwordInput = () => container.querySelector("#passwordInput");
   const submitButton = () => container.querySelector("#submit-button");
   const signInButton = () => container.querySelector("#signin-button");
-  const continueButton = () =>
-    container.querySelector("#continue-signed-out-button");
 
   function enterCode(value) {
     act(() => {

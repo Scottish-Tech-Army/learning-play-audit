@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import { setAuthState, forgotPasswordSubmit } from "../../model/AuthActions";
-import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 const CODE_ID = "codeInput";
@@ -73,7 +72,6 @@ export default function ForgotPasswordSubmit() {
         >
           {loading ? <div class="loader" /> : <span>{"SUBMIT"}</span>}
         </button>
-        <ContinueSignedOutButton />
       </div>
       <div className="question">
         <button

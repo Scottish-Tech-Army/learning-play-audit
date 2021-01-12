@@ -4,14 +4,9 @@ import { act, Simulate } from "react-dom/test-utils";
 import SignIn from "./SignIn";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import {
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  REFRESH_STATE,
-} from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
 import {
   SIGN_IN,
-  SIGNED_OUT,
   SIGNED_IN,
   REGISTER,
   FORGOT_PASSWORD_REQUEST,
@@ -48,12 +43,11 @@ describe("component SignIn", () => {
     container = null;
   });
 
-  it("initial render and enable signIn action - first login", () => {
+  it("initial render and enable signIn action", () => {
     renderComponent();
     expect(emailInput().value).toStrictEqual("");
     expect(passwordInput().value).toStrictEqual("");
     expect(signInButton()).toBeDisabled();
-    expect(continueButton()).toBeNull();
 
     // Form complete
     enterEmail(TEST_USER);
@@ -143,35 +137,12 @@ describe("component SignIn", () => {
     expect(signInButton()).not.toBeDisabled();
   });
 
-  it("not first login can continue", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        hasEverLoggedIn: true,
-        authentication: {
-          errorMessage: "",
-          state: SIGN_IN,
-          user: undefined,
-        },
-      },
-    });
-    renderComponent();
-
-    expect(continueButton()).not.toBeNull();
-    click(continueButton());
-
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
-  });
-
   const emailInput = () => container.querySelector("#emailInput");
   const passwordInput = () => container.querySelector("#passwordInput");
   const registerButton = () => container.querySelector("#register-button");
   const forgotPasswordButton = () =>
     container.querySelector("#forgot-password-button");
   const signInButton = () => container.querySelector("#signin-button");
-  const continueButton = () =>
-    container.querySelector("#continue-signed-out-button");
 
   function enterEmail(value) {
     act(() => {

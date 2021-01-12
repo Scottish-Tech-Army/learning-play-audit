@@ -4,12 +4,8 @@ import { act, Simulate } from "react-dom/test-utils";
 import Register from "./Register";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import {
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  REFRESH_STATE,
-} from "../../model/ActionTypes";
-import { SIGN_IN, SIGNED_OUT, REGISTER } from "../../model/AuthStates";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SIGN_IN, REGISTER } from "../../model/AuthStates";
 import { setAuthState, register } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
@@ -42,14 +38,13 @@ describe("component Register", () => {
     container = null;
   });
 
-  it("initial render and enable register action - first login", () => {
+  it("initial render and enable register action", () => {
     renderComponent();
     expect(emailInput().value).toStrictEqual("");
     expect(passwordInput().value).toStrictEqual("");
     expect(tncCheck()).not.toBeChecked();
     expect(gdprCheck()).not.toBeChecked();
     expect(registerButton()).toBeDisabled();
-    expect(continueButton()).toBeNull();
 
     // Form complete
     enterEmail(TEST_USER);
@@ -169,27 +164,6 @@ describe("component Register", () => {
     expect(registerButton()).not.toBeDisabled();
   });
 
-  it("not first login can continue", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        hasEverLoggedIn: true,
-        authentication: {
-          errorMessage: "",
-          state: REGISTER,
-          user: undefined,
-        },
-      },
-    });
-    renderComponent();
-
-    expect(continueButton()).not.toBeNull();
-    click(continueButton());
-
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
-  });
-
   it("gdpr popup", () => {
     renderComponent();
     expect(gdprPopup()).toBeNull();
@@ -220,8 +194,6 @@ describe("component Register", () => {
   const passwordInput = () => container.querySelector("#passwordInput");
   const registerButton = () => container.querySelector("#register-button");
   const signInButton = () => container.querySelector("#signin-button");
-  const continueButton = () =>
-    container.querySelector("#continue-signed-out-button");
   const gdprPopupCloseButton = () =>
     document.querySelector(".tooltip-popup .close-button");
   const backdrop = () =>

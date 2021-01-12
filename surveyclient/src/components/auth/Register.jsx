@@ -3,7 +3,6 @@ import { setAuthState, register } from "../../model/AuthActions";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import Modal from "@material-ui/core/Modal";
-import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const EMAIL_ID = "emailInput";
 const PASSWORD_ID = "passwordInput";
@@ -147,7 +146,6 @@ for any other purpose.`;
         >
           {loading ? <div class="loader" /> : <span>REGISTER</span>}
         </button>
-        <ContinueSignedOutButton />
       </div>
       <div className="question">
         Already have an account?{" "}

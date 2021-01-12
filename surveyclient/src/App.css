@@ -870,13 +870,6 @@ textarea {
   padding: 0;
 }
 
-.section.authenticator button#continue-signed-out-button {
-  margin-left: 40px;
-  background-color: var(--colour-ltl-orange);
-  color: black;
-  font-weight: bold;
-}
-
 .section.authenticator h2,
 .section.get-started h2 {
   font-family: var(--font-family-ltl-heading);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import { setAuthState, completeNewPassword } from "../../model/AuthActions";
-import ContinueSignedOutButton from "./ContinueSignedOutButton";
 
 const PASSWORD_ID = "passwordInput";
 const MIN_PASSWORD_LENGTH = 8;
@@ -47,7 +46,6 @@ export default function RequireNewPassword() {
         >
           {loading ? <div class="loader" /> : <span>CHANGE</span>}
         </button>
-        <ContinueSignedOutButton />
       </div>
       <div className="question">
         <button
