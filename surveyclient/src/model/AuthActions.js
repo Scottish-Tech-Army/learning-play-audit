@@ -7,7 +7,6 @@ import {
 } from "./ActionTypes";
 import {
   SIGNED_IN,
-  SIGNED_OUT,
   SIGN_IN,
   CONFIRM_REGISTRATION,
   FORGOT_PASSWORD_REQUEST,
@@ -155,7 +154,7 @@ export function signOut() {
   // console.log("signOut");
   return function (dispatch) {
     return Auth.signOut()
-      .then(() => dispatch(setAuthState(SIGNED_OUT)))
+      .then(() => dispatch(setAuthState(SIGN_IN)))
       .catch((error) => dispatch(setAuthError(error)));
   };
 }
@@ -186,8 +185,8 @@ export function signInCurrentUser(username, code, newPassword) {
     return Auth.currentAuthenticatedUser()
       .then((user) => dispatch(setAuthState(SIGNED_IN, user)))
       .catch(() => {
-          logger.info("User not logged in");
-          return Promise.resolve("User not logged in");
-      })
+        logger.info("User not logged in");
+        return Promise.resolve("User not logged in");
+      });
   };
 }

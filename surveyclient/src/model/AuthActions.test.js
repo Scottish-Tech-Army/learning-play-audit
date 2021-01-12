@@ -22,7 +22,6 @@ import {
 } from "./ActionTypes";
 import {
   SIGNED_IN,
-  SIGNED_OUT,
   SIGN_IN,
   REGISTER,
   RESET_PASSWORD,
@@ -816,7 +815,7 @@ describe("signOut", () => {
     expect(Auth.signOut).toHaveBeenCalledTimes(1);
     expect(surveyStore.getState().authentication).toStrictEqual({
       errorMessage: "",
-      state: SIGNED_OUT,
+      state: SIGN_IN,
       user: undefined,
     });
   });
