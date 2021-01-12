@@ -114,25 +114,25 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "classroom",
-          "We have an outdoor classroom area that can be used by a whole class"
+          "we have an outdoor classroom area that can be used by a whole class"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "seating",
-          "We have outdoor seating areas for working in smaller groups"
+          "we have outdoor seating areas for working in smaller groups"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "sheltered",
-          "Outdoor classrooms and seating areas are reasonably sheltered and comfortable to use"
+          "outdoor classrooms and seating areas are reasonably sheltered and comfortable to use"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "disturbance",
-          "Using outdoor classrooms and curriculum features doesn't cause significant disturbance to indoor classes"
+          "using outdoor classrooms and curriculum features doesn't cause significant disturbance to indoor classes"
         )}
       </>
     ),
@@ -538,7 +538,7 @@ export const sectionsContent = [
         {addQuestion(
           TEXT_AREA,
           "namegreenspace",
-          "What area of nearby local greenspace has the most potential for regular school use for outdoor learning and play?"
+          "what area of nearby local greenspace has the most potential for regular school use for outdoor learning and play?"
         )}
         <hr className="subsection-divider" />
         <p>
@@ -552,51 +552,51 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "accessible",
-          "This area is readily accessible for regular use by the school"
+          "this area is readily accessible for regular use by the school"
         )}
         <hr className="question-divider" />
         {addQuestion(
           TEXT_AREA,
           "improveaccessible",
-          "How might you be able to improve its accessibility - for example with a gate, clearing a path, bridging a ditch etc?"
+          "how might you be able to improve its accessibility - for example with a gate, clearing a path, bridging a ditch etc?"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "frequentuse",
-          "The school uses this space alot (e.g. at least monthly)"
+          "the school uses this space alot (e.g. at least monthly)"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "wildlife",
-          "The area is really valuable for wildlife"
+          "the area is really valuable for wildlife"
         )}
         <hr className="question-divider" />
         {addQuestion(
           TEXT_AREA,
           "improvewildlife",
-          "How might you improve the area for wildlife?"
+          "how might you improve the area for wildlife?"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "teaching",
-          "As it is, the area is a really useful space for teaching and play"
+          "as it is, the area is a really useful space for teaching and play"
         )}
         <hr className="question-divider" />
         {addQuestion(
           TEXT_AREA,
           "improveteaching",
-          "How could it be made more useful for teaching and play?"
+          "how could it be made more useful for teaching and play?"
         )}
         <hr className="question-divider" />
-        {addQuestion(TEXT_AREA, "listowner", "Who owns this area of land?")}
+        {addQuestion(TEXT_AREA, "listowner", "who owns this area of land?")}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "changes",
-          "Will it be straightforward to agree any changes you'd like to make with the land owner?"
+          "will it be straightforward to agree any changes you'd like to make with the land owner?"
         )}
       </>
     ),
@@ -708,13 +708,13 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "groundsadvisor",
-          "If there was a school grounds advisor available in this area then would you make use of them in your school?"
+          "if there was a school grounds advisor available in this area then would you make use of them in your school?"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "onlineresources",
-          "Would it be helpful to have online information and resources on how to develop some of the ideas suggested in this audit?"
+          "would it be helpful to have online information and resources on how to develop some of the ideas suggested in this audit?"
         )}
         <hr className="question-divider" />
         {addQuestion(
@@ -726,13 +726,13 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "straightforward",
-          "Would you say it was fairly straightforward to answer the questions in this audit?"
+          "would you say it was fairly straightforward to answer the questions in this audit?"
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "ideas",
-          "Would you say that the process of completing this audit has given you some ideas for how to improve your outdoor learning and play provision?"
+          "would you say that the process of completing this audit has given you some ideas for how to improve your outdoor learning and play provision?"
         )}
       </>
     ),
