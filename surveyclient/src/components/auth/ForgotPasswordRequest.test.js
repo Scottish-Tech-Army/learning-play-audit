@@ -4,16 +4,8 @@ import { act, Simulate } from "react-dom/test-utils";
 import ForgotPasswordRequest from "./ForgotPasswordRequest";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import {
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  REFRESH_STATE,
-} from "../../model/ActionTypes";
-import {
-  SIGN_IN,
-  SIGNED_OUT,
-  FORGOT_PASSWORD_REQUEST,
-} from "../../model/AuthStates";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SIGN_IN, FORGOT_PASSWORD_REQUEST } from "../../model/AuthStates";
 import { setAuthState, forgotPasswordRequest } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
@@ -46,11 +38,10 @@ describe("component ForgotPasswordRequest", () => {
     container = null;
   });
 
-  it("initial render and enable password request action - first login", () => {
+  it("initial render and enable password request action", () => {
     renderComponent();
     expect(emailInput().value).toStrictEqual("");
     expect(requestButton()).toBeDisabled();
-    expect(continueButton()).toBeNull();
 
     // Form complete
     enterEmail(TEST_USER);
@@ -118,32 +109,9 @@ describe("component ForgotPasswordRequest", () => {
     expect(requestButton()).not.toBeDisabled();
   });
 
-  it("not first login can continue", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        hasEverLoggedIn: true,
-        authentication: {
-          errorMessage: "",
-          state: FORGOT_PASSWORD_REQUEST,
-          user: undefined,
-        },
-      },
-    });
-    renderComponent();
-
-    expect(continueButton()).not.toBeNull();
-    click(continueButton());
-
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
-  });
-
   const emailInput = () => container.querySelector("#emailInput");
   const requestButton = () => container.querySelector("#request-button");
   const signInButton = () => container.querySelector("#signin-button");
-  const continueButton = () =>
-    container.querySelector("#continue-signed-out-button");
 
   function enterEmail(value) {
     act(() => {

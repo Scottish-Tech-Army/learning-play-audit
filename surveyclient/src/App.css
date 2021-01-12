@@ -114,8 +114,9 @@ textarea {
 
 /** Active shadows **/
 
-.app-bar #auth-signin-signout,
+.app-bar #auth-signout,
 .app-bar .download-button,
+.app-bar #restart-button,
 .section.authenticator button,
 .dialog button,
 .submit-survey-button,
@@ -125,8 +126,9 @@ textarea {
   box-shadow: 0px 2px 4px #00000080;
 }
 
-.app-bar #auth-signin-signout:active,
+.app-bar #auth-signout:active,
 .app-bar .download-button:active,
+.app-bar #restart-button:active,
 .section.authenticator button:disabled,
 .section.authenticator button:active,
 .dialog button:active,
@@ -194,8 +196,9 @@ textarea {
   margin-right: 130px;
 }
 
-.app-bar #auth-signin-signout,
-.app-bar .download-button {
+.app-bar #auth-signout,
+.app-bar .download-button,
+.app-bar #restart-button {
   position: absolute;
   width: 100px;
   height: 40px;
@@ -204,10 +207,15 @@ textarea {
   font-weight: normal;
   border: none;
 }
-.app-bar #auth-signin-signout {
+.app-bar #auth-signout {
   background-color: var(--colour-ltl-blue);
   color: white;
   top: 70px;
+}
+.app-bar #restart-button {
+  background-color: var(--colour-ltl-orange);
+  color: black;
+  top: 120px;
 }
 .app-bar .download-button {
   background-color: var(--colour-ltl-green);
@@ -225,7 +233,7 @@ textarea {
 .app-bar .auth-current-user {
   display: block;
   position: absolute;
-  right: 20px;
+  left: 20px;
   top: 150px;
   font-weight: bold;
   font-size: 15px;
@@ -875,13 +883,6 @@ textarea {
   padding: 0;
 }
 
-.section.authenticator button#continue-signed-out-button {
-  margin-left: 40px;
-  background-color: var(--colour-ltl-orange);
-  color: black;
-  font-weight: bold;
-}
-
 .section.authenticator h2,
 .section.get-started h2 {
   font-family: var(--font-family-ltl-heading);
@@ -1187,14 +1188,20 @@ textarea {
   }
 
   .app-bar .download-button,
-  .app-bar #auth-signin-signout {
+  .app-bar #restart-button,
+  .app-bar #auth-signout {
     width: 75px;
     height: 30px;
   }
 
-  .app-bar #auth-signin-signout {
+  .app-bar #auth-signout {
     right: 20px;
     top: 60px;
+  }
+
+  .app-bar #restart-button {
+    right: 20px;
+    top: 100px;
   }
 
   .app-bar .download-button {

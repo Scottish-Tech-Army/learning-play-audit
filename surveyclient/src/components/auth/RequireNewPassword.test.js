@@ -4,12 +4,8 @@ import { act, Simulate } from "react-dom/test-utils";
 import RequireNewPassword from "./RequireNewPassword";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import {
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  REFRESH_STATE,
-} from "../../model/ActionTypes";
-import { SIGN_IN, SIGNED_OUT, RESET_PASSWORD } from "../../model/AuthStates";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SIGN_IN, RESET_PASSWORD } from "../../model/AuthStates";
 import { setAuthState, completeNewPassword } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
@@ -42,11 +38,10 @@ describe("component RequireNewPassword", () => {
     container = null;
   });
 
-  it("initial render and enable change action - first login", () => {
+  it("initial render and enable change actionn", () => {
     renderComponent();
     expect(passwordInput().value).toStrictEqual("");
     expect(changeButton()).toBeDisabled();
-    expect(continueButton()).toBeNull();
 
     // Form complete
     enterPassword("12345678");
@@ -127,32 +122,9 @@ describe("component RequireNewPassword", () => {
     expect(changeButton()).not.toBeDisabled();
   });
 
-  it("not first login can continue", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        hasEverLoggedIn: true,
-        authentication: {
-          errorMessage: "",
-          state: RESET_PASSWORD,
-          user: { username: TEST_USER },
-        },
-      },
-    });
-    renderComponent();
-
-    expect(continueButton()).not.toBeNull();
-    click(continueButton());
-
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
-  });
-
   const passwordInput = () => container.querySelector("#passwordInput");
   const changeButton = () => container.querySelector("#change-button");
   const signInButton = () => container.querySelector("#signin-button");
-  const continueButton = () =>
-    container.querySelector("#continue-signed-out-button");
 
   function enterPassword(value) {
     act(() => {

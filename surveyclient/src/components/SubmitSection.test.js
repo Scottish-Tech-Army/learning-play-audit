@@ -10,7 +10,7 @@ import { Provider } from "react-redux";
 import { REFRESH_STATE, SET_AUTH_STATE } from "../model/ActionTypes";
 import { SUBMIT } from "./FixedSectionTypes";
 import { SIGNED_IN, SIGNED_OUT } from "../model/AuthStates";
-import { INPUT_STATE } from "../model/TestUtils";
+import { INPUT_STATE, EMPTY_STATE } from "../model/TestUtils";
 import {
   SUBMITTING_START,
   SUBMITTING_PHOTOS,
@@ -18,9 +18,11 @@ import {
   SUBMIT_COMPLETE,
   SUBMIT_FAILED,
 } from "../model/SubmitStates";
+import { signOut } from "../model/AuthActions";
 
 const TEST_ENDPOINT = "http://localhost:9999/testEndpoint";
 
+jest.mock("../model/AuthActions");
 jest.mock("../model/SubmitAction");
 jest.mock("@aws-amplify/auth");
 
@@ -42,6 +44,9 @@ describe("component SubmitSection", () => {
     surveyStore.dispatch({ type: REFRESH_STATE, state: INPUT_STATE });
 
     uploadResults.mockReset();
+
+    signOut.mockReset();
+    signOut.mockImplementation(() => () => "dummy action");
   });
 
   afterEach(() => {
@@ -76,14 +81,49 @@ describe("component SubmitSection", () => {
     storedSectionId = null;
     renderComponent();
 
-    clickPreviousButton();
+    click(previousButton());
     expect(storedSectionId).toStrictEqual("section2");
+  });
+
+  it("confirm dialog appears", () => {
+    renderComponent();
+    expect(confirmYesButton()).toBeNull();
+
+    click(uploadButton());
+    expect(confirmYesButton()).not.toBeNull();
+  });
+
+  it("confirm upload cancel", () => {
+    renderComponent();
+    click(uploadButton());
+    renderComponent();
+
+    click(confirmNoButton());
+    renderComponent();
+
+    expect(confirmYesButton()).toBeNull();
+    expect(uploadResults).not.toHaveBeenCalled();
+  });
+
+  it("confirm upload cancel click background", () => {
+    renderComponent();
+    click(uploadButton());
+    renderComponent();
+
+    click(backdrop());
+    renderComponent();
+
+    expect(confirmYesButton()).toBeNull();
+    expect(uploadResults).not.toHaveBeenCalled();
   });
 
   it("upload success and close", () => {
     renderComponent();
     expect(uploadResults).toHaveBeenCalledTimes(0);
-    clickUploadButton();
+    click(uploadButton());
+    renderComponent();
+    click(confirmYesButton());
+    renderComponent();
 
     const { setSubmitState, setProgressValue } = checkUploadAndGetCallbacks(
       INPUT_STATE,
@@ -97,16 +137,23 @@ describe("component SubmitSection", () => {
 
     checkDialogComplete();
 
-    clickCloseButton();
+    click(closeButton());
 
     renderComponent();
     expect(dialog()).toBeNull();
+    expect(surveyStore.getState()).toStrictEqual({
+      ...EMPTY_STATE,
+      initialisingState: false,
+    });
   });
 
   it("upload failure and close", () => {
     renderComponent();
     expect(uploadResults).toHaveBeenCalledTimes(0);
-    clickUploadButton();
+    click(uploadButton());
+    renderComponent();
+    click(confirmYesButton());
+    renderComponent();
 
     const { setSubmitState, setProgressValue } = checkUploadAndGetCallbacks(
       INPUT_STATE,
@@ -120,16 +167,20 @@ describe("component SubmitSection", () => {
 
     checkDialogFailed("50%");
 
-    clickCloseButton();
+    click(closeButton());
 
     renderComponent();
     expect(dialog()).toBeNull();
+    expect(surveyStore.getState()).toStrictEqual(INPUT_STATE);
   });
 
   it("progress changes during upload", () => {
     renderComponent();
     expect(uploadResults).toHaveBeenCalledTimes(0);
-    clickUploadButton();
+    click(uploadButton());
+    renderComponent();
+    click(confirmYesButton());
+    renderComponent();
 
     const { setSubmitState, setProgressValue } = checkUploadAndGetCallbacks(
       INPUT_STATE,
@@ -215,7 +266,8 @@ describe("component SubmitSection", () => {
     expect(closeButton()).not.toBeNull();
   }
 
-  const sectionContent = () => container.querySelector(".section .submit-content");
+  const sectionContent = () =>
+    container.querySelector(".section .submit-content");
   const previousButton = () =>
     container.querySelector(".section .previous-section-button");
   const uploadButton = () =>
@@ -227,20 +279,18 @@ describe("component SubmitSection", () => {
   const closeButton = () => document.querySelector(".dialog .close-button");
   const progressBar = () =>
     document.querySelector(".dialog .progress-bar-active");
+  const confirmYesButton = () => document.querySelector(".dialog #yes-button");
+  const confirmNoButton = () => document.querySelector(".dialog #no-button");
+  const backdrop = () =>
+    document.querySelector("#dialog-container div:first-child");
 
   function progressBarValue() {
     const styleValue = progressBar().getAttribute("style");
     return styleValue.substring(7, styleValue.length - 1);
   }
 
-  function clickCloseButton() {
-    closeButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  }
-  function clickPreviousButton() {
-    previousButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  }
-  function clickUploadButton() {
-    uploadButton().dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  function click(element) {
+    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   }
 
   function renderComponent() {

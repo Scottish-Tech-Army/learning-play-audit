@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -65,6 +65,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function getSurveyIdsToRetrieve(selectedSurveyIds, fullSurveyResponses) {
+  return selectedSurveyIds.filter(
+    (surveyId) =>
+      fullSurveyResponses.find(
+        (fullSurveyResponse) => surveyId === fullSurveyResponse.id
+      ) === undefined
+  );
+}
+
 function App() {
   const classes = useStyles();
   const [surveyResponses, setSurveyResponses] = useState([]);
@@ -72,8 +81,7 @@ function App() {
   const [dataRows, setDataRows] = useState([]);
   const [openSurveyResponses, setOpenSurveyResponses] = useState(false);
   const [selectedSurveyIds, setSelectedSurveyIds] = useState([]);
-  const exportCsvRequested = useRef(false);
-  const allResponsesRetrieved = useRef(true);
+  const [exportCsvRequested, setExportCsvRequested] = useState(false);
 
   useEffect(() => {
     if (surveyResponses != null && surveyResponses.length > 0) {
@@ -118,67 +126,52 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (selectedSurveyIds.length === 0) {
-      allResponsesRetrieved.current = true;
-      return;
-    }
-    const surveyIdsToRetrieve = selectedSurveyIds.filter(
-      (surveyId) =>
-        fullSurveyResponses.find(
-          (fullSurveyResponse) => surveyId === fullSurveyResponse.id
-        ) === undefined
-    );
-    if (surveyIdsToRetrieve.length === 0) {
-      allResponsesRetrieved.current = true;
-      return;
-    }
-
-    allResponsesRetrieved.current = false;
-
-    Auth.currentCredentials()
-      .then((credentials) => {
-        const dynamodbClient = new DynamoDBClient({
-          region: REGION,
-          credentials: credentials,
-        });
-        const params = {
-          RequestItems: {},
-          ReturnConsumedCapacity: "TOTAL",
-        };
-        params.RequestItems[SURVEY_RESPONSES_TABLE] = {
-          Keys: surveyIdsToRetrieve.map((id) => {
-            return { id: { S: id } };
-          }),
-        };
-        console.log("Retrieving full responses data", params);
-        return dynamodbClient.send(new BatchGetItemCommand(params));
-      })
-      .then((result) => {
-        console.log("Survey responses", result);
-        const retrievedResponses = result.Responses[
-          SURVEY_RESPONSES_TABLE
-        ].map((item) => unmarshall(item));
-        setFullSurveyResponses((fullSurveyResponses) => [
-          ...fullSurveyResponses,
-          ...retrievedResponses,
-        ]);
-        allResponsesRetrieved.current = true;
-      })
-      .catch((error) => {
-        console.log("User not logged in", error);
-      });
-  }, [selectedSurveyIds, fullSurveyResponses]);
-
-  useEffect(() => {
-    console.log(
-      "export status",
-      exportCsvRequested,
-      allResponsesRetrieved,
+    const surveyIdsToRetrieve = getSurveyIdsToRetrieve(
       selectedSurveyIds,
       fullSurveyResponses
     );
-    if (exportCsvRequested.current && allResponsesRetrieved.current) {
-      exportCsvRequested.current = false;
+    if (surveyIdsToRetrieve.length > 0) {
+      Auth.currentCredentials()
+        .then((credentials) => {
+          const dynamodbClient = new DynamoDBClient({
+            region: REGION,
+            credentials: credentials,
+          });
+          const params = {
+            RequestItems: {},
+            ReturnConsumedCapacity: "TOTAL",
+          };
+          params.RequestItems[SURVEY_RESPONSES_TABLE] = {
+            Keys: surveyIdsToRetrieve.map((id) => {
+              return { id: { S: id } };
+            }),
+          };
+          console.log("Retrieving full responses data", params);
+          return dynamodbClient.send(new BatchGetItemCommand(params));
+        })
+        .then((result) => {
+          console.log("Survey responses", result);
+          const retrievedResponses = result.Responses[
+            SURVEY_RESPONSES_TABLE
+          ].map((item) => unmarshall(item));
+          setFullSurveyResponses((fullSurveyResponses) => [
+            ...fullSurveyResponses,
+            ...retrievedResponses,
+          ]);
+        })
+        .catch((error) => {
+          console.log("User not logged in", error);
+        });
+    }
+  }, [selectedSurveyIds, fullSurveyResponses]);
+
+  useEffect(() => {
+    const surveyIdsToRetrieve = getSurveyIdsToRetrieve(
+      selectedSurveyIds,
+      fullSurveyResponses
+    );
+    if (exportCsvRequested && surveyIdsToRetrieve.length === 0) {
+      setExportCsvRequested(false);
 
       exportSurveysAsCsv(
         fullSurveyResponses.filter((surveyResponse) =>
@@ -186,17 +179,11 @@ function App() {
         )
       );
     }
-  }, [
-    selectedSurveyIds,
-    fullSurveyResponses,
-    exportCsvRequested,
-    allResponsesRetrieved,
-  ]);
+  }, [selectedSurveyIds, fullSurveyResponses, exportCsvRequested]);
 
   function requestExportCsv(surveyIds) {
-    allResponsesRetrieved.current = false;
-    exportCsvRequested.current = true;
     setSelectedSurveyIds(surveyIds);
+    setExportCsvRequested(true);
   }
 
   return (

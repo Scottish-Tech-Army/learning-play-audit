@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CONFIRM_WELCOME } from "../model/ActionTypes.js";
+import { CONFIRM_WELCOME } from "../model/ActionTypes";
 
 export default function GetStartedScreen({ downloadButton }) {
   const dispatch = useDispatch();

@@ -9,8 +9,9 @@ import GallerySection from "./components/GallerySection";
 import SubmitSection from "./components/SubmitSection";
 import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
-import AuthSignInOut from "./components/auth/AuthSignInOut";
+import AuthSignOut from "./components/auth/AuthSignOut";
 import AuthCurrentUser from "./components/auth/AuthCurrentUser";
+import RestartButton from "./components/RestartButton";
 import GetStartedScreen from "./components/GetStartedScreen";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshState } from "./model/SurveyModel";
@@ -50,7 +51,7 @@ function App() {
   const authState = useSelector((state) => state.authentication.state);
   const hasSeenSplashPage = useSelector((state) => state.hasSeenSplashPage);
 
-  const [currentSection, _setCurrentSection] = useState("introduction");
+  const [currentSection, _setCurrentSection] = useState(INTRODUCTION);
   const [popupNavDrawerOpen, setPopupNavDrawerOpen] = useState(false);
 
   // Restore locally stored answers if existing
@@ -286,7 +287,7 @@ function App() {
         <div className="app-bar authenticating">
           {titleLogo()}
           {titleText()}
-          <AuthSignInOut />
+          <AuthSignOut />
           <AuthCurrentUser />
         </div>
         <main className="content authenticating">
@@ -309,7 +310,8 @@ function App() {
 
         {titleLogo()}
         {titleText()}
-        <AuthSignInOut />
+        <AuthSignOut />
+        <RestartButton returnToStart={() => setCurrentSection(INTRODUCTION)} />
         <AuthCurrentUser />
         {downloadButtonAppBar()}
         {!isLive && <div className="environment-name">{ENVIRONMENT_NAME}</div>}

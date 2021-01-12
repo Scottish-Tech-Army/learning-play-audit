@@ -1,22 +1,36 @@
 import React, { useState } from "react";
 import "../App.css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { SIGNED_IN } from "../model/AuthStates";
+import { signOut } from "../model/AuthActions";
 import Modal from "@material-ui/core/Modal";
 import { uploadResults } from "../model/SubmitAction";
+import { RESET_STATE } from "../model/ActionTypes";
+
 import { SUBMIT_COMPLETE, SUBMIT_FAILED } from "../model/SubmitStates";
+import ConfirmDialog from "./ConfirmDialog";
 
 function SubmitSection({ sections, setCurrentSection, endpoint }) {
+  const dispatch = useDispatch();
   const state = useSelector((state) => state);
   const authState = useSelector((state) => state.authentication.state);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const [submitState, setSubmitState] = useState(null);
   const [progressValue, setProgressValue] = useState(0);
 
   function handleUploadResults() {
     uploadResults(setSubmitState, setProgressValue, state, endpoint);
+  }
+
+  function handleCloseDialog() {
+    if (submitState === SUBMIT_COMPLETE) {
+      dispatch({ type: RESET_STATE });
+      dispatch(signOut());
+    }
+    setSubmitState(null);
   }
 
   return (
@@ -27,20 +41,37 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
         Landscapes.
       </p>
       <p>
-        You still make changes to your survey answers or add anything you've
-        missed after uploading, as long as you upload the survey again after you
-        have finished making your changes.
+        You will not be able to access or make changes to your survey responses
+        once your survey has been uploaded.
       </p>
       <div className="submit-content">
         {authState !== SIGNED_IN ? (
           <p>Login before submitting survey.</p>
         ) : (
-          <button
-            className="submit-survey-button"
-            onClick={handleUploadResults}
-          >
-            <span>UPLOAD…</span>
-          </button>
+          <>
+            <button
+              className="submit-survey-button"
+              onClick={() => setShowConfirmDialog(true)}
+            >
+              <span>UPLOAD…</span>
+            </button>
+            {showConfirmDialog && (
+              <ConfirmDialog
+                yesText="Upload Survey"
+                noText="Cancel"
+                closeDialog={(closeConfirmed) => {
+                  closeConfirmed && handleUploadResults();
+                  setShowConfirmDialog(false);
+                }}
+              >
+                <p>Are you sure you want to Upload your survey?</p>
+                <p>
+                  You will not be able to access or make changes to your survey
+                  once it has been uploaded.
+                </p>
+              </ConfirmDialog>
+            )}
+          </>
         )}
       </div>
       <SectionBottomNavigation
@@ -63,7 +94,7 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
             justifyContent: "center",
           }}
         >
-          <div className="dialog submit" aria-labelledby="form-dialog-title">
+          <div className="dialog submit">
             <h2 className="title">Uploading Survey Response</h2>
             {submitState !== SUBMIT_COMPLETE &&
               submitState !== SUBMIT_FAILED && <p>Please wait...</p>}
@@ -81,10 +112,10 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
               submitState === SUBMIT_FAILED) && (
               <button
                 className="close-button"
-                onClick={() => setSubmitState(null)}
-                aria-label="Done"
+                onClick={handleCloseDialog}
+                aria-label={submitState === SUBMIT_COMPLETE ? "logout" : "Done"}
               >
-                Done
+                {submitState === SUBMIT_COMPLETE ? "LOG OUT" : "OK"}
               </button>
             )}
           </div>

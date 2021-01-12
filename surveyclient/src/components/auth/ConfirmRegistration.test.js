@@ -4,16 +4,8 @@ import { act, Simulate } from "react-dom/test-utils";
 import ConfirmRegistration from "./ConfirmRegistration";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import {
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  REFRESH_STATE,
-} from "../../model/ActionTypes";
-import {
-  SIGN_IN,
-  SIGNED_OUT,
-  CONFIRM_REGISTRATION,
-} from "../../model/AuthStates";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
 import {
   resendConfirmCode,
   confirmRegistration,
@@ -54,12 +46,11 @@ describe("component ConfirmRegistration", () => {
     container = null;
   });
 
-  it("initial render and code entry - first login", () => {
+  it("initial render and code entry", () => {
     renderComponent();
     expect(emailInput().value).toStrictEqual(TEST_USER);
     expect(codeInput().value).toStrictEqual("");
     expect(confirmButton()).toBeDisabled();
-    expect(continueButton()).toBeNull();
 
     enterCode(TEST_CODE);
     renderComponent();
@@ -150,34 +141,11 @@ describe("component ConfirmRegistration", () => {
     expect(confirmButton()).not.toBeDisabled();
   });
 
-  it("not first login can continue", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        hasEverLoggedIn: true,
-        authentication: {
-          errorMessage: "",
-          state: CONFIRM_REGISTRATION,
-          user: undefined,
-        },
-      },
-    });
-    renderComponent();
-
-    expect(continueButton()).not.toBeNull();
-    click(continueButton());
-
-    expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGNED_OUT);
-  });
-
   const emailInput = () => container.querySelector("#confirmEmailInput");
   const codeInput = () => container.querySelector("#codeInput");
   const confirmButton = () => container.querySelector("#confirm-button");
   const resendCodeButton = () => container.querySelector("#resend-code-button");
   const signInButton = () => container.querySelector("#signin-button");
-  const continueButton = () =>
-    container.querySelector("#continue-signed-out-button");
 
   function enterCode(value) {
     act(() => {
