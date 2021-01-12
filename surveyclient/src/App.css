@@ -532,6 +532,11 @@ textarea {
   align-items: center;
 }
 
+.section.submit p {
+  text-align: justify;
+  width: 100%;
+}
+
 /** Dialogs common **/
 
 .dialog {
