@@ -2,13 +2,15 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import ForgotPasswordSubmit from "./ForgotPasswordSubmit";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import { SIGN_IN, FORGOT_PASSWORD_SUBMIT } from "../../model/AuthStates";
 import { setAuthState, forgotPasswordSubmit } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
+
+const authStore = getAuthStore();
 
 jest.mock("../../model/AuthActions");
 
@@ -19,7 +21,7 @@ describe("component ForgotPasswordSubmit", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: FORGOT_PASSWORD_SUBMIT,
       user: { username: TEST_USER },
@@ -83,7 +85,7 @@ describe("component ForgotPasswordSubmit", () => {
   });
 
   it("render missing user", () => {
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: FORGOT_PASSWORD_SUBMIT,
       user: {},
@@ -91,7 +93,7 @@ describe("component ForgotPasswordSubmit", () => {
     renderComponent();
     expect(emailInput().value).toStrictEqual("");
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: FORGOT_PASSWORD_SUBMIT,
       user: undefined,
@@ -134,7 +136,7 @@ describe("component ForgotPasswordSubmit", () => {
     renderComponent();
     expect(submitButton()).toBeDisabled();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
       user: { username: TEST_USER },
@@ -152,7 +154,7 @@ describe("component ForgotPasswordSubmit", () => {
     renderComponent();
     expect(submitButton()).toBeDisabled();
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
     expect(submitButton()).not.toBeDisabled();
   });
@@ -188,7 +190,7 @@ describe("component ForgotPasswordSubmit", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <ForgotPasswordSubmit />
         </Provider>,
         container

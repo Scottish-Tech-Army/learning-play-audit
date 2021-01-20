@@ -216,7 +216,6 @@ function LTLTableHead({
 
 function SurveyResultsTable({
   dataRows = [],
-  surveyResponses,
   openSurveyResponses,
   exportCsv,
 }) {

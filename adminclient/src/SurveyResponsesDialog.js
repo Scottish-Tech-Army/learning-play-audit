@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
 import PhotoGallery from "./PhotoGallery";
@@ -15,6 +16,11 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import CloseIcon from "@material-ui/icons/Close";
+import {
+  getPhotoKeysForSurveys,
+  getPhotosForSurveys,
+  allSurveysRetrieved,
+} from "./model/SurveyModel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,13 +54,62 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SurveyResponsesDialog({ isOpen, surveys, handleClose }) {
+function SurveyResponsesDialog({ isOpen, surveyIds, handleClose }) {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
+  const fullSurveyResponses = useSelector((state) => state.fullSurveyResponses);
+  const photos = useSelector((state) => state.photos);
+
+  const [selectedResponses, setSelectedResponses] = useState([]);
   const [selectedTab, setSelectedTab] = useState("1");
+  const [exportDocxRequested, setExportDocxRequested] = useState(false);
+
+  useEffect(() => {
+    if (allSurveysRetrieved(surveyIds, fullSurveyResponses)) {
+      setSelectedResponses(surveyIds.map((id) => fullSurveyResponses[id]));
+    }
+  }, [surveyIds, fullSurveyResponses]);
 
   const handleExportAsDocx = () => {
-    exportSurveysAsDocx(surveys);
+    if (
+      allSurveysRetrieved(surveyIds, fullSurveyResponses) &&
+      surveyIds.length === selectedResponses.length
+    ) {
+      setExportDocxRequested(true);
+      dispatch(getPhotosForSurveys(selectedResponses));
+    }
   };
+
+  function canExportAsDocx() {
+    return (
+      allSurveysRetrieved(surveyIds, fullSurveyResponses) &&
+      surveyIds.length === selectedResponses.length
+    );
+  }
+
+  useEffect(() => {
+    function allPhotosRetrieved() {
+      return (
+        allSurveysRetrieved(surveyIds, fullSurveyResponses) &&
+        surveyIds.length === selectedResponses.length &&
+        !getPhotoKeysForSurveys(selectedResponses).find(
+          (photoKey) => !photos.hasOwnProperty(photoKey)
+        )
+      );
+    }
+
+    if (exportDocxRequested && allPhotosRetrieved()) {
+      setExportDocxRequested(false);
+      exportSurveysAsDocx(selectedResponses, photos);
+    }
+  }, [
+    photos,
+    selectedResponses,
+    exportDocxRequested,
+    surveyIds,
+    fullSurveyResponses,
+  ]);
 
   return (
     <Dialog
@@ -62,7 +117,7 @@ function SurveyResponsesDialog({ isOpen, surveys, handleClose }) {
       classes={{
         scrollPaper: classes.scrollPaper,
       }}
-      open={isOpen}
+      open={true}
       onClose={handleClose}
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
@@ -80,19 +135,28 @@ function SurveyResponsesDialog({ isOpen, surveys, handleClose }) {
             <Tab label="Photos" value="2" />
           </TabList>
           <TabPanel value="1">
-            <SurveyResponses id="scroll-dialog-description" surveys={surveys} />
+            <SurveyResponses
+              id="scroll-dialog-description"
+              surveys={selectedResponses}
+            />
           </TabPanel>
           <TabPanel value="2">
             <PhotoGallery
               id="scroll-photosdialog-description"
-              surveys={surveys}
+              surveys={selectedResponses}
             />
           </TabPanel>
         </TabContext>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleExportAsDocx} color="primary" startIcon={<GetAppIcon />}>
-          Export {surveys.length > 1 ? "surveys" : "survey"} as Word Document
+        <Button
+          onClick={handleExportAsDocx}
+          color="primary"
+          startIcon={<GetAppIcon />}
+          disabled={!canExportAsDocx()}
+        >
+          Export {selectedResponses.length > 1 ? "surveys" : "survey"} as Word
+          Document
         </Button>
         <Button onClick={handleClose} color="primary" startIcon={<CloseIcon />}>
           Close

@@ -9,12 +9,15 @@ import {
   ADD_PHOTO,
   DELETE_PHOTO,
   UPDATE_PHOTO_DESCRIPTION,
+  CONFIRM_WELCOME,
+} from "./ActionTypes";
+import {
+  SIGNED_IN,
+  SIGN_IN,
   SET_AUTH_STATE,
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
-  CONFIRM_WELCOME,
-} from "./ActionTypes";
-import { SIGNED_IN, SIGN_IN } from "./AuthStates";
+} from "learning-play-audit-shared";
 import rfdc from "rfdc";
 // local forage is mocked in setupTests.js
 import localforage from "localforage";
@@ -85,7 +88,7 @@ describe("surveyReducer", () => {
 
   it("action CONFIRM_WELCOME", () => {
     const inputState = {
-      ...INITIALISED_EMPTY_STATE,
+      ...clone(INITIALISED_EMPTY_STATE),
       hasSeenSplashPage: false,
       hasEverLoggedIn: false,
     };
@@ -108,140 +111,6 @@ describe("surveyReducer", () => {
       hasEverLoggedIn: true,
       hasSeenSplashPage: true,
       photoDetails: EMPTY_STATE.photoDetails,
-    });
-  });
-
-  it("action SET_AUTH_ERROR", () => {
-    expect(
-      surveyReducer(STATE_WITHOUT_AUTH_ERROR, {
-        type: SET_AUTH_ERROR,
-        message: "new error",
-      })
-    ).toStrictEqual(STATE_WITH_AUTH_ERROR);
-
-    expect(
-      surveyReducer(STATE_WITH_AUTH_ERROR, {
-        type: SET_AUTH_ERROR,
-        message: "",
-      })
-    ).toStrictEqual(STATE_WITHOUT_AUTH_ERROR);
-
-    expect(
-      surveyReducer(STATE_WITH_AUTH_ERROR, {
-        type: SET_AUTH_ERROR,
-        message: "new error",
-      })
-    ).toStrictEqual(STATE_WITH_AUTH_ERROR);
-  });
-
-  it("action CLEAR_AUTH_ERROR", () => {
-    expect(
-      surveyReducer(STATE_WITH_AUTH_ERROR, { type: CLEAR_AUTH_ERROR })
-    ).toStrictEqual(STATE_WITHOUT_AUTH_ERROR);
-
-    expect(
-      surveyReducer(STATE_WITHOUT_AUTH_ERROR, { type: CLEAR_AUTH_ERROR })
-    ).toStrictEqual(STATE_WITHOUT_AUTH_ERROR);
-  });
-
-  it("action SET_AUTH_STATE", () => {
-    expect(
-      surveyReducer(
-        {
-          ...INPUT_STATE,
-          authentication: {
-            errorMessage: "new error",
-            state: SIGN_IN,
-            user: "test user",
-          },
-          hasSeenSplashPage: true,
-          hasEverLoggedIn: false,
-        },
-        {
-          type: SET_AUTH_STATE,
-          authState: "new auth state",
-          user: "new user",
-        }
-      )
-    ).toStrictEqual({
-      ...INPUT_STATE,
-      authentication: {
-        errorMessage: "",
-        state: "new auth state",
-        user: "new user",
-      },
-      hasSeenSplashPage: true,
-      hasEverLoggedIn: false,
-    });
-
-    // Check calls
-    expect(localforage.setItem).toHaveBeenCalledTimes(1);
-    expect(localforage.setItem).toHaveBeenCalledWith("answers", {
-      answerCounts: INPUT_STATE.answerCounts,
-      answers: INPUT_STATE.answers,
-      hasEverLoggedIn: false,
-      hasSeenSplashPage: true,
-      photoDetails: INPUT_STATE.photoDetails,
-    });
-  });
-
-  it("action SET_AUTH_STATE SIGNED_IN triggers flags", () => {
-    expect(
-      surveyReducer(
-        {
-          ...INPUT_STATE,
-          authentication: {
-            errorMessage: "new error",
-            state: SIGN_IN,
-            user: "test user",
-          },
-          hasSeenSplashPage: true,
-          hasEverLoggedIn: false,
-        },
-        {
-          type: SET_AUTH_STATE,
-          authState: SIGNED_IN,
-          user: "new user",
-        }
-      )
-    ).toStrictEqual({
-      ...INPUT_STATE,
-      authentication: {
-        errorMessage: "",
-        state: SIGNED_IN,
-        user: "new user",
-      },
-      hasSeenSplashPage: false,
-      hasEverLoggedIn: false,
-    });
-
-    // Check calls
-    expect(localforage.setItem).toHaveBeenCalledTimes(1);
-    expect(localforage.setItem).toHaveBeenCalledWith("answers", {
-      answerCounts: INPUT_STATE.answerCounts,
-      answers: INPUT_STATE.answers,
-      hasEverLoggedIn: false,
-      hasSeenSplashPage: false,
-      photoDetails: INPUT_STATE.photoDetails,
-    });
-  });
-
-  it("action SET_AUTH_STATE authState undefined", () => {
-    expect(
-      surveyReducer(INPUT_STATE, {
-        type: SET_AUTH_STATE,
-        user: "new user",
-      })
-    ).toStrictEqual(INPUT_STATE);
-
-    // Check calls
-    expect(localforage.setItem).toHaveBeenCalledTimes(1);
-    expect(localforage.setItem).toHaveBeenCalledWith("answers", {
-      answerCounts: INPUT_STATE.answerCounts,
-      answers: INPUT_STATE.answers,
-      hasEverLoggedIn: INPUT_STATE.hasEverLoggedIn,
-      hasSeenSplashPage: INPUT_STATE.hasSeenSplashPage,
-      photoDetails: INPUT_STATE.photoDetails,
     });
   });
 
@@ -356,7 +225,7 @@ describe("surveyReducer", () => {
       expectedState.answerCounts.wellbeing.answer + 1;
 
     expect(
-      surveyReducer(INITIALISED_EMPTY_STATE, {
+      surveyReducer(clone(INITIALISED_EMPTY_STATE), {
         type: SET_ANSWER,
         sectionId: "wellbeing",
         questionId: "outdoorart",
@@ -383,7 +252,7 @@ describe("surveyReducer", () => {
       expectedState.answerCounts.wellbeing.comments + 1;
 
     expect(
-      surveyReducer(INITIALISED_EMPTY_STATE, {
+      surveyReducer(clone(INITIALISED_EMPTY_STATE), {
         type: SET_ANSWER,
         sectionId: "wellbeing",
         questionId: "outdoorart",
@@ -495,7 +364,7 @@ describe("surveyReducer", () => {
       expectedState.answerCounts.community.answer + 1;
 
     expect(
-      surveyReducer(INITIALISED_EMPTY_STATE, {
+      surveyReducer(clone(INITIALISED_EMPTY_STATE), {
         type: SET_ANSWER,
         sectionId: "community",
         questionId: "datedImprovements",
@@ -561,7 +430,7 @@ describe("surveyReducer", () => {
     };
 
     expect(
-      surveyReducer(INITIALISED_EMPTY_STATE, {
+      surveyReducer(clone(INITIALISED_EMPTY_STATE), {
         type: ADD_PHOTO,
         sectionId: "community",
         questionId: "datedImprovements",
@@ -595,7 +464,7 @@ describe("surveyReducer", () => {
     };
 
     expect(
-      surveyReducer(PARTIAL_EMPTY_STATE, {
+      surveyReducer(clone(PARTIAL_EMPTY_STATE), {
         type: ADD_PHOTO,
         sectionId: "community",
         questionId: "datedImprovements",
@@ -781,10 +650,154 @@ describe("surveyReducer", () => {
   });
 });
 
+describe("surveyReducer using authReducer", () => {
+  beforeEach(() => {
+    // localforage.config.mockClear();
+  });
+
+  it("initial state - empty", () => {
+    expect(surveyReducer(undefined, {})).toStrictEqual(EMPTY_STATE);
+  });
+
+  it("action SET_AUTH_ERROR", () => {
+    expect(
+      surveyReducer(STATE_WITHOUT_AUTH_ERROR, {
+        type: SET_AUTH_ERROR,
+        message: "new error",
+      })
+    ).toStrictEqual(STATE_WITH_AUTH_ERROR);
+
+    expect(
+      surveyReducer(STATE_WITH_AUTH_ERROR, {
+        type: SET_AUTH_ERROR,
+        message: "",
+      })
+    ).toStrictEqual(STATE_WITHOUT_AUTH_ERROR);
+
+    expect(
+      surveyReducer(STATE_WITH_AUTH_ERROR, {
+        type: SET_AUTH_ERROR,
+        message: "new error",
+      })
+    ).toStrictEqual(STATE_WITH_AUTH_ERROR);
+  });
+
+  it("action CLEAR_AUTH_ERROR", () => {
+    expect(
+      surveyReducer(STATE_WITH_AUTH_ERROR, { type: CLEAR_AUTH_ERROR })
+    ).toStrictEqual(STATE_WITHOUT_AUTH_ERROR);
+
+    expect(
+      surveyReducer(STATE_WITHOUT_AUTH_ERROR, { type: CLEAR_AUTH_ERROR })
+    ).toStrictEqual(STATE_WITHOUT_AUTH_ERROR);
+  });
+
+  it("action SET_AUTH_STATE", () => {
+    expect(
+      surveyReducer(
+        {
+          ...INPUT_STATE,
+          authentication: {
+            errorMessage: "new error",
+            state: SIGN_IN,
+            user: "test user",
+          },
+          hasSeenSplashPage: true,
+          hasEverLoggedIn: false,
+        },
+        {
+          type: SET_AUTH_STATE,
+          authState: "new auth state",
+          user: "new user",
+        }
+      )
+    ).toStrictEqual({
+      ...INPUT_STATE,
+      authentication: {
+        errorMessage: "",
+        state: "new auth state",
+        user: "new user",
+      },
+      hasSeenSplashPage: true,
+      hasEverLoggedIn: false,
+    });
+
+    // Check calls
+    expect(localforage.setItem).toHaveBeenCalledTimes(1);
+    expect(localforage.setItem).toHaveBeenCalledWith("answers", {
+      answerCounts: INPUT_STATE.answerCounts,
+      answers: INPUT_STATE.answers,
+      hasEverLoggedIn: false,
+      hasSeenSplashPage: true,
+      photoDetails: INPUT_STATE.photoDetails,
+    });
+  });
+
+  it("action SET_AUTH_STATE SIGNED_IN triggers flags", () => {
+    expect(
+      surveyReducer(
+        {
+          ...INPUT_STATE,
+          authentication: {
+            errorMessage: "new error",
+            state: SIGN_IN,
+            user: "test user",
+          },
+          hasSeenSplashPage: true,
+          hasEverLoggedIn: false,
+        },
+        {
+          type: SET_AUTH_STATE,
+          authState: SIGNED_IN,
+          user: "new user",
+        }
+      )
+    ).toStrictEqual({
+      ...INPUT_STATE,
+      authentication: {
+        errorMessage: "",
+        state: SIGNED_IN,
+        user: "new user",
+      },
+      hasSeenSplashPage: false,
+      hasEverLoggedIn: false,
+    });
+
+    // Check calls
+    expect(localforage.setItem).toHaveBeenCalledTimes(1);
+    expect(localforage.setItem).toHaveBeenCalledWith("answers", {
+      answerCounts: INPUT_STATE.answerCounts,
+      answers: INPUT_STATE.answers,
+      hasEverLoggedIn: false,
+      hasSeenSplashPage: false,
+      photoDetails: INPUT_STATE.photoDetails,
+    });
+  });
+
+  it("action SET_AUTH_STATE authState undefined", () => {
+    expect(
+      surveyReducer(INPUT_STATE, {
+        type: SET_AUTH_STATE,
+        user: "new user",
+      })
+    ).toStrictEqual(INPUT_STATE);
+
+    // Check calls
+    expect(localforage.setItem).toHaveBeenCalledTimes(1);
+    expect(localforage.setItem).toHaveBeenCalledWith("answers", {
+      answerCounts: INPUT_STATE.answerCounts,
+      answers: INPUT_STATE.answers,
+      hasEverLoggedIn: INPUT_STATE.hasEverLoggedIn,
+      hasSeenSplashPage: INPUT_STATE.hasSeenSplashPage,
+      photoDetails: INPUT_STATE.photoDetails,
+    });
+  });
+});
+
 describe("surveyReducer actions pre-initialisation should not write to storage", () => {
   it("action CONFIRM_WELCOME", () => {
     const inputState = {
-      ...EMPTY_STATE,
+      ...clone(EMPTY_STATE),
       initialisingState: true,
       hasSeenSplashPage: false,
     };
@@ -805,7 +818,7 @@ describe("surveyReducer actions pre-initialisation should not write to storage",
 
   it("action ADD_PHOTO", () => {
     const inputState = {
-      ...INPUT_STATE,
+      ...clone(INPUT_STATE),
       initialisingState: true,
     };
 

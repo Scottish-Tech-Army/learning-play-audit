@@ -23,7 +23,7 @@ export function isAuthenticating(state) {
   return state !== SIGNED_IN && state !== SIGNED_OUT;
 }
 
-export default function Authenticator() {
+export function Authenticator({ canRegister = true }) {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.authentication.state);
 
@@ -34,9 +34,9 @@ export default function Authenticator() {
   function renderAuthComponent() {
     switch (authState) {
       case SIGN_IN:
-        return <SignIn />;
+        return <SignIn canRegister={canRegister} />;
       case REGISTER:
-        return <Register />;
+        return canRegister ? <Register /> : null;
       case CONFIRM_REGISTRATION:
         return <ConfirmRegistration />;
       case FORGOT_PASSWORD_REQUEST:
@@ -57,7 +57,7 @@ export default function Authenticator() {
         <div className="section authenticator">
           <img
             className="title-logo-small"
-            src="./assets/ltl-logo.jpg"
+            src="./assets/ltl-logo.png"
             alt=""
           />
           {renderAuthComponent()}

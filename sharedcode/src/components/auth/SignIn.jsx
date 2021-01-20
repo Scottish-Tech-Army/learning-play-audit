@@ -6,7 +6,7 @@ import { REGISTER, FORGOT_PASSWORD_REQUEST } from "../../model/AuthStates";
 const EMAIL_ID = "emailInput";
 const PASSWORD_ID = "passwordInput";
 
-export default function SignIn() {
+export default function SignIn({ canRegister = true }) {
   const authState = useSelector((state) => state.authentication.state);
   const authError = useSelector((state) => state.authentication.errorMessage);
 
@@ -60,19 +60,21 @@ export default function SignIn() {
           onClick={handleSignIn}
           disabled={loading || email.length === 0 || password.length === 0}
         >
-          {loading ? <div class="loader" /> : <span>LOGIN</span>}
+          {loading ? <div className="loader" /> : <span>LOGIN</span>}
         </button>
       </div>
-      <div className="question">
-        Don't have an account?{" "}
-        <button
-          id="register-button"
-          className="inline-action"
-          onClick={() => dispatch(setAuthState(REGISTER))}
-        >
-          Register
-        </button>
-      </div>
+      {canRegister && (
+        <div className="question">
+          Don't have an account?{" "}
+          <button
+            id="register-button"
+            className="inline-action"
+            onClick={() => dispatch(setAuthState(REGISTER))}
+          >
+            Register
+          </button>
+        </div>
+      )}
     </>
   );
 }

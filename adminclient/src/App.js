@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import SurveyResultsTable from "./SurveyResultsTable";
-import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
 import { Amplify } from "@aws-amplify/core";
-import { Auth } from "@aws-amplify/auth";
-import {
-  DynamoDBClient,
-  ScanCommand,
-  BatchGetItemCommand,
-} from "@aws-sdk/client-dynamodb";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
 import SurveyResponsesDialog from "./SurveyResponsesDialog";
 import { exportSurveysAsCsv } from "./SurveysAsCsv";
+import {
+  Authenticator,
+  AuthSignOut,
+  isAuthenticating,
+} from "learning-play-audit-shared";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import {
+  getSummaryResponses,
+  getFullResponses,
+  allSurveysRetrieved,
+} from "./model/SurveyModel";
 
 // Configure these properties in .env.local
 const REGION = process.env.REACT_APP_AWS_REGION;
-const SURVEY_RESPONSES_TABLE = process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE;
-const SURVEY_RESPONSES_SUMMARY_INDEX =
-  process.env.REACT_APP_AWS_SURVEY_RESPONSES_SUMMARY_INDEX;
 const ENVIRONMENT_NAME = process.env.REACT_APP_DEPLOY_ENVIRONMENT;
 const isLive = ENVIRONMENT_NAME === "LIVE";
 
@@ -36,52 +37,67 @@ const awsConfig = {
 
 Amplify.configure(awsConfig);
 
+const COLOUR_LTL_GREEN = "#afcd4b";
+const COLOUR_BLACK = "#000";
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: COLOUR_BLACK,
+    },
+  },
+});
+
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
   },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: "33.33%",
-    flexShrink: 0,
+  authenticatingRoot: {
+    backgroundImage: `url(${"/assets/Background_image.jpg"})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "top",
+    backgroundAttachment: "fixed",
+    width: "100%",
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary,
+  appBar: {
+    flexDirection: "row",
+    color: "black",
+    backgroundColor: COLOUR_LTL_GREEN,
+  },
+  toolBar: {
+    flexGrow: 1,
+  },
+  partialLogo: {
+    height: "50px",
+    alignSelf: "flex-end",
   },
   title: {
     flexGrow: 1,
   },
-  paper: {
-    position: "absolute",
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-  photo: {
-    height: "50px",
-  },
 }));
 
-function getSurveyIdsToRetrieve(selectedSurveyIds, fullSurveyResponses) {
-  return selectedSurveyIds.filter(
-    (surveyId) =>
-      fullSurveyResponses.find(
-        (fullSurveyResponse) => surveyId === fullSurveyResponse.id
-      ) === undefined
-  );
-}
+export default function App() {
+  const dispatch = useDispatch();
+  const authState = useSelector((state) => state.authentication.state);
+  const surveyResponses = useSelector((state) => state.surveyResponses);
+  const fullSurveyResponses = useSelector((state) => state.fullSurveyResponses);
 
-function App() {
   const classes = useStyles();
-  const [surveyResponses, setSurveyResponses] = useState([]);
-  const [fullSurveyResponses, setFullSurveyResponses] = useState([]);
   const [dataRows, setDataRows] = useState([]);
   const [openSurveyResponses, setOpenSurveyResponses] = useState(false);
   const [selectedSurveyIds, setSelectedSurveyIds] = useState([]);
   const [exportCsvRequested, setExportCsvRequested] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticating(authState)) {
+      dispatch(getSummaryResponses());
+    }
+  }, [authState, dispatch]);
 
   useEffect(() => {
     if (surveyResponses != null && surveyResponses.length > 0) {
@@ -102,123 +118,64 @@ function App() {
   }, [surveyResponses]);
 
   useEffect(() => {
-    Auth.currentCredentials()
-      .then((credentials) => {
-        const dynamodbClient = new DynamoDBClient({
-          region: REGION,
-          credentials: credentials,
-        });
-        const params = {
-          TableName: SURVEY_RESPONSES_TABLE,
-          IndexName: SURVEY_RESPONSES_SUMMARY_INDEX,
-          ReturnConsumedCapacity: "TOTAL",
-        };
-        console.log("Scanning data", params);
-        return dynamodbClient.send(new ScanCommand(params));
-      })
-      .then((result) => {
-        console.log("Survey responses", result);
-        setSurveyResponses(result.Items.map((item) => unmarshall(item)));
-      })
-      .catch((error) => {
-        console.log("Error retrieving data", error);
-      });
-  }, []);
+    dispatch(getFullResponses(selectedSurveyIds));
+  }, [selectedSurveyIds, dispatch]);
 
   useEffect(() => {
-    const surveyIdsToRetrieve = getSurveyIdsToRetrieve(
-      selectedSurveyIds,
-      fullSurveyResponses
-    );
-    if (surveyIdsToRetrieve.length > 0) {
-      Auth.currentCredentials()
-        .then((credentials) => {
-          const dynamodbClient = new DynamoDBClient({
-            region: REGION,
-            credentials: credentials,
-          });
-          const params = {
-            RequestItems: {},
-            ReturnConsumedCapacity: "TOTAL",
-          };
-          params.RequestItems[SURVEY_RESPONSES_TABLE] = {
-            Keys: surveyIdsToRetrieve.map((id) => {
-              return { id: { S: id } };
-            }),
-          };
-          console.log("Retrieving full responses data", params);
-          return dynamodbClient.send(new BatchGetItemCommand(params));
-        })
-        .then((result) => {
-          console.log("Survey responses", result);
-          const retrievedResponses = result.Responses[
-            SURVEY_RESPONSES_TABLE
-          ].map((item) => unmarshall(item));
-          setFullSurveyResponses((fullSurveyResponses) => [
-            ...fullSurveyResponses,
-            ...retrievedResponses,
-          ]);
-        })
-        .catch((error) => {
-          console.log("User not logged in", error);
-        });
-    }
-  }, [selectedSurveyIds, fullSurveyResponses]);
-
-  useEffect(() => {
-    const surveyIdsToRetrieve = getSurveyIdsToRetrieve(
-      selectedSurveyIds,
-      fullSurveyResponses
-    );
-    if (exportCsvRequested && surveyIdsToRetrieve.length === 0) {
+    if (
+      exportCsvRequested &&
+      allSurveysRetrieved(selectedSurveyIds, fullSurveyResponses)
+    ) {
       setExportCsvRequested(false);
-
       exportSurveysAsCsv(
-        fullSurveyResponses.filter((surveyResponse) =>
-          selectedSurveyIds.includes(surveyResponse.id)
-        )
+        selectedSurveyIds.map((id) => fullSurveyResponses[id])
       );
     }
   }, [selectedSurveyIds, fullSurveyResponses, exportCsvRequested]);
 
-  function requestExportCsv(surveyIds) {
-    setSelectedSurveyIds(surveyIds);
-    setExportCsvRequested(true);
+  if (isAuthenticating(authState)) {
+    return (
+      <main className={classes.authenticatingRoot}>
+        <Authenticator canRegister={false} />
+      </main>
+    );
   }
 
   return (
-    <div className="App">
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            Learning and Play Audit Admin
-            {!isLive && " (" + ENVIRONMENT_NAME + ")"} - Overview
-          </Typography>
-          <AmplifySignOut />
-        </Toolbar>
-      </AppBar>
-      <SurveyResultsTable
-        dataRows={dataRows}
-        surveyResponses={surveyResponses}
-        openSurveyResponses={(surveyIds) => {
-          setSelectedSurveyIds(surveyIds);
-          setOpenSurveyResponses(true);
-        }}
-        exportCsv={requestExportCsv}
-      />
-      <SurveyResponsesDialog
-        isOpen={openSurveyResponses}
-        surveys={fullSurveyResponses.filter((surveyResponse) =>
-          selectedSurveyIds.includes(surveyResponse.id)
+    <ThemeProvider theme={theme}>
+      <div className={classes.root}>
+        <AppBar position="static" className={classes.appBar}>
+          <img
+            className={classes.partialLogo}
+            src="./assets/toolbar-logo.png"
+            alt=""
+          />
+          <Toolbar className={classes.toolBar}>
+            <Typography variant="h6" className={classes.title}>
+              Learning Through Landscapes Learning and Play Audit Admin
+              {!isLive && " (" + ENVIRONMENT_NAME + ")"} - Overview
+            </Typography>
+            <AuthSignOut />
+          </Toolbar>
+        </AppBar>
+        <SurveyResultsTable
+          dataRows={dataRows}
+          openSurveyResponses={(surveyIds) => {
+            setSelectedSurveyIds(surveyIds);
+            setOpenSurveyResponses(true);
+          }}
+          exportCsv={(surveyIds) => {
+            setSelectedSurveyIds(surveyIds);
+            setExportCsvRequested(true);
+          }}
+        />
+        {openSurveyResponses && (
+          <SurveyResponsesDialog
+            surveyIds={selectedSurveyIds}
+            handleClose={() => setOpenSurveyResponses(false)}
+          />
         )}
-        handleClose={() => setOpenSurveyResponses(false)}
-      />
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
-
-export default withAuthenticator(App, {
-  signUpConfig: {
-    hiddenDefaults: ["phone_number"],
-  },
-});

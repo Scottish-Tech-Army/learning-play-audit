@@ -2,13 +2,15 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import ForgotPasswordRequest from "./ForgotPasswordRequest";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import { SIGN_IN, FORGOT_PASSWORD_REQUEST } from "../../model/AuthStates";
 import { setAuthState, forgotPasswordRequest } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
+
+const authStore = getAuthStore();
 
 jest.mock("../../model/AuthActions");
 
@@ -19,7 +21,7 @@ describe("component ForgotPasswordRequest", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: FORGOT_PASSWORD_REQUEST,
       user: undefined,
@@ -87,7 +89,7 @@ describe("component ForgotPasswordRequest", () => {
     renderComponent();
     expect(requestButton()).toBeDisabled();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
       user: undefined,
@@ -104,7 +106,7 @@ describe("component ForgotPasswordRequest", () => {
     renderComponent();
     expect(requestButton()).toBeDisabled();
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
     expect(requestButton()).not.toBeDisabled();
   });
@@ -130,7 +132,7 @@ describe("component ForgotPasswordRequest", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <ForgotPasswordRequest />
         </Provider>,
         container

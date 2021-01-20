@@ -7,9 +7,15 @@ import { act } from "react-dom/test-utils";
 import SubmitSection from "./SubmitSection";
 import surveyStore from "../model/SurveyModel";
 import { Provider } from "react-redux";
-import { REFRESH_STATE, SET_AUTH_STATE } from "../model/ActionTypes";
+import { REFRESH_STATE } from "../model/ActionTypes";
 import { SUBMIT } from "./FixedSectionTypes";
-import { SIGNED_IN, SIGNED_OUT } from "../model/AuthStates";
+import shared, {
+  SIGNED_IN,
+  SIGN_IN,
+  signOut,
+  SET_AUTH_STATE,
+  authReducer,
+} from "learning-play-audit-shared";
 import { INPUT_STATE, EMPTY_STATE } from "../model/TestUtils";
 import {
   SUBMITTING_START,
@@ -18,13 +24,14 @@ import {
   SUBMIT_COMPLETE,
   SUBMIT_FAILED,
 } from "../model/SubmitStates";
-import { signOut } from "../model/AuthActions";
 
 const TEST_ENDPOINT = "http://localhost:9999/testEndpoint";
 
-jest.mock("../model/AuthActions");
+jest.mock("learning-play-audit-shared", () => {
+  const originalShared = require.requireActual("learning-play-audit-shared");
+  return { ...originalShared, signOut: jest.fn(), authReducer: jest.fn() };
+});
 jest.mock("../model/SubmitAction");
-jest.mock("@aws-amplify/auth");
 
 var storedSectionId = null;
 function setSectionId(sectionId) {
@@ -40,10 +47,20 @@ describe("component SubmitSection", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
+    const inputState = {
+      ...INPUT_STATE,
+      authentication: {
+        errorMessage: "",
+        state: SIGNED_IN,
+        user: { attributes: { email: "test@example.com" } },
+      },
+    };
+
     // Populate state and auth state
-    surveyStore.dispatch({ type: REFRESH_STATE, state: INPUT_STATE });
+    surveyStore.dispatch({ type: REFRESH_STATE, state: inputState });
 
     uploadResults.mockReset();
+    authReducer.mockImplementation((state) => state);
 
     signOut.mockReset();
     signOut.mockImplementation(() => () => "dummy action");
@@ -57,19 +74,19 @@ describe("component SubmitSection", () => {
   });
 
   it("initial state logged in", () => {
-    // Default test data is signed in - just making sure
-    surveyStore.dispatch({
-      type: SET_AUTH_STATE,
-      authState: SIGNED_IN,
-      user: { attributes: { email: "test@example.com" } },
-    });
     renderComponent();
 
     expect(sectionContent().textContent).toStrictEqual("UPLOAD…");
   });
 
   it("initial state not logged in", () => {
-    surveyStore.dispatch({ type: SET_AUTH_STATE, authState: SIGNED_OUT });
+    const inputState = {
+      ...INPUT_STATE,
+      authentication: { errorMessage: "", state: SIGN_IN, user: undefined },
+    };
+
+    // Populate state and auth state
+    surveyStore.dispatch({ type: REFRESH_STATE, state: inputState });
     renderComponent();
 
     expect(sectionContent().textContent).toStrictEqual(

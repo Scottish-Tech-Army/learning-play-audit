@@ -2,9 +2,9 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import ConfirmRegistration from "./ConfirmRegistration";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import { SIGN_IN, CONFIRM_REGISTRATION } from "../../model/AuthStates";
 import {
   resendConfirmCode,
@@ -16,6 +16,8 @@ const TEST_USER = "test@example.com";
 const TEST_CODE = "65431";
 const TEST_PASSWORD = "test password";
 
+const authStore = getAuthStore();
+
 jest.mock("../../model/AuthActions");
 
 describe("component ConfirmRegistration", () => {
@@ -25,7 +27,7 @@ describe("component ConfirmRegistration", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: CONFIRM_REGISTRATION,
       user: { username: TEST_USER },
@@ -74,7 +76,7 @@ describe("component ConfirmRegistration", () => {
   });
 
   it("confirm success with signUpAttrs", () => {
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: CONFIRM_REGISTRATION,
       user: { username: TEST_USER, signUpAttrs: { password: TEST_PASSWORD } },
@@ -119,7 +121,7 @@ describe("component ConfirmRegistration", () => {
     renderComponent();
     expect(confirmButton()).toBeDisabled();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
       user: { username: TEST_USER },
@@ -136,7 +138,7 @@ describe("component ConfirmRegistration", () => {
     renderComponent();
     expect(confirmButton()).toBeDisabled();
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
     expect(confirmButton()).not.toBeDisabled();
   });
@@ -164,7 +166,7 @@ describe("component ConfirmRegistration", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <ConfirmRegistration />
         </Provider>,
         container

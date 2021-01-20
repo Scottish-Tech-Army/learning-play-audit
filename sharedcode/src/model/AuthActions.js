@@ -4,7 +4,7 @@ import {
   SET_AUTH_STATE,
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
-} from "./ActionTypes";
+} from "./AuthActionTypes.js";
 import {
   SIGNED_IN,
   SIGN_IN,
@@ -12,7 +12,7 @@ import {
   FORGOT_PASSWORD_REQUEST,
   FORGOT_PASSWORD_SUBMIT,
   RESET_PASSWORD,
-} from "./AuthStates";
+} from "./AuthStates.js";
 
 const logger = new Logger("auth-utils");
 
@@ -140,12 +140,9 @@ export function completeNewPassword(user, newPassword) {
     } else {
       getUserPromise = () => Promise.resolve(user);
     }
-
     return getUserPromise()
       .then((user) => Auth.completeNewPassword(user, newPassword, {}))
-      .then((user) => {
-        return dispatch(checkContact(user));
-      })
+      .then((user) => dispatch(checkContact(user)))
       .catch((error) => dispatch(setAuthError(error)));
   };
 }

@@ -3,12 +3,10 @@ import "../App.css";
 import { useSelector, useDispatch } from "react-redux";
 import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
-import { SIGNED_IN } from "../model/AuthStates";
-import { signOut } from "../model/AuthActions";
 import Modal from "@material-ui/core/Modal";
 import { uploadResults } from "../model/SubmitAction";
 import { RESET_STATE } from "../model/ActionTypes";
-
+import { SIGNED_IN, signOut } from "learning-play-audit-shared";
 import { SUBMIT_COMPLETE, SUBMIT_FAILED } from "../model/SubmitStates";
 import ConfirmDialog from "./ConfirmDialog";
 

@@ -2,13 +2,15 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import RequireNewPassword from "./RequireNewPassword";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import { SIGN_IN, RESET_PASSWORD } from "../../model/AuthStates";
 import { setAuthState, completeNewPassword } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
+
+const authStore = getAuthStore();
 
 jest.mock("../../model/AuthActions");
 
@@ -19,7 +21,7 @@ describe("component RequireNewPassword", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: RESET_PASSWORD,
       user: { username: TEST_USER },
@@ -100,7 +102,7 @@ describe("component RequireNewPassword", () => {
     renderComponent();
     expect(changeButton()).toBeDisabled();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
       user: { username: TEST_USER },
@@ -117,7 +119,7 @@ describe("component RequireNewPassword", () => {
     renderComponent();
     expect(changeButton()).toBeDisabled();
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
     expect(changeButton()).not.toBeDisabled();
   });
@@ -143,7 +145,7 @@ describe("component RequireNewPassword", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <RequireNewPassword />
         </Provider>,
         container

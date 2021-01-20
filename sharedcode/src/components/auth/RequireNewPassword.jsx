@@ -44,7 +44,7 @@ export default function RequireNewPassword() {
           onClick={handleComplete}
           disabled={loading || password.length < MIN_PASSWORD_LENGTH}
         >
-          {loading ? <div class="loader" /> : <span>CHANGE</span>}
+          {loading ? <div className="loader" /> : <span>CHANGE</span>}
         </button>
       </div>
       <div className="question">

@@ -3,3 +3,11 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/extend-expect';
+
+const PHOTOS_BUCKET = "bucket-surveyresources";
+const DB_TABLE = "dbtable-responses";
+const DB_TABLE_INDEX = "dbtable-index-responses";
+
+process.env.REACT_APP_AWS_REGION = "eu-west-2";
+process.env.REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET = PHOTOS_BUCKET;
+process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE = DB_TABLE;

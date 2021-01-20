@@ -1,11 +1,13 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import AuthCurrentUser from "./AuthCurrentUser";
-import surveyStore from "../../model/SurveyModel";
+import { AuthCurrentUser } from "./AuthCurrentUser";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { REFRESH_STATE } from "../../model/ActionTypes";
+import { SET_AUTH_STATE } from "../../model/AuthActionTypes";
 import { SIGNED_IN, SIGNED_OUT } from "../../model/AuthStates";
+
+const authStore = getAuthStore();
 
 describe("component AuthCurrentUser", () => {
   var container = null;
@@ -23,15 +25,10 @@ describe("component AuthCurrentUser", () => {
   });
 
   it("signed in", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        authentication: {
-          errorMessage: "",
-          state: SIGNED_IN,
-          user: { attributes: { email: "test@example.com" } },
-        },
-      },
+    authStore.dispatch({
+      type: SET_AUTH_STATE,
+      authState: SIGNED_IN,
+      user: { attributes: { email: "test@example.com" } },
     });
     renderComponent();
 
@@ -41,15 +38,10 @@ describe("component AuthCurrentUser", () => {
   });
 
   it("not signed in", () => {
-    surveyStore.dispatch({
-      type: REFRESH_STATE,
-      state: {
-        authentication: {
-          errorMessage: "",
-          state: SIGNED_OUT,
-          user: { attributes: { email: "test@example.com" } },
-        },
-      },
+    authStore.dispatch({
+      type: SET_AUTH_STATE,
+      authState: SIGNED_OUT,
+      user: { attributes: { email: "test@example.com" } },
     });
     renderComponent();
 
@@ -59,7 +51,7 @@ describe("component AuthCurrentUser", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <AuthCurrentUser />
         </Provider>,
         container

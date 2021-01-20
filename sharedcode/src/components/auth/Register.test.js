@@ -2,13 +2,15 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import Register from "./Register";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import { SIGN_IN, REGISTER } from "../../model/AuthStates";
 import { setAuthState, register } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
+
+const authStore = getAuthStore();
 
 jest.mock("../../model/AuthActions");
 
@@ -19,7 +21,7 @@ describe("component Register", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: REGISTER,
       user: { username: TEST_USER },
@@ -139,7 +141,7 @@ describe("component Register", () => {
     renderComponent();
     expect(registerButton()).toBeDisabled();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
       user: { username: TEST_USER },
@@ -159,7 +161,7 @@ describe("component Register", () => {
     renderComponent();
     expect(registerButton()).toBeDisabled();
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
     expect(registerButton()).not.toBeDisabled();
   });
@@ -226,7 +228,7 @@ describe("component Register", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <Register />
         </Provider>,
         container

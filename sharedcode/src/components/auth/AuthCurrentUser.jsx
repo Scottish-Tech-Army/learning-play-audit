@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { SIGNED_IN } from "../../model/AuthStates";
 
-export default function AuthCurrentUser() {
+export function AuthCurrentUser() {
   const authState = useSelector((state) => state.authentication.state);
   const user = useSelector((state) => state.authentication.user);
 

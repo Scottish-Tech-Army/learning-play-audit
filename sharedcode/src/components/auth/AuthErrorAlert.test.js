@@ -2,10 +2,12 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import AuthErrorAlert from "./AuthErrorAlert";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import { clearAuthError } from "../../model/AuthActions";
+
+const authStore = getAuthStore();
 
 jest.mock("../../model/AuthActions");
 
@@ -16,7 +18,7 @@ describe("component AuthErrorAlert", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "Test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "Test error" });
 
     clearAuthError.mockReset();
     clearAuthError.mockImplementation(() => () => "dummy action");
@@ -33,11 +35,11 @@ describe("component AuthErrorAlert", () => {
     renderComponent();
     expect(alert().textContent).toStrictEqual("Test error");
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "" });
     renderComponent();
     expect(alert().textContent).toStrictEqual("");
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "Test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "Test error" });
     renderComponent();
     expect(alert().textContent).toStrictEqual("Test error");
   });
@@ -74,7 +76,7 @@ describe("component AuthErrorAlert", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <AuthErrorAlert />
         </Provider>,
         container

@@ -7,7 +7,7 @@ import App from "./App";
 import surveyStore from "./model/SurveyModel";
 import { Provider } from "react-redux";
 import { REFRESH_STATE } from "./model/ActionTypes";
-import { SIGNED_IN, REGISTER } from "./model/AuthStates";
+import { SIGNED_IN, REGISTER } from "learning-play-audit-shared";
 import { INPUT_STATE } from "./model/TestUtils";
 import {
   INTRODUCTION,

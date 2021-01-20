@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { signOut } from "../model/AuthActions";
 import ConfirmDialog from "./ConfirmDialog";
 import "../App.css";
 import { RESTART_SURVEY } from "../model/ActionTypes";

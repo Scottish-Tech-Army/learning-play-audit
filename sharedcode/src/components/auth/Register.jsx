@@ -144,7 +144,7 @@ for any other purpose.`;
           onClick={handleRegister}
           disabled={loading || !formComplete()}
         >
-          {loading ? <div class="loader" /> : <span>REGISTER</span>}
+          {loading ? <div className="loader" /> : <span>REGISTER</span>}
         </button>
       </div>
       <div className="question">

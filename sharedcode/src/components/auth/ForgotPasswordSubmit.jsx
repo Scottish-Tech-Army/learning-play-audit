@@ -70,7 +70,7 @@ export default function ForgotPasswordSubmit() {
             password.length < MIN_PASSWORD_LENGTH
           }
         >
-          {loading ? <div class="loader" /> : <span>{"SUBMIT"}</span>}
+          {loading ? <div className="loader" /> : <span>{"SUBMIT"}</span>}
         </button>
       </div>
       <div className="question">

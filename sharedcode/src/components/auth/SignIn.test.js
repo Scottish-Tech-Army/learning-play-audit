@@ -2,9 +2,9 @@ import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act, Simulate } from "react-dom/test-utils";
 import SignIn from "./SignIn";
-import surveyStore from "../../model/SurveyModel";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/ActionTypes";
+import { SET_AUTH_STATE, SET_AUTH_ERROR } from "../../model/AuthActionTypes";
 import {
   SIGN_IN,
   SIGNED_IN,
@@ -15,16 +15,19 @@ import { setAuthState, signIn } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
 
+const authStore = getAuthStore();
+
 jest.mock("../../model/AuthActions");
 
 describe("component SignIn", () => {
   var container = null;
+  var canRegister = true;
   beforeEach(() => {
     // setup a DOM element as a render target
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
       user: { username: TEST_USER },
@@ -34,6 +37,7 @@ describe("component SignIn", () => {
     setAuthState.mockReset();
     signIn.mockImplementation(() => () => "dummy action");
     setAuthState.mockImplementation(() => () => "dummy action");
+    canRegister = true;
   });
 
   afterEach(() => {
@@ -97,6 +101,12 @@ describe("component SignIn", () => {
     expect(setAuthState).toHaveBeenCalledWith(REGISTER);
   });
 
+  it("register not possible", () => {
+    canRegister = false;
+    renderComponent();
+    expect(registerButton()).toBeNull();
+  });
+
   it("go to forgot password", () => {
     renderComponent();
     click(forgotPasswordButton());
@@ -114,7 +124,7 @@ describe("component SignIn", () => {
     renderComponent();
     expect(signInButton()).toBeDisabled();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGNED_IN,
       user: { username: TEST_USER },
@@ -132,7 +142,7 @@ describe("component SignIn", () => {
     renderComponent();
     expect(signInButton()).toBeDisabled();
 
-    surveyStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
+    authStore.dispatch({ type: SET_AUTH_ERROR, message: "test error" });
     renderComponent();
     expect(signInButton()).not.toBeDisabled();
   });
@@ -169,8 +179,8 @@ describe("component SignIn", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
-          <SignIn />
+        <Provider store={authStore}>
+          <SignIn canRegister={canRegister} />
         </Provider>,
         container
       );

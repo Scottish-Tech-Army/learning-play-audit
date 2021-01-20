@@ -3,10 +3,10 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import Authenticator from "./Authenticator";
-import surveyStore from "../../model/SurveyModel";
+import { Authenticator } from "./Authenticator";
+import { getAuthStore } from "../../model/AuthStore";
 import { Provider } from "react-redux";
-import { SET_AUTH_STATE } from "../../model/ActionTypes";
+import { SET_AUTH_STATE } from "../../model/AuthActionTypes";
 import {
   SIGNED_IN,
   SIGN_IN,
@@ -20,6 +20,7 @@ import {
 import { setAuthState, signInCurrentUser } from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
+const authStore = getAuthStore();
 
 jest.mock("../../model/AuthActions");
 
@@ -30,7 +31,7 @@ describe("component Authenticator", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: REGISTER,
       user: { username: TEST_USER },
@@ -49,7 +50,7 @@ describe("component Authenticator", () => {
   });
 
   it("states without visuals", () => {
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGNED_OUT,
       user: { username: TEST_USER },
@@ -57,7 +58,7 @@ describe("component Authenticator", () => {
     renderComponent();
     expect(authenticatorSection()).toBeNull();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGNED_IN,
       user: { username: TEST_USER },
@@ -65,7 +66,7 @@ describe("component Authenticator", () => {
     renderComponent();
     expect(authenticatorSection()).toBeNull();
 
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: "unknown",
       user: { username: TEST_USER },
@@ -89,7 +90,7 @@ describe("component Authenticator", () => {
   });
 
   function checkAuthStateTitle(authState, expectedTitle) {
-    surveyStore.dispatch({
+    authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: authState,
       user: { username: TEST_USER },
@@ -107,7 +108,7 @@ describe("component Authenticator", () => {
   function renderComponent() {
     act(() => {
       render(
-        <Provider store={surveyStore}>
+        <Provider store={authStore}>
           <Authenticator />
         </Provider>,
         container

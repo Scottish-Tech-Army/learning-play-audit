@@ -39,7 +39,7 @@ export default function ForgotPasswordRequest() {
           onClick={send}
           disabled={loading || email.length === 0}
         >
-          {loading ? <div class="loader" /> : <span>SEND CODE</span>}
+          {loading ? <div className="loader" /> : <span>SEND CODE</span>}
         </button>
       </div>
       <div className="question">
