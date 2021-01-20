@@ -1,14 +1,14 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import AuthSignOut from "./AuthSignOut";
+import AuthSignOutWithConfirm from "./AuthSignOutWithConfirm";
 import surveyStore from "../../model/SurveyModel";
 import { Provider } from "react-redux";
-import { signOut } from "../../model/AuthActions";
+import { signOut } from "learning-play-audit-shared";
 
-jest.mock("../../model/AuthActions");
+jest.mock("learning-play-audit-shared");
 
-describe("component AuthSignOut", () => {
+describe("component AuthSignOutWithConfirm", () => {
   var container = null;
   beforeEach(() => {
     // setup a DOM element as a render target
@@ -87,7 +87,7 @@ describe("component AuthSignOut", () => {
     act(() => {
       render(
         <Provider store={surveyStore}>
-          <AuthSignOut />
+          <AuthSignOutWithConfirm />
         </Provider>,
         container
       );

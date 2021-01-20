@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { signOut } from "../../model/AuthActions";
+import { signOut } from "learning-play-audit-shared";
 import ConfirmDialog from "../ConfirmDialog";
 import "../../App.css";
 

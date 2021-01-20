@@ -1,3 +1,3 @@
-Contains the survey description shared between the [surveyclient](../surveyclient) and [adminclient](../adminclient).
+Contains the survey description and components shared between the [surveyclient](../surveyclient) and [adminclient](../adminclient).
 
-Run `npm install; npm run build` to build.
+Run `npm install; npm run build; npm pack` to build and package.
