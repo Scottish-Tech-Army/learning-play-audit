@@ -15,11 +15,6 @@ export default function ConfirmDialog({
       keepMounted={false}
       open={true}
       onClose={() => closeDialog(false)}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
     >
       <div className="dialog confirm">
         {children}

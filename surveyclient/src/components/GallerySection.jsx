@@ -1,19 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { loadPhoto } from "../model/SurveyModel";
+import { loadPhotos } from "../model/SurveyModel";
 import GalleryPhoto from "./GalleryPhoto";
 import { GALLERY } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { addPhotoSvg } from "./SvgUtils";
 import { sectionsContent } from "learning-play-audit-shared";
+import Modal from "@material-ui/core/Modal";
 
 function GallerySection({ sections, setCurrentSection }) {
   const dispatch = useDispatch();
   const photoDetails = useSelector((state) => state.photoDetails);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const addPhoto = ({ target }) => {
-    dispatch(loadPhoto(target.files[0]));
+    dispatch(loadPhotos(Array.from(target.files)));
+    setShowConfirmDialog(true);
   };
 
   function isGeneralPhoto(photoDetails) {
@@ -112,6 +115,7 @@ function GallerySection({ sections, setCurrentSection }) {
           style={{ display: "none" }}
           id="icon-button-add-photo"
           type="file"
+          multiple="true"
           onChange={addPhoto}
         />
         <label htmlFor="icon-button-add-photo">
@@ -129,6 +133,30 @@ function GallerySection({ sections, setCurrentSection }) {
         currentSectionId={GALLERY}
         setCurrentSectionId={setCurrentSection}
       />
+      {showConfirmDialog && (
+        <Modal
+          id="confirm-dialog-container"
+          container={
+            window !== undefined ? () => window.document.body : undefined
+          }
+          keepMounted={false}
+          open={true}
+          onClose={() => setShowConfirmDialog(false)}
+        >
+          <div className="dialog confirm-add-photos">
+            <p>Photo(s) added</p>
+            <div className="action-row">
+              <button
+                id="ok-button"
+                onClick={() => setShowConfirmDialog(false)}
+                aria-label="OK"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

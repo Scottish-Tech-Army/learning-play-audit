@@ -58,6 +58,9 @@ const SECTION_CONTENT = {
 };
 var sectionContent = SECTION_CONTENT;
 
+const NOTE_BUTTON_TEXT = "Add Additional Information?";
+const PHOTO_BUTTON_TEXT = "add photoAdd Relevant Photo?";
+
 describe("component Section", () => {
   var container = null;
   beforeEach(() => {
@@ -89,9 +92,13 @@ describe("component Section", () => {
     );
     expect(questions().map((question) => question.textContent)).toStrictEqual([
       "I am ateacherparentpupilother Details",
-      "2question 2strongly agreetend to agreetend to disagreestrongly disagreeadd photo",
-      "3question 3add photoImprovement 1YearImprovement 2YearImprovement 3Year",
-      "4question 4add phototest othercommunity",
+      "2question 2strongly agreetend to agreetend to disagreestrongly disagree" +
+        NOTE_BUTTON_TEXT +
+        PHOTO_BUTTON_TEXT,
+      "3question 3" +
+        PHOTO_BUTTON_TEXT +
+        "Improvement 1YearImprovement 2YearImprovement 3Year",
+      "4question 4" + PHOTO_BUTTON_TEXT + "test othercommunity",
     ]);
     expect(section().getAttribute("class")).not.toContain("background");
   });

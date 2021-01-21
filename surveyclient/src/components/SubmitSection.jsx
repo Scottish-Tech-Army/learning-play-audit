@@ -79,6 +79,7 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
       />
       {submitState !== null && (
         <Modal
+          id="dialog-container"
           container={
             window !== undefined ? () => window.document.body : undefined
           }
@@ -86,11 +87,6 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
           disableBackdropClick={true}
           disableEscapeKeyDown={true}
           open={submitState !== null}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
         >
           <div className="dialog submit">
             <h2 className="title">Uploading Survey Response</h2>

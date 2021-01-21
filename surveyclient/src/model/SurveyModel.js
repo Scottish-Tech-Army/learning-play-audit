@@ -167,17 +167,21 @@ function addPhoto(state, action) {
   return result;
 }
 
-export function loadPhoto(file, sectionId = null, questionId = null) {
+export function loadPhotos(files, sectionId = null, questionId = null) {
   console.log("loadPhoto", sectionId, questionId);
   return function (dispatch) {
-    return readFileAsync(file).then((data) => {
-      dispatch({
-        type: ADD_PHOTO,
-        imageData: btoa(data),
-        sectionId: sectionId,
-        questionId: questionId,
-      });
-    });
+    return Promise.allSettled(
+      files.map((file) =>
+        readFileAsync(file).then((data) => {
+          dispatch({
+            type: ADD_PHOTO,
+            imageData: btoa(data),
+            sectionId: sectionId,
+            questionId: questionId,
+          });
+        })
+      )
+    );
   };
 }
 

@@ -258,7 +258,7 @@ function ResultsSection({ sections, setCurrentSection }) {
         ["For Community", "& Participation"],
       ],
       chartDataAnswers(),
-      "#c53e50",
+      "#2d6a89",
       false
     );
     updateCharts(
@@ -274,7 +274,7 @@ function ResultsSection({ sections, setCurrentSection }) {
         ["For Ease of", "Change"],
       ],
       chartDataGreenspaceAnswers(),
-      "#afcd4b"
+      "#2d6a89"
     );
     updateCharts(
       chartContainer3small,
@@ -283,7 +283,7 @@ function ResultsSection({ sections, setCurrentSection }) {
       chartInstance3large,
       ["Learning", "Play"],
       chartDataPracticeAnswers(),
-      "#7e354f"
+      "#2d6a89"
     );
   }, [answers, answerWeights]);
 

@@ -1,4 +1,4 @@
-import { surveyReducer, refreshState, loadPhoto } from "./SurveyModel";
+import { surveyReducer, refreshState, loadPhotos } from "./SurveyModel";
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import {
@@ -1068,27 +1068,56 @@ describe("refreshState", () => {
   });
 });
 
-describe("loadPhoto", () => {
-  const IMAGEDATA = "test image data";
-  const IMAGEDATA_BASE64 = btoa(IMAGEDATA);
-  const INPUT_FILE = new Blob([IMAGEDATA], { type: "mimeType" });
+describe("loadPhotos", () => {
+  const IMAGEDATA1 = "test image data1";
+  const IMAGEDATA2 = "test image data2";
+  const IMAGEDATA1_BASE64 = btoa(IMAGEDATA1);
+  const IMAGEDATA2_BASE64 = btoa(IMAGEDATA2);
+  const INPUT_FILE1 = new Blob([IMAGEDATA1], { type: "mimeType" });
+  const INPUT_FILE2 = new Blob([IMAGEDATA2], { type: "mimeType" });
 
   const middlewares = [thunk];
   const mockStore = configureStore(middlewares);
 
-  it("load for question", async () => {
+  it("single load for question", async () => {
     const store = mockStore(INPUT_STATE);
 
     const expectedActions = [
       {
         type: ADD_PHOTO,
-        imageData: IMAGEDATA_BASE64,
+        imageData: IMAGEDATA1_BASE64,
         sectionId: "community",
         questionId: "communityoutside",
       },
     ];
     await store
-      .dispatch(loadPhoto(INPUT_FILE, "community", "communityoutside"))
+      .dispatch(loadPhotos([INPUT_FILE1], "community", "communityoutside"))
+      .then(() => {
+        expect(store.getActions()).toStrictEqual(expectedActions);
+      });
+  });
+
+  it("multiple load for question", async () => {
+    const store = mockStore(INPUT_STATE);
+
+    const expectedActions = [
+      {
+        type: ADD_PHOTO,
+        imageData: IMAGEDATA1_BASE64,
+        sectionId: "community",
+        questionId: "communityoutside",
+      },
+      {
+        type: ADD_PHOTO,
+        imageData: IMAGEDATA2_BASE64,
+        sectionId: "community",
+        questionId: "communityoutside",
+      },
+    ];
+    await store
+      .dispatch(
+        loadPhotos([INPUT_FILE1, INPUT_FILE2], "community", "communityoutside")
+      )
       .then(() => {
         expect(store.getActions()).toStrictEqual(expectedActions);
       });
@@ -1100,12 +1129,21 @@ describe("loadPhoto", () => {
     const expectedActions = [
       {
         type: ADD_PHOTO,
-        imageData: IMAGEDATA_BASE64,
+        imageData: IMAGEDATA1_BASE64,
         questionId: null,
         sectionId: null,
       },
     ];
-    await store.dispatch(loadPhoto(INPUT_FILE)).then(() => {
+    await store.dispatch(loadPhotos([INPUT_FILE1])).then(() => {
+      expect(store.getActions()).toStrictEqual(expectedActions);
+    });
+  });
+
+  it("empty array", async () => {
+    const store = mockStore(INPUT_STATE);
+
+    const expectedActions = [];
+    await store.dispatch(loadPhotos([])).then(() => {
       expect(store.getActions()).toStrictEqual(expectedActions);
     });
   });
@@ -1113,7 +1151,7 @@ describe("loadPhoto", () => {
   it("bad file", async () => {
     const store = mockStore(INPUT_STATE);
 
-    await store.dispatch(loadPhoto("notAFile")).catch((err) => {
+    await store.dispatch(loadPhotos(["notAFile"])).catch((err) => {
       expect(err.message).toContain(
         "Failed to execute 'readAsBinaryString' on 'FileReader'"
       );

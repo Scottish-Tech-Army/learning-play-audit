@@ -1,5 +1,4 @@
 import React from "react";
-import { INTRODUCTION } from "./FixedSectionTypes";
 import { previousSectionSvg, nextSectionSvg } from "./SvgUtils";
 import "../App.css";
 
@@ -8,10 +7,6 @@ function SectionBottomNavigation({
   currentSectionId,
   setCurrentSectionId,
 }) {
-  function showSectionNavigation() {
-    return currentSectionId !== INTRODUCTION;
-  }
-
   function hasNextSection() {
     return (
       sections.findIndex((section) => section.id === currentSectionId) <
@@ -20,8 +15,7 @@ function SectionBottomNavigation({
   }
 
   function hasPreviousSection() {
-    // Don't go back to introduction section (> 1)
-    return sections.findIndex((section) => section.id === currentSectionId) > 1;
+    return sections.findIndex((section) => section.id === currentSectionId) > 0;
   }
 
   const PREVIOUS_SECTION = 0;
@@ -35,10 +29,6 @@ function SectionBottomNavigation({
     if (index >= 0 && index < sections.length) {
       setCurrentSectionId(sections[index].id);
     }
-  }
-
-  if (!showSectionNavigation()) {
-    return null;
   }
 
   return (

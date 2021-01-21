@@ -9,11 +9,10 @@ import surveyStore from "../model/SurveyModel";
 import { Provider } from "react-redux";
 import { REFRESH_STATE } from "../model/ActionTypes";
 import { SUBMIT } from "./FixedSectionTypes";
-import shared, {
+import {
   SIGNED_IN,
   SIGN_IN,
   signOut,
-  SET_AUTH_STATE,
   authReducer,
 } from "learning-play-audit-shared";
 import { INPUT_STATE, EMPTY_STATE } from "../model/TestUtils";
@@ -28,7 +27,7 @@ import {
 const TEST_ENDPOINT = "http://localhost:9999/testEndpoint";
 
 jest.mock("learning-play-audit-shared", () => {
-  const originalShared = require.requireActual("learning-play-audit-shared");
+  const originalShared = jest.requireActual("learning-play-audit-shared");
   return { ...originalShared, signOut: jest.fn(), authReducer: jest.fn() };
 });
 jest.mock("../model/SubmitAction");

@@ -193,7 +193,12 @@ function App() {
 
   function getCurrentSection() {
     if (currentSection === INTRODUCTION) {
-      return <IntroductionSection />;
+      return (
+        <IntroductionSection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     if (currentSection === RESULTS) {
       return (

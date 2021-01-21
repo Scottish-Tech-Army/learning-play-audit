@@ -71,20 +71,7 @@ describe("component GallerySection", () => {
 
   it("add photo", async () => {
     renderComponent();
-
-    const file = new Blob(["new imageData4"], {
-      type: "mimeType",
-    });
-    // Create a fake target as JS really doesn't like creating FileLists arbitrarily
-    const target = document.createElement("div");
-    target.blur = jest.fn();
-    target.files = [file];
-
-    Simulate.change(addPhotoButton(), { target: target });
-    // Not a fan of sleeps, but indirect async waiting doesn't work
-    await sleep(2000);
-
-    renderComponent();
+    await addPhotoInput("new imageData4");
 
     checkPhotoSections([
       {
@@ -106,6 +93,71 @@ describe("component GallerySection", () => {
       },
     ]);
   });
+
+  it("add photo and click confirm", async () => {
+    renderComponent();
+    expect(confirmButton()).toBeNull();
+
+    await addPhotoInput("new imageData3");
+    expect(confirmButton()).not.toBeNull();
+    click(confirmButton());
+    renderComponent();
+
+    expect(confirmButton()).toBeNull();
+  });
+
+  it("add photo and click backdrop", async () => {
+    renderComponent();
+    expect(confirmButton()).toBeNull();
+
+    await addPhotoInput("new imageData3");
+    expect(confirmButton()).not.toBeNull();
+    click(confirmBackdrop());
+    renderComponent();
+
+    expect(confirmButton()).toBeNull();
+  });
+
+  it("add multiple photos", async () => {
+    renderComponent();
+    await addPhotoInput("new imageData4", "new imageData5");
+
+    checkPhotoSections([
+      {
+        sectionId: "general",
+        title: "General",
+        photos: [
+          { description: "test photo3", imageData: btoa("image data3") },
+          { description: "", imageData: btoa("new imageData4") },
+          { description: "", imageData: btoa("new imageData5") },
+        ],
+      },
+      {
+        sectionId: "wellbeing-colourful",
+        title:
+          "Wellbeing - entrances and signs are colourful, bright, happy and welcoming",
+        photos: [
+          { description: "test photo1", imageData: btoa("image data1") },
+          { description: "test photo2", imageData: btoa("image data2") },
+        ],
+      },
+    ]);
+  });
+
+  async function addPhotoInput(...fileData) {
+    const files = fileData.map(
+      (data) => new Blob([data], { type: "mimeType" })
+    );
+    // Create a fake target as JS really doesn't like creating FileLists arbitrarily
+    const target = document.createElement("div");
+    target.blur = jest.fn();
+    target.files = files;
+
+    Simulate.change(addPhotoButton(), { target: target });
+    // Not a fan of sleeps, but indirect async waiting doesn't work
+    await sleep(2000);
+    renderComponent();
+  }
 
   it("change photo description", async () => {
     renderComponent();
@@ -146,7 +198,8 @@ describe("component GallerySection", () => {
 
   const descriptionField = () =>
     container.querySelector(".photo-container textarea");
-  const addPhotoButton = () => container.querySelector("#icon-button-add-photo");
+  const addPhotoButton = () =>
+    container.querySelector("#icon-button-add-photo");
   const photoSections = () => [
     ...container.querySelectorAll(".gallery-section-question"),
   ];
@@ -154,6 +207,9 @@ describe("component GallerySection", () => {
     container.querySelector(".section .previous-section-button");
   const nextButton = () =>
     container.querySelector(".section .next-section-button");
+  const confirmBackdrop = () =>
+    document.querySelector("#confirm-dialog-container div:first-child");
+  const confirmButton = () => document.querySelector(".dialog #ok-button");
 
   function setDescriptionOfFirstPhoto(value) {
     const element = descriptionField();
