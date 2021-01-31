@@ -46,7 +46,10 @@ export default function ConfirmRegistration() {
         readOnly={true}
       />
 
-      <label htmlFor={CODE_ID}>Confirmation Code</label>
+      <label htmlFor={CODE_ID}>
+        Confirmation Code (please check your email inbox including your
+        junk/spam mail)
+      </label>
       <input
         id={CODE_ID}
         type="number"

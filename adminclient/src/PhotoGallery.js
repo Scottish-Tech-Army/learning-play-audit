@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { formatUrl } from "@aws-sdk/util-format-url";
-import { createRequest } from "@aws-sdk/util-create-request";
-import { S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
-import { Auth } from "@aws-amplify/auth";
+import { getPhotoUrl } from "./model/SurveyModel";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -25,11 +21,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// Configure these properties in .env.local
-const REGION = process.env.REACT_APP_AWS_REGION;
-const SURVEY_RESOURCES_S3_BUCKET =
-  process.env.REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET;
-
 function GalleryPhoto({ photo }) {
   const classes = useStyles();
 
@@ -37,24 +28,7 @@ function GalleryPhoto({ photo }) {
   const [imgSrc, setImgSrc] = useState(null);
 
   useEffect(() => {
-    async function getS3Url() {
-      const credentials = await Auth.currentCredentials();
-
-      const s3 = new S3Client({ region: REGION, credentials });
-
-      const params = {
-        Bucket: SURVEY_RESOURCES_S3_BUCKET,
-        Key: photo.fullsize.key,
-      };
-
-      const signer = new S3RequestPresigner({ ...s3.config });
-      const request = await createRequest(s3, new GetObjectCommand(params));
-      return Promise.resolve(
-        formatUrl(await signer.presign(request, { expiresIn: 900 }))
-      );
-    }
-
-    getS3Url()
+    getPhotoUrl(photo.fullsize.key)
       .then((url) => setImgSrc(url))
       .catch((err) => console.log(err));
   }, [photo]);

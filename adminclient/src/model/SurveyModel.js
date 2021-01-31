@@ -18,6 +18,7 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { createRequest } from "@aws-sdk/util-create-request";
 import { S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
 import { formatUrl } from "@aws-sdk/util-format-url";
+import GrowableUint8Array from "@fictivekin/growable-uint8-array";
 
 // Configure these properties in .env.local
 const REGION = process.env.REACT_APP_AWS_REGION;
@@ -47,11 +48,11 @@ function initialState() {
 function surveyAnswersReducer(state, action) {
   switch (action.type) {
     case SET_SUMMARY_RESPONSES:
-      console.log("SET_SUMMARY_RESPONSES", action);
+      // console.log("SET_SUMMARY_RESPONSES", action);
       return { ...state, surveyResponses: action.responses };
 
     case SET_FULL_RESPONSES:
-      console.log("SET_FULL_RESPONSES", action);
+      // console.log("SET_FULL_RESPONSES", action);
       return {
         ...state,
         fullSurveyResponses: {
@@ -78,7 +79,7 @@ function surveyAnswersReducer(state, action) {
 }
 
 export function getSummaryResponses() {
-  console.log("getSummaryResponses");
+  // console.log("getSummaryResponses");
   return function (dispatch, getState) {
     if (getState().authentication.state !== SIGNED_IN) {
       console.error("User not signed in");
@@ -87,7 +88,6 @@ export function getSummaryResponses() {
 
     return Auth.currentCredentials()
       .then((credentials) => {
-        console.log("credentials", credentials);
         const dynamodbClient = new DynamoDBClient({
           region: REGION,
           credentials: credentials,
@@ -97,11 +97,10 @@ export function getSummaryResponses() {
           IndexName: SURVEY_RESPONSES_SUMMARY_INDEX,
           ReturnConsumedCapacity: "TOTAL",
         };
-        console.log("Scanning data", params);
+        // console.log("Scanning data", params);
         return dynamodbClient.send(new ScanCommand(params));
       })
       .then((result) => {
-        console.log("Survey responses", result);
         dispatch({
           type: SET_SUMMARY_RESPONSES,
           responses: result.Items.map((item) => unmarshall(item)),
@@ -115,7 +114,7 @@ export function getSummaryResponses() {
 }
 
 export function getFullResponses(surveyIds) {
-  console.log("getFullResponses", surveyIds);
+  // console.log("getFullResponses", surveyIds);
   return function (dispatch, getState) {
     if (getState().authentication.state !== SIGNED_IN) {
       console.error("User not signed in");
@@ -130,7 +129,6 @@ export function getFullResponses(surveyIds) {
       console.log("no full responses to retrieve");
       return Promise.resolve();
     }
-    console.log("full responses to retrieve", surveyIdsToRetrieve);
 
     return Auth.currentCredentials()
       .then((credentials) => {
@@ -147,11 +145,10 @@ export function getFullResponses(surveyIds) {
             return { id: { S: id } };
           }),
         };
-        console.log("Retrieving full responses data", params);
+        // console.log("Retrieving full responses data", params);
         return dynamodbClient.send(new BatchGetItemCommand(params));
       })
       .then((result) => {
-        console.log("Survey responses", result, SURVEY_RESPONSES_TABLE);
         const retrievedResponses = result.Responses[
           SURVEY_RESPONSES_TABLE
         ].map((item) => unmarshall(item));
@@ -187,12 +184,16 @@ export function getPhotoKeysForSurveys(surveys) {
 function getPhotos(photoKeys) {
   // console.log("getPhotos", photoKeys);
   return function (dispatch, getState) {
+    if (getState().authentication.state !== SIGNED_IN) {
+      console.error("User not signed in");
+      return Promise.resolve("User not signed in");
+    }
+
     const existingPhotos = getState().photos;
     const remainingPhotoKeys = photoKeys.filter(
       (photoKey) => !existingPhotos.hasOwnProperty(photoKey)
     );
 
-    console.log("remainingPhotoKeys", remainingPhotoKeys);
     if (remainingPhotoKeys.length === 0) {
       console.log("All photos already retrieved");
       return Promise.resolve();
@@ -201,7 +202,6 @@ function getPhotos(photoKeys) {
     return Auth.currentCredentials()
       .then((credentials) => {
         const s3 = new S3Client({ region: REGION, credentials });
-
         return Promise.allSettled(
           remainingPhotoKeys.map((photoKey) => getPhoto(s3, photoKey))
         );
@@ -230,16 +230,42 @@ function getPhoto(s3, photoKey) {
         Key: photoKey,
       })
     )
-    .then((photoData) => {
-      return Promise.resolve({
-        key: photoKey,
-        data: new Response(photoData.Body).arrayBuffer(),
-      });
-    })
+    .then((photoData) => objectResponseToUint8Array(photoData.Body))
+    .then((array) => Promise.resolve({ key: photoKey, data: array }))
     .catch((error) => {
       console.error("Error retrieving photo", photoKey, error);
       return Promise.resolve({ key: photoKey, error: IMAGE_NOT_FOUND });
     });
+}
+
+// Exported for unit tests
+export function objectResponseToUint8Array(responseBody) {
+  if (typeof Blob === "function" && responseBody instanceof Blob) {
+    return new Promise(function (resolve) {
+      var reader = new FileReader();
+
+      reader.onloadend = function () {
+        resolve(reader.result);
+      };
+
+      reader.readAsArrayBuffer(responseBody);
+    }).then((arrayBuffer) => Promise.resolve(new Uint8Array(arrayBuffer)));
+  }
+
+  // responseBody == ReadableStream
+  const incoming = new GrowableUint8Array();
+  const reader = responseBody.getReader();
+  async function readStream() {
+    let isDone = false;
+    while (!isDone) {
+      const { done, value } = await reader.read();
+      if (value) {
+        incoming.extend(value);
+      }
+      isDone = done;
+    }
+  }
+  return readStream().then(() => Promise.resolve(incoming.unwrap()));
 }
 
 export function getPhotoUrl(photoKey) {
@@ -269,13 +295,14 @@ function getSurveyIdsToRetrieve(selectedSurveyIds, fullSurveyResponses) {
 }
 
 export function allSurveysRetrieved(selectedSurveyIds, fullSurveyResponses) {
-  return getSurveyIdsToRetrieve(selectedSurveyIds, fullSurveyResponses) === 0;
+  return (
+    getSurveyIdsToRetrieve(selectedSurveyIds, fullSurveyResponses).length === 0
+  );
 }
 
 // Exported for unit tests
 export function surveyReducer(state = initialState(), action) {
   return surveyAnswersReducer(authReducer(state, action), action);
-  // return authReducer(state, action);
 }
 
 export default createStore(surveyReducer, applyMiddleware(thunk));

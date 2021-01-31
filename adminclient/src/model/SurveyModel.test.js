@@ -1,12 +1,13 @@
 import surveyStore, {
   surveyReducer,
-  refreshState,
-  loadPhoto,
   getSummaryResponses,
   getFullResponses,
+  getPhotoKeysForSurveys,
+  getPhotosForSurveys,
+  getPhotoUrl,
+  allSurveysRetrieved,
+  objectResponseToUint8Array,
 } from "./SurveyModel";
-import configureStore from "redux-mock-store";
-import thunk from "redux-thunk";
 import {
   REFRESH_STATE,
   SET_SUMMARY_RESPONSES,
@@ -19,27 +20,52 @@ import {
   SET_AUTH_STATE,
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
-  authReducer,
 } from "learning-play-audit-shared";
 import rfdc from "rfdc";
-import { createStore, applyMiddleware } from "redux";
 import { Auth } from "@aws-amplify/auth";
 import {
   DynamoDBClient,
   ScanCommand,
   BatchGetItemCommand,
 } from "@aws-sdk/client-dynamodb";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-const FIXED_UUID = "00000000-0000-0000-0000-000000000000";
+import { createRequest } from "@aws-sdk/util-create-request";
+import { S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
+import { formatUrl } from "@aws-sdk/util-format-url";
+import { ReadableStream } from "web-streams-polyfill/ponyfill";
 
 jest.mock("@aws-amplify/auth");
 jest.mock("@aws-sdk/client-dynamodb");
 jest.mock("@aws-sdk/client-s3");
+jest.mock("@aws-sdk/util-create-request");
+jest.mock("@aws-sdk/s3-request-presigner");
+jest.mock("@aws-sdk/util-format-url");
+
+const mockDynamodbClientSend = jest.fn();
+const mockS3ClientSend = jest.fn();
+
+beforeEach(() => {
+  const AUTH_CREDENTIALS = "test credentials";
+
+  Auth.currentCredentials.mockClear();
+  DynamoDBClient.mockClear();
+  S3Client.mockClear();
+
+  Auth.currentCredentials.mockImplementation(() =>
+    Promise.resolve(AUTH_CREDENTIALS)
+  );
+  DynamoDBClient.mockImplementation(() => {
+    return { send: mockDynamodbClientSend };
+  });
+  S3Client.mockImplementation(() => {
+    return { send: mockS3ClientSend };
+  });
+
+  mockDynamodbClientSend.mockReset();
+  mockS3ClientSend.mockReset();
+});
 
 const clone = rfdc();
-
-jest.mock("@aws-amplify/auth");
 
 const PHOTOS_BUCKET = "bucket-surveyresources";
 const DB_TABLE = "dbtable-responses";
@@ -237,30 +263,13 @@ describe("surveyReducer using authReducer", () => {
 });
 
 describe("getSummaryResponses", () => {
-  const mockDynamodbClientSend = jest.fn();
-  const AUTH_CREDENTIALS = "test credentials";
-
   beforeEach(() => {
     surveyStore.dispatch({
       type: REFRESH_STATE,
       state: clone(SIGNEDIN_EMPTY_STATE),
     });
 
-    Auth.currentCredentials.mockReset();
-    Auth.currentCredentials.mockImplementation(() =>
-      Promise.resolve(AUTH_CREDENTIALS)
-    );
-
-    Auth.signIn.mockReset();
-    DynamoDBClient.mockReset();
     ScanCommand.mockReset();
-    mockDynamodbClientSend.mockReset();
-
-    Auth.verifiedContact.mockImplementation(() => Promise.resolve({}));
-
-    DynamoDBClient.mockImplementation(() => {
-      return { send: mockDynamodbClientSend };
-    });
     mockDynamodbClientSend.mockImplementation(() =>
       Promise.resolve(DB_INDEX_RESPONSE)
     );
@@ -320,30 +329,13 @@ describe("getSummaryResponses", () => {
 });
 
 describe("getFullResponses", () => {
-  const mockDynamodbClientSend = jest.fn();
-  const AUTH_CREDENTIALS = "test credentials";
-
   beforeEach(() => {
     surveyStore.dispatch({
       type: REFRESH_STATE,
       state: clone(SIGNEDIN_EMPTY_STATE),
     });
 
-    Auth.currentCredentials.mockReset();
-    Auth.currentCredentials.mockImplementation(() =>
-      Promise.resolve(AUTH_CREDENTIALS)
-    );
-
-    Auth.signIn.mockReset();
-    DynamoDBClient.mockReset();
     BatchGetItemCommand.mockReset();
-    mockDynamodbClientSend.mockReset();
-
-    Auth.verifiedContact.mockImplementation(() => Promise.resolve({}));
-
-    DynamoDBClient.mockImplementation(() => {
-      return { send: mockDynamodbClientSend };
-    });
     mockDynamodbClientSend.mockImplementation(() =>
       Promise.resolve(DB_FULL_RESPONSE)
     );
@@ -425,6 +417,349 @@ describe("getFullResponses", () => {
     expect(surveyStore.getState().fullSurveyResponses).toStrictEqual({});
   });
 });
+
+describe("getPhotoKeysForSurveys", () => {
+  it("success", async () => {
+    expect(
+      getPhotoKeysForSurveys([
+        TEST_FULL_RESPONSE1,
+        TEST_FULL_RESPONSE2,
+        SURVEY_WITHOUT_PHOTOS,
+      ])
+    ).toStrictEqual([
+      "surveys/surveyId1/photos/photoId1",
+      "surveys/surveyId2/photos/photoId2",
+    ]);
+
+    expect(
+      getPhotoKeysForSurveys([SURVEY_WITHOUT_PHOTOS, SURVEY_WITHOUT_PHOTOS])
+    ).toStrictEqual([]);
+
+    expect(getPhotoKeysForSurveys([])).toStrictEqual([]);
+  });
+});
+
+describe("getPhotosForSurveys", () => {
+  beforeEach(() => {
+    surveyStore.dispatch({
+      type: REFRESH_STATE,
+      state: clone(SIGNEDIN_EMPTY_STATE),
+    });
+
+    GetObjectCommand.mockReset();
+
+    function getLastGetObjectCommandKey() {
+      return GetObjectCommand.mock.calls[
+        GetObjectCommand.mock.calls.length - 1
+      ][0].Key;
+    }
+
+    function s3PhotoResponse(key) {
+      return { Body: arrayToReadableStream(IMAGE_DATA, key) };
+    }
+
+    mockS3ClientSend.mockImplementation((input) => {
+      return Promise.resolve(s3PhotoResponse(getLastGetObjectCommandKey()));
+    });
+  });
+
+  it("success - empty existing photos", async () => {
+    await surveyStore.dispatch(
+      getPhotosForSurveys([
+        TEST_FULL_RESPONSE1,
+        TEST_FULL_RESPONSE2,
+        SURVEY_WITHOUT_PHOTOS,
+      ])
+    );
+
+    expect(Auth.currentCredentials).toHaveBeenCalledTimes(1);
+    expect(S3Client).toHaveBeenCalledTimes(1);
+    expect(mockS3ClientSend).toHaveBeenCalledTimes(2);
+
+    const expectedPhotoKeys = [
+      "surveys/surveyId1/photos/photoId1",
+      "surveys/surveyId2/photos/photoId2",
+    ];
+    checkGetObjectCommands(expectedPhotoKeys);
+    checkStoredPhotos(expectedPhotoKeys);
+  });
+
+  it("success - all photos already retrieved", async () => {
+    surveyStore.dispatch({
+      type: REFRESH_STATE,
+      state: {
+        ...clone(INPUT_STATE),
+        photos: {
+          "surveys/surveyId1/photos/photoId1": {
+            data: imageDataToUint8Array(
+              IMAGE_DATA,
+              "surveys/surveyId1/photos/photoId1"
+            ),
+            key: "surveys/surveyId1/photos/photoId1",
+          },
+          "surveys/surveyId2/photos/photoId2": {
+            data: imageDataToUint8Array(
+              IMAGE_DATA,
+              "surveys/surveyId2/photos/photoId2"
+            ),
+            key: "surveys/surveyId2/photos/photoId2",
+          },
+        },
+      },
+    });
+    await surveyStore.dispatch(
+      getPhotosForSurveys([
+        TEST_FULL_RESPONSE1,
+        TEST_FULL_RESPONSE2,
+        SURVEY_WITHOUT_PHOTOS,
+      ])
+    );
+
+    expect(Auth.currentCredentials).not.toHaveBeenCalled();
+    expect(S3Client).not.toHaveBeenCalled();
+    expect(mockS3ClientSend).not.toHaveBeenCalled();
+    expect(GetObjectCommand).not.toHaveBeenCalled();
+    checkStoredPhotos([
+      "surveys/surveyId1/photos/photoId1",
+      "surveys/surveyId2/photos/photoId2",
+    ]);
+  });
+
+  it("success - some photos already retrieved", async () => {
+    surveyStore.dispatch({
+      type: REFRESH_STATE,
+      state: {
+        ...clone(INPUT_STATE),
+        photos: {
+          "surveys/surveyId1/photos/photoId1": {
+            data: imageDataToUint8Array(
+              IMAGE_DATA,
+              "surveys/surveyId1/photos/photoId1"
+            ),
+            key: "surveys/surveyId1/photos/photoId1",
+          },
+        },
+      },
+    });
+    await surveyStore.dispatch(
+      getPhotosForSurveys([
+        TEST_FULL_RESPONSE1,
+        TEST_FULL_RESPONSE2,
+        SURVEY_WITHOUT_PHOTOS,
+      ])
+    );
+
+    expect(Auth.currentCredentials).toHaveBeenCalledTimes(1);
+    expect(S3Client).toHaveBeenCalledTimes(1);
+    expect(mockS3ClientSend).toHaveBeenCalledTimes(1);
+    checkGetObjectCommands(["surveys/surveyId2/photos/photoId2"]);
+    checkStoredPhotos([
+      "surveys/surveyId1/photos/photoId1",
+      "surveys/surveyId2/photos/photoId2",
+    ]);
+  });
+
+  it("not signed in", async () => {
+    surveyStore.dispatch({ type: REFRESH_STATE, state: clone(EMPTY_STATE) });
+    await surveyStore.dispatch(
+      getPhotosForSurveys([
+        TEST_FULL_RESPONSE1,
+        TEST_FULL_RESPONSE2,
+        SURVEY_WITHOUT_PHOTOS,
+      ])
+    );
+
+    expect(Auth.currentCredentials).not.toHaveBeenCalled();
+    expect(S3Client).not.toHaveBeenCalled();
+    expect(mockS3ClientSend).not.toHaveBeenCalled();
+    expect(GetObjectCommand).not.toHaveBeenCalled();
+    expect(surveyStore.getState().photos).toStrictEqual({});
+  });
+
+  it("error calling S3 send send", async () => {
+    mockS3ClientSend.mockImplementation(() =>
+      Promise.reject(new Error("test error"))
+    );
+
+    await surveyStore.dispatch(
+      getPhotosForSurveys([
+        TEST_FULL_RESPONSE1,
+        TEST_FULL_RESPONSE2,
+        SURVEY_WITHOUT_PHOTOS,
+      ])
+    );
+
+    expect(Auth.currentCredentials).toHaveBeenCalledTimes(1);
+    expect(S3Client).toHaveBeenCalledTimes(1);
+    expect(mockS3ClientSend).toHaveBeenCalledTimes(2);
+    checkGetObjectCommands([
+      "surveys/surveyId1/photos/photoId1",
+      "surveys/surveyId2/photos/photoId2",
+    ]);
+    expect(surveyStore.getState().photos).toStrictEqual({
+      "surveys/surveyId1/photos/photoId1": {
+        error: "[Image not found]",
+        key: "surveys/surveyId1/photos/photoId1",
+      },
+      "surveys/surveyId2/photos/photoId2": {
+        error: "[Image not found]",
+        key: "surveys/surveyId2/photos/photoId2",
+      },
+    });
+  });
+});
+
+describe("getPhotoUrl", () => {
+  const mockS3RequestPresignerPresign = jest.fn();
+
+  beforeEach(() => {
+    surveyStore.dispatch({
+      type: REFRESH_STATE,
+      state: clone(SIGNEDIN_EMPTY_STATE),
+    });
+
+    GetObjectCommand.mockReset();
+    createRequest.mockReset();
+    createRequest.mockImplementation(() => Promise.resolve("created request"));
+    mockS3RequestPresignerPresign.mockReset();
+    mockS3RequestPresignerPresign.mockImplementation(() =>
+      Promise.resolve("presigned request")
+    );
+    formatUrl.mockReset();
+    formatUrl.mockImplementation(() => "formatted request");
+
+    S3RequestPresigner.mockImplementation(() => {
+      return { presign: mockS3RequestPresignerPresign };
+    });
+  });
+
+  it("success", async () => {
+    const url = await getPhotoUrl("testKey");
+
+    // Lots of mocking means the test is only checking the promise wiring
+    expect(Auth.currentCredentials).toHaveBeenCalledTimes(1);
+    expect(S3Client).toHaveBeenCalledTimes(1);
+    expect(createRequest).toHaveBeenCalledTimes(1);
+    expect(GetObjectCommand).toHaveBeenCalledTimes(1);
+    expect(GetObjectCommand.mock.calls[0][0]).toStrictEqual({
+      Bucket: "bucket-surveyresources",
+      Key: "testKey",
+    });
+    expect(S3RequestPresigner).toHaveBeenCalledTimes(1);
+    expect(mockS3RequestPresignerPresign).toHaveBeenCalledTimes(1);
+    expect(mockS3RequestPresignerPresign.mock.calls[0][0]).toStrictEqual(
+      "created request"
+    );
+    expect(formatUrl).toHaveBeenCalledTimes(1);
+    expect(formatUrl.mock.calls[0][0]).toStrictEqual("presigned request");
+
+    expect(url).toStrictEqual("formatted request");
+  });
+});
+
+test("allSurveysRetrieved", () => {
+  expect(
+    allSurveysRetrieved(["key1", "key2"], { key1: "stuff", key2: "stuff" })
+  ).toStrictEqual(true);
+  expect(
+    allSurveysRetrieved([], { key1: "stuff", key2: "stuff" })
+  ).toStrictEqual(true);
+  expect(allSurveysRetrieved([], {})).toStrictEqual(true);
+
+  expect(
+    allSurveysRetrieved(["key3"], { key1: "stuff", key2: "stuff" })
+  ).toStrictEqual(false);
+  expect(
+    allSurveysRetrieved(["key1", "key3"], { key1: "stuff", key2: "stuff" })
+  ).toStrictEqual(false);
+  expect(allSurveysRetrieved(["key3"], {})).toStrictEqual(false);
+});
+
+// The first 48 bytes of a Jpeg
+// prettier-ignore
+const IMAGE_DATA = [
+    0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46,
+    0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x60,
+    0x00, 0x60, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43,
+    0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05, 0x08,
+    0x07, 0x07, 0x07, 0x09, 0x09, 0x08, 0x0A, 0x0C,
+    0x14, 0x0D, 0x0C, 0x0B, 0x0B, 0x0C, 0x19, 0x12];
+
+describe("objectResponseToUint8Array", () => {
+  it("input readableStream", async () => {
+    const readStream = arrayToReadableStream(IMAGE_DATA);
+    const expectedData = new Uint8Array(IMAGE_DATA);
+    return objectResponseToUint8Array(readStream).then((output) =>
+      expect(output).toStrictEqual(expectedData)
+    );
+  });
+
+  it("empty readableStream", async () => {
+    const readStream = arrayToReadableStream([]);
+    const expectedData = new Uint8Array([]);
+    return objectResponseToUint8Array(readStream).then((output) =>
+      expect(output).toStrictEqual(expectedData)
+    );
+  });
+
+  it("input blob", async () => {
+    const blob = new Blob([imageDataToUint8Array(IMAGE_DATA)]);
+    const expectedData = new Uint8Array(IMAGE_DATA);
+    return objectResponseToUint8Array(blob).then((output) =>
+      expect(output).toStrictEqual(expectedData)
+    );
+  });
+
+  it("empty blob", async () => {
+    const blob = new Blob([]);
+    const expectedData = new Uint8Array([]);
+    return objectResponseToUint8Array(blob).then((output) =>
+      expect(output).toStrictEqual(expectedData)
+    );
+  });
+});
+
+function imageDataToUint8Array(data, textSuffix = null) {
+  const textCharCodes = textSuffix
+    ? Array.from(textSuffix).map((char) => char.charCodeAt(0))
+    : [];
+  return new Uint8Array([...data, ...textCharCodes]);
+}
+
+function arrayToReadableStream(data, textSuffix = null) {
+  return new ReadableStream({
+    start(controller) {
+      const array = imageDataToUint8Array(data, textSuffix);
+      if (array.length > 0) {
+        controller.enqueue(imageDataToUint8Array(data, textSuffix));
+      }
+      controller.close();
+    },
+    type: "bytes",
+  });
+}
+
+function checkGetObjectCommands(expectedPhotoKeys) {
+  expect(GetObjectCommand).toHaveBeenCalledTimes(expectedPhotoKeys.length);
+
+  expectedPhotoKeys.forEach((key, i) => {
+    expect(GetObjectCommand.mock.calls[i][0]).toStrictEqual({
+      Bucket: "bucket-surveyresources",
+      Key: key,
+    });
+  });
+}
+
+function checkStoredPhotos(expectedPhotoKeys) {
+  const expectedPhotos = {};
+  expectedPhotoKeys.forEach((key) => {
+    expectedPhotos[key] = {
+      data: imageDataToUint8Array(IMAGE_DATA, key),
+      key: key,
+    };
+  });
+  expect(surveyStore.getState().photos).toStrictEqual(expectedPhotos);
+}
 
 const EMPTY_STATE = {
   surveyResponses: [],
@@ -512,6 +847,19 @@ const TEST_FULL_RESPONSE2 = {
   },
   surveyVersion: "0.9.0",
   updatedAt: "2021-02-18T19:57:54.869Z",
+};
+
+const SURVEY_WITHOUT_PHOTOS = {
+  id: "surveyId3",
+  photos: [],
+  surveyResponse: {
+    play: {
+      tyres: {
+        answer: "d",
+        comments: "test comment",
+      },
+    },
+  },
 };
 
 const TEST_FULL_RESPONSES = {
