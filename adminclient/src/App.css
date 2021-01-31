@@ -1,5 +1,174 @@
 :root {
-  --amplify-primary-color: #3f51b5;
-  --amplify-primary-tint: #757de8;
-  --amplify-primary-shade: #002984;
+  --colour-ltl-loader-grey: #f3f3f3;
+  --colour-ltl-blue: #2d6a89;
+}
+
+/** Generic elements and formatting **/
+
+.loader {
+  border: 5px solid transparent;
+  border-top: 5px solid var(--colour-ltl-loader-grey);
+  border-left: 5px solid var(--colour-ltl-loader-grey);
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#auth-signout {
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.0075em;
+  color: inherit;
+  margin-left: 20px;
+}
+
+/** Static shadows **/
+
+.question input[type="text"]:hover,
+.question input[type="text"]:focus,
+.toggle-button-group {
+  box-shadow: 0px 2px 4px #00000080;
+}
+
+.section.authenticator {
+  box-shadow: 5px 5px 5px #00000080;
+}
+
+/** Active shadows **/
+
+.section.authenticator button {
+  box-shadow: 0px 2px 4px #00000080;
+}
+
+.section.authenticator button:disabled,
+.section.authenticator button:active {
+  box-shadow: none;
+}
+
+/* Override for non-shadowed links */
+.section.authenticator button.inline-action {
+  box-shadow: none;
+}
+
+/** Authentication **/
+
+.section.authenticator {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  margin: 40px;
+  padding: 30px 50px;
+  position: relative;
+}
+
+.section.authenticator .title {
+  text-align: center;
+}
+
+.section.authenticator {
+  padding: 20px 40px;
+  width: 60%;
+  box-sizing: border-box;
+}
+
+.section.authenticator .title-logo-small {
+  height: 80px;
+  width: 80px;
+  position: absolute;
+  top: 20px;
+  left: 40px;
+}
+
+.section.authenticator .question {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+}
+
+.section.authenticator .action-row {
+  justify-content: start;
+}
+
+.section.authenticator button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 40px;
+  background-color: var(--colour-ltl-blue);
+  color: white;
+  font-size: 12px;
+  font-weight: normal;
+  border: none;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.section.authenticator button:disabled {
+  background-color: darkGrey;
+  color: white;
+}
+
+.section.authenticator button.inline-action {
+  color: var(--colour-ltl-blue);
+  background-color: inherit;
+  border: none;
+  width: auto;
+  height: auto;
+  font-size: inherit;
+  padding: 0px 10px;
+  margin: 0;
+}
+.section.authenticator button.inline-action.start-of-line {
+  padding: 0;
+}
+
+.section.authenticator h2 {
+  font-weight: normal;
+  margin-top: 30px;
+  margin-bottom: 40px;
+  margin-left: 100px;
+}
+
+.section.authenticator input[type="email"],
+.section.authenticator input[type="password"],
+.section.authenticator input[type="number"] {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  height: 39px;
+  border: solid 1px black;
+  padding: 5px 10px;
+  font-size: 18px;
+}
+.section.authenticator input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  -webkit-appearance: textfield;
+}
+
+.section.authenticator #emailInput,
+.section.authenticator #confirmEmailInput {
+  margin-bottom: 20px;
+}
+.section.authenticator #passwordInput {
+  margin-bottom: 40px;
+}
+
+.section.authenticator #confirmEmailInput {
+  background-color: lightgray;
 }

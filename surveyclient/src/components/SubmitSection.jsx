@@ -3,12 +3,10 @@ import "../App.css";
 import { useSelector, useDispatch } from "react-redux";
 import { SUBMIT } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
-import { SIGNED_IN } from "../model/AuthStates";
-import { signOut } from "../model/AuthActions";
 import Modal from "@material-ui/core/Modal";
 import { uploadResults } from "../model/SubmitAction";
 import { RESET_STATE } from "../model/ActionTypes";
-
+import { SIGNED_IN, signOut } from "learning-play-audit-shared";
 import { SUBMIT_COMPLETE, SUBMIT_FAILED } from "../model/SubmitStates";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -81,6 +79,7 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
       />
       {submitState !== null && (
         <Modal
+          id="dialog-container"
           container={
             window !== undefined ? () => window.document.body : undefined
           }
@@ -88,11 +87,6 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
           disableBackdropClick={true}
           disableEscapeKeyDown={true}
           open={submitState !== null}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
         >
           <div className="dialog submit">
             <h2 className="title">Uploading Survey Response</h2>

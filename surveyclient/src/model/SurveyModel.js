@@ -8,19 +8,18 @@ import {
   ADD_PHOTO,
   DELETE_PHOTO,
   UPDATE_PHOTO_DESCRIPTION,
-  SET_AUTH_STATE,
-  SET_AUTH_ERROR,
-  CLEAR_AUTH_ERROR,
   CONFIRM_WELCOME,
 } from "./ActionTypes";
 import {
   sectionsContent,
   SURVEY_VERSION,
   TEXT_WITH_YEAR,
+  authReducer,
+  SET_AUTH_STATE,
+  REGISTER,
 } from "learning-play-audit-shared";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
-import { REGISTER, SIGNED_IN } from "./AuthStates";
 
 localforage.config({
   name: "learning-play-audit",
@@ -81,7 +80,7 @@ function initialState() {
 }
 
 // Exported for unit tests only
-export function surveyReducer(state = initialState(), action) {
+function surveyAnswersReducer(state, action) {
   let newState;
   switch (action.type) {
     case CONFIRM_WELCOME:
@@ -143,20 +142,12 @@ export function surveyReducer(state = initialState(), action) {
 
     case SET_AUTH_STATE:
       // console.log("SET_AUTH_STATE");
-      newState = setAuthState(state, action);
-      writeAnswers(newState);
-      return newState;
-
-    case SET_AUTH_ERROR:
-      // console.log("SET_AUTH_ERROR");
-      return setAuthError(state, action);
-
-    case CLEAR_AUTH_ERROR:
-      // console.log("CLEAR_AUTH_ERROR");
-      return clearAuthError(state);
+      // Action handled in authReducer, but persist here
+      writeAnswers(state);
+      return state;
 
     default:
-      console.log("Unknown action: " + safeJson(action));
+      // console.log("Unknown action: ", action);
       return state;
   }
 }
@@ -176,17 +167,21 @@ function addPhoto(state, action) {
   return result;
 }
 
-export function loadPhoto(file, sectionId = null, questionId = null) {
+export function loadPhotos(files, sectionId = null, questionId = null) {
   console.log("loadPhoto", sectionId, questionId);
   return function (dispatch) {
-    return readFileAsync(file).then((data) => {
-      dispatch({
-        type: ADD_PHOTO,
-        imageData: btoa(data),
-        sectionId: sectionId,
-        questionId: questionId,
-      });
-    });
+    return Promise.allSettled(
+      files.map((file) =>
+        readFileAsync(file).then((data) => {
+          dispatch({
+            type: ADD_PHOTO,
+            imageData: btoa(data),
+            sectionId: sectionId,
+            questionId: questionId,
+          });
+        })
+      )
+    );
   };
 }
 
@@ -356,67 +351,9 @@ function setDatedImprovementsAnswer(
   return result;
 }
 
-function setAuthState(state, { authState, user }) {
-  if (authState === undefined) {
-    console.error("authState cannot be undefined");
-    return state;
-  }
-
-  const result = {
-    ...state,
-    authentication: { state: authState, user: user, errorMessage: "" },
-    // Show welcome screen on every login
-    hasSeenSplashPage: state.hasSeenSplashPage && authState !== SIGNED_IN,
-  };
-
-  // TODO necessary?
-  // if (authState === SIGNED_IN) {
-  //   try {
-  //     result.authentication.user = await Auth.currentAuthenticatedUser();
-  //   } catch (e) {
-  //     logger.error("User is not authenticated");
-  //   }
-  // }
-
-  return result;
-}
-
-function setAuthError(state, { message }) {
-  if (state.authentication.errorMessage === message) {
-    return state;
-  }
-  const result = { ...state };
-  result.authentication = { ...result.authentication };
-  result.authentication.errorMessage = message;
-  return result;
-}
-
-function clearAuthError(state) {
-  if (state.authentication.errorMessage === "") {
-    return state;
-  }
-  const result = { ...state };
-  result.authentication.errorMessage = "";
-  return result;
+// Exported for unit tests
+export function surveyReducer(state = initialState(), action) {
+  return surveyAnswersReducer(authReducer(state, action), action);
 }
 
 export default createStore(surveyReducer, applyMiddleware(thunk));
-
-/*
-const getCircularReplacer = () => {
-  const seen = new WeakSet();
-  return (key, value) => {
-    if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
-};*/
-
-function safeJson(value) {
-  //return JSON.stringify(value, getCircularReplacer());
-  return JSON.stringify(value);
-}

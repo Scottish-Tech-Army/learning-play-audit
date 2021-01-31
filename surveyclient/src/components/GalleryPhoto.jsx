@@ -36,6 +36,7 @@ function GalleryPhoto({ photoId }) {
         className="photo-description"
         onChange={(e) => handleDescriptionChange(photoId, e)}
         value={photoDetails.description}
+        placeholder="Add photo description"
       />
       <button
         aria-haspopup="true"

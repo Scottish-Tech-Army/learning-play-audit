@@ -33,6 +33,7 @@ export default function QuestionAddCommentButton({
           }
           alt="add note"
         />
+        <span>Add Additional Information?</span>
       </button>
       {showComment && (
         <QuestionCommentDialog

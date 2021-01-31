@@ -70,7 +70,9 @@ textarea {
 .section.get-started button,
 .submit-survey-button,
 .previous-section-button,
-.next-section-button {
+.next-section-button,
+.add-photos-button,
+.add-note-button {
   border: 0;
   font-family: var(--font-family-ltl-bold);
   font-weight: bold;
@@ -86,6 +88,15 @@ textarea {
   background: none;
   padding: 0;
   outline: none;
+}
+
+/* Modal containers */
+
+#confirm-dialog-container,
+#dialog-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /** Static shadows **/
@@ -571,6 +582,12 @@ textarea {
   margin-bottom: 20px;
 }
 
+/** Confirm add photos dialog **/
+
+.dialog.confirm-add-photos {
+  width: 40%;
+}
+
 /** Add note dialog **/
 
 .dialog.add-note .question-text {
@@ -738,6 +755,13 @@ textarea {
   margin-right: 50px;
 }
 
+.add-note-button,
+.add-photos-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .question.dated .question-line .add-photos-button,
 .question.text .question-line .add-photos-button {
   position: absolute;
@@ -745,8 +769,18 @@ textarea {
   right: 0;
 }
 
+.question.text .question-line .question-text,
+.question.dated .question-line .question-text {
+  margin-right: 155px;
+  min-height: 60px;
+}
+
 .question.select .add-note-button {
   padding-left: 30px;
+}
+
+.question.select .add-photos-button {
+  margin-left: 10px;
 }
 
 .question-divider {

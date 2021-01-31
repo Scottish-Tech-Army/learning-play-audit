@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
   sectionsContentMap,
   sectionsContent,
+  AuthCurrentUser,
+  Authenticator,
+  isAuthenticating,
 } from "learning-play-audit-shared";
 import IntroductionSection from "./components/IntroductionSection";
 import ResultsSection from "./components/ResultsSection";
@@ -9,8 +12,7 @@ import GallerySection from "./components/GallerySection";
 import SubmitSection from "./components/SubmitSection";
 import NavDrawer from "./components/NavDrawer";
 import Section from "./components/Section";
-import AuthSignOut from "./components/auth/AuthSignOut";
-import AuthCurrentUser from "./components/auth/AuthCurrentUser";
+import AuthSignOutWithConfirm from "./components/auth/AuthSignOutWithConfirm";
 import RestartButton from "./components/RestartButton";
 import GetStartedScreen from "./components/GetStartedScreen";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,9 +24,6 @@ import {
   SUBMIT,
 } from "./components/FixedSectionTypes";
 import { Amplify } from "@aws-amplify/core";
-import Authenticator, {
-  isAuthenticating,
-} from "./components/auth/Authenticator";
 import { menuButtonSvg } from "./components/SvgUtils";
 import "./App.css";
 
@@ -45,6 +44,8 @@ const awsConfig = {
 console.log("Configure", Amplify.configure(awsConfig));
 
 //window.LOG_LEVEL = "DEBUG";
+
+// console.log(AuthCurrentUser, Authenticator);
 
 function App() {
   const dispatch = useDispatch();
@@ -192,7 +193,12 @@ function App() {
 
   function getCurrentSection() {
     if (currentSection === INTRODUCTION) {
-      return <IntroductionSection />;
+      return (
+        <IntroductionSection
+          sections={sections}
+          setCurrentSection={setCurrentSection}
+        />
+      );
     }
     if (currentSection === RESULTS) {
       return (
@@ -287,7 +293,7 @@ function App() {
         <div className="app-bar authenticating">
           {titleLogo()}
           {titleText()}
-          <AuthSignOut />
+          <AuthSignOutWithConfirm />
           <AuthCurrentUser />
         </div>
         <main className="content authenticating">
@@ -310,11 +316,11 @@ function App() {
 
         {titleLogo()}
         {titleText()}
-        <AuthSignOut />
+        <AuthSignOutWithConfirm />
         <RestartButton returnToStart={() => setCurrentSection(INTRODUCTION)} />
-        <AuthCurrentUser />
         {downloadButtonAppBar()}
         {!isLive && <div className="environment-name">{ENVIRONMENT_NAME}</div>}
+        <AuthCurrentUser />
       </div>
       <main className="content main">
         <NavDrawer

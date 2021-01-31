@@ -37,11 +37,6 @@ export default function QuestionCommentDialog({
       keepMounted={false}
       open={true}
       onClose={closeDialog}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
     >
       <div className="dialog add-note">
         <h2 className="title">Add Note</h2>

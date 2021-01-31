@@ -38,6 +38,7 @@ export default function QuestionAddPhotosButton({
         onClick={() => setShowPhotos(true)}
       >
         {addPhotoSvg(photoCount)}
+        <span>Add Relevant Photo?</span>
       </button>
       {showPhotos && (
         <QuestionPhotosDialog

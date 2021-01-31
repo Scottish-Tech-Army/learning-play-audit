@@ -33,6 +33,7 @@ describe("component QuestionText", () => {
     id: QUESTION_ID,
     text: QUESTION_TEXT,
   };
+  const PHOTO_BUTTON_TEXT = "add photoAdd Relevant Photo?";
 
   let textFieldFlag = false;
 
@@ -40,7 +41,7 @@ describe("component QuestionText", () => {
     renderComponent();
 
     expect(question().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + PHOTO_BUTTON_TEXT
     );
     checkTextValue("");
   });
@@ -60,7 +61,7 @@ describe("component QuestionText", () => {
     });
 
     expect(question().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + PHOTO_BUTTON_TEXT
     );
     checkTextValue("");
   });

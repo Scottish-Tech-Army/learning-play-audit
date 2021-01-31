@@ -1,6 +1,8 @@
 import React from "react";
 import "../App.css";
 import { addPhotoSvg } from "./SvgUtils";
+import { INTRODUCTION } from "./FixedSectionTypes";
+import SectionBottomNavigation from "./SectionBottomNavigation";
 
 function ExampleQuestion() {
   const [answer, setAnswer] = React.useState(null);
@@ -32,7 +34,7 @@ function ExampleQuestion() {
   );
 }
 
-function IntroductionSection() {
+function IntroductionSection({ sections, setCurrentSection }) {
   return (
     <>
       <div className="section introduction">
@@ -91,6 +93,15 @@ function IntroductionSection() {
             Use the camera icon to attach any photos you would like to add.
           </div>
         </div>
+        <p>
+          It is helpful if you answer as many questions as you are able to,
+          however it is not compulsory to complete all questions.
+        </p>
+        <SectionBottomNavigation
+          sections={sections}
+          currentSectionId={INTRODUCTION}
+          setCurrentSectionId={setCurrentSection}
+        />
       </div>
     </>
   );

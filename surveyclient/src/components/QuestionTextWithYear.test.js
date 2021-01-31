@@ -32,12 +32,13 @@ describe("component QuestionTextWithYear", () => {
     id: QUESTION_ID,
     text: QUESTION_TEXT,
   };
+  const PHOTO_BUTTON_TEXT = "add photoAdd Relevant Photo?";
 
   it("initial empty state", () => {
     renderComponent();
 
     expect(questionLine().textContent).toStrictEqual(
-      QUESTION_NUMBER + QUESTION_TEXT + "add photo"
+      QUESTION_NUMBER + QUESTION_TEXT + PHOTO_BUTTON_TEXT
     );
     checkTextValues("", "", "", "", "", "");
   });

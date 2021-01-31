@@ -5,7 +5,7 @@ This monorepo contains the following projects:
 - [cdk-stacks](cdk-stacks) - AWS CDK project to build required AWS components and deploy web applications.
 - [surveyclient](surveyclient) - React (PWA) web application for completing the LTL audit surveys.
 - [adminclient](adminclient) - React web application for review and retrieval of LTL audit survey responses.
-- [sharedmodel](sharedmodel) - content common to surveyclient and adminclient - the survey questions and description.
+- [sharedcode](sharedcode) - content common to surveyclient and adminclient - the survey questions and description.
 
 Built by [Scottish Tech Army](https://www.scottishtecharmy.org/) volunteers.
 
@@ -141,12 +141,13 @@ REACT_APP_AWS_CLIENT_API_ENDPOINT=[PREFIX-Backend-dev.LTLclientAPIendpoint]
 
 #### Build the shared component
 
-Create a production build of the [sharedmodel](../sharedmodel)
+Create a production build of the [sharedcode](../sharedcode)
 
 ```
-cd PROJECT_ROOT/sharedmodel
+cd PROJECT_ROOT/sharedcode
 npm install
 npm run build
+npm pack
 ```
 
 #### Build the web clients

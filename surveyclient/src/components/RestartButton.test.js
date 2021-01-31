@@ -4,8 +4,7 @@ import { act } from "react-dom/test-utils";
 import RestartButton from "./RestartButton";
 import surveyStore from "../model/SurveyModel";
 import { Provider } from "react-redux";
-import { RESTART_SURVEY, REFRESH_STATE } from "../model/ActionTypes";
-import { RESULTS } from "./FixedSectionTypes";
+import { REFRESH_STATE } from "../model/ActionTypes";
 import { INPUT_STATE, EMPTY_STATE } from "../model/TestUtils";
 
 const returnToStart = jest.fn();

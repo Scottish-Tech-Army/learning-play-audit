@@ -38,8 +38,8 @@ describe("component SectionBottomNavigation", () => {
     currentSectionId = "introduction";
     renderComponent();
 
-    expect(previousButton()).toBeNull();
-    expect(nextButton()).toBeNull();
+    expect(previousButton()).not.toBeNull();
+    expect(nextButton()).not.toBeNull();
   });
 
   it("first section", () => {

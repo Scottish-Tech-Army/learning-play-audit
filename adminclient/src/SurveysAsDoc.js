@@ -20,17 +20,11 @@ import {
   TableLayoutType,
   BorderStyle,
 } from "docx";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { Auth } from "@aws-amplify/auth";
 
 const IMAGE_NOT_FOUND = "[Image not found]";
 
-// Configure these properties in .env.local
-const REGION = process.env.REACT_APP_AWS_REGION;
-const SURVEY_RESOURCES_S3_BUCKET =
-  process.env.REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET;
 
-export function exportSurveysAsDocx(surveys = []) {
+export function exportSurveysAsDocx(surveys = [], photos) {
   if (surveys.length === 0) {
     console.log("No surveys to export");
   }
@@ -58,97 +52,59 @@ export function exportSurveysAsDocx(surveys = []) {
     ],
   });
 
-  function renderPhoto(photo, i, s3) {
-    const params = {
-      Bucket: SURVEY_RESOURCES_S3_BUCKET,
-      Key: photo.fullsize.key,
-    };
+  function renderPhoto(photoKey, description) {
+    const photoData = photos[photoKey];
+    if (photoData.data !== undefined) {
+      return [
+        new Paragraph(Media.addImage(doc, photoData.data)),
+        new Paragraph({ children: [new TextRun({ text: description })] }),
+      ];
+    }
 
-    return s3
-      .send(new GetObjectCommand(params))
-      .then((photoData) => {
-        const image = Media.addImage(
-          doc,
-          new Response(photoData.Body).arrayBuffer()
-        );
-        return Promise.resolve([
-          new Paragraph(image),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: photo.description,
-              }),
-            ],
-          }),
-        ]);
-      })
-      .catch((error) => {
-        console.error("Error retrieving photo", params, error);
-        return Promise.resolve([
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: IMAGE_NOT_FOUND,
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: photo.description,
-              }),
-            ],
-          }),
-        ]);
-      });
+    return [
+      new Paragraph({ children: [new TextRun({ text: IMAGE_NOT_FOUND })] }),
+      new Paragraph({ children: [new TextRun({ text: description })] }),
+    ];
   }
 
-  function renderSurveyPhotos(survey, i, s3) {
+  function renderSurveyPhotos(survey) {
     const response = survey.surveyResponse;
 
-    return Promise.all(
-      survey.photos.map((photo, i) => renderPhoto(photo, i, s3))
-    ).then((photos) => {
-      return Promise.resolve([
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: "Images from " + response.background.contactname.answer,
-            }),
-          ],
-        }),
-        ...photos.flat(),
-      ]);
-    });
+    return [
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Images from " + response.background.contactname.answer,
+          }),
+        ],
+      }),
+      ...survey.photos
+        .map((photoRef) =>
+          renderPhoto(photoRef.fullsize.key, photoRef.description)
+        )
+        .flat(),
+    ];
   }
 
-  Auth.currentCredentials()
-    .then((credentials) => {
-      const s3 = new S3Client({ region: REGION, credentials });
+  const photoSections = surveys
+    .filter((survey) => survey.photos.length > 0)
+    .map(renderSurveyPhotos);
 
-      return Promise.all(
-        surveys
-          .filter((survey) => survey.photos.length > 0)
-          .map((survey, i) => renderSurveyPhotos(survey, i, s3))
-      );
-    })
-    .then((photoSections) => {
-      doc.addSection({
-        children: [
-          new Paragraph({
-            text: "Survey Photos",
-            heading: HeadingLevel.HEADING_1,
-          }),
-          ...photoSections.flat(),
-        ],
-      });
+  doc.addSection({
+    children: [
+      new Paragraph({
+        text: "Survey Photos",
+        heading: HeadingLevel.HEADING_1,
+      }),
+      ...photoSections.flat(),
+    ],
+  });
 
-      Packer.toBlob(doc).then((blob) => {
-        saveAs(blob, "SurveyReport.docx");
-      });
-    })
-    .catch((error) => console.error(error));
+  Packer.toBlob(doc).then((blob) => {
+    saveAs(blob, "SurveyReport.docx");
+  });
 }
+
 function getReactElementText(node) {
   if (["string", "number"].includes(typeof node)) {
     return node;
