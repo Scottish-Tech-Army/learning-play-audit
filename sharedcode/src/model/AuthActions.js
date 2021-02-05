@@ -8,11 +8,19 @@ import {
 import {
   SIGNED_IN,
   SIGN_IN,
+  CONFIRM_SIGN_IN,
   CONFIRM_REGISTRATION,
   FORGOT_PASSWORD_REQUEST,
   FORGOT_PASSWORD_SUBMIT,
   RESET_PASSWORD,
+  TOTP_SETUP,
+  MFA_OPTION_NONE,
+  MFA_OPTION_TOTP,
+  MFA_OPTION_SMS,
+  SOFTWARE_TOKEN_MFA,
+  SMS_MFA,
 } from "./AuthStates.js";
+import QRCode from "qrcode";
 
 const logger = new Logger("auth-utils");
 
@@ -34,7 +42,7 @@ export function checkContact(user) {
     return Auth.verifiedContact(user)
       .then((data) => {
         if (!isEmpty(data.verified) || isEmpty(data.unverified)) {
-          dispatch(setAuthState(SIGNED_IN, user));
+          dispatch(checkHasEmail(user));
         } else {
           console.error("Unverified contact: ", user, data);
           throw new Error("Unverified contact");
@@ -43,6 +51,32 @@ export function checkContact(user) {
       .catch((error) => {
         dispatch(setAuthError(error));
       });
+  };
+}
+
+function checkHasEmail(user) {
+  // console.log("checkHasEmail");
+  return function (dispatch) {
+    if (user.attributes && user.attributes.email) {
+      dispatch(setAuthState(SIGNED_IN, user));
+    } else {
+      return Auth.userAttributes(user)
+        .then((attributeArray) => {
+          if (!user.attributes) {
+            user.attributes = {};
+          }
+          attributeArray.forEach((attribute) => {
+            user.attributes[attribute.Name] = attribute.Value;
+          });
+          if (!user.attributes.email) {
+            console.error("User does not have email attribute");
+          }
+          dispatch(setAuthState(SIGNED_IN, user));
+        })
+        .catch((error) => {
+          dispatch(setAuthError(error));
+        });
+    }
   };
 }
 
@@ -55,6 +89,15 @@ export function signIn(username, password) {
         if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
           logger.debug("require new password", user.challengeParam);
           dispatch(setAuthState(RESET_PASSWORD, user));
+        } else if (
+          user.challengeName === SMS_MFA ||
+          user.challengeName === SOFTWARE_TOKEN_MFA
+        ) {
+          logger.debug("confirm user with " + user.challengeName);
+          dispatch(setAuthState(CONFIRM_SIGN_IN, user));
+        } else if (user.challengeName === "MFA_SETUP") {
+          logger.debug("TOTP setup", user.challengeParam);
+          dispatch(setAuthState(TOTP_SETUP, user));
         } else {
           return dispatch(checkContact(user));
         }
@@ -102,6 +145,19 @@ export function confirmRegistration(user, code, signUpAttrs) {
           dispatch(setAuthState(SIGN_IN, user));
         }
       })
+      .catch((error) => dispatch(setAuthError(error)));
+  };
+}
+
+export function confirmSignIn(user, code, mfaOption) {
+  // console.log("confirmSignIn");
+  return function (dispatch) {
+    return Auth.confirmSignIn(
+      user,
+      code,
+      mfaOption === MFA_OPTION_TOTP ? SOFTWARE_TOKEN_MFA : null
+    )
+      .then(() => dispatch(checkContact(user)))
       .catch((error) => dispatch(setAuthError(error)));
   };
 }
@@ -180,10 +236,51 @@ export function signInCurrentUser(username, code, newPassword) {
   // console.log("signInCurrentUser");
   return function (dispatch) {
     return Auth.currentAuthenticatedUser()
-      .then((user) => dispatch(setAuthState(SIGNED_IN, user)))
+      .then((user) => dispatch(checkHasEmail(user)))
       .catch(() => {
         logger.info("User not logged in");
         return Promise.resolve("User not logged in");
       });
   };
+}
+
+export function getTOTPSetupQrCode(user) {
+  // console.log("getTOTPSetupQrCode");
+  // workaround for https://github.com/aws-amplify/amplify-js/issues/1226
+  return Auth.setPreferredMFA(user, MFA_OPTION_NONE)
+    .then(() => Auth.setupTOTP(user))
+    .then((secretKey) =>
+      Promise.resolve(
+        QRCode.toDataURL(
+          `otpauth://totp/AWSCognito:${user.username}?secret=${secretKey}&issuer=AWSCognito`
+        )
+      )
+    );
+}
+
+export function verifyTOTPSetup(user, code) {
+  // console.log("verifyTOTPSetup");
+  return function (dispatch) {
+    return Auth.verifyTotpToken(user, code)
+      .then(() => Auth.setPreferredMFA(user, MFA_OPTION_TOTP))
+      .then(() => dispatch(checkContact(user)))
+      .catch((error) => {
+        console.error(error);
+        dispatch(setAuthError(error));
+      });
+  };
+}
+
+export function getUserMFA(user) {
+  // console.log("getUserMFA");
+  return Auth.getPreferredMFA(user).then((data) => {
+    console.log("Preferred MFA", data);
+    if (data === SOFTWARE_TOKEN_MFA) {
+      return MFA_OPTION_TOTP;
+    }
+    if (data === SMS_MFA) {
+      return MFA_OPTION_SMS;
+    }
+    return MFA_OPTION_NONE;
+  });
 }

@@ -4,6 +4,7 @@ import {
   clearAuthError,
   checkContact,
   signIn,
+  confirmSignIn,
   resendConfirmCode,
   confirmRegistration,
   register,
@@ -12,6 +13,9 @@ import {
   forgotPasswordRequest,
   forgotPasswordSubmit,
   signInCurrentUser,
+  getTOTPSetupQrCode,
+  verifyTOTPSetup,
+  getUserMFA,
 } from "./AuthActions";
 import { getAuthStore } from "./AuthStore";
 import {
@@ -22,14 +26,23 @@ import {
 import {
   SIGNED_IN,
   SIGN_IN,
+  CONFIRM_SIGN_IN,
   REGISTER,
   RESET_PASSWORD,
   FORGOT_PASSWORD_REQUEST,
   FORGOT_PASSWORD_SUBMIT,
   CONFIRM_REGISTRATION,
   NEW_PASSWORD_REQUIRED,
+  TOTP_SETUP,
+  MFA_OPTION_NONE,
+  MFA_OPTION_TOTP,
+  MFA_OPTION_SMS,
+  SMS_MFA,
+  NO_MFA,
+  SOFTWARE_TOKEN_MFA,
 } from "./AuthStates";
 import { Auth } from "@aws-amplify/auth";
+import QRCode from "qrcode";
 
 const TEST_USERNAME = "test@example.com";
 const TEST_PASSWORD = "test password";
@@ -42,6 +55,7 @@ const TEST_SIGNUP_ATTRS = { username: TEST_USERNAME, password: TEST_PASSWORD };
 const authStore = getAuthStore();
 
 jest.mock("@aws-amplify/auth");
+jest.mock("qrcode");
 
 describe("simple methods", () => {
   it("setAuthState", () => {
@@ -172,6 +186,48 @@ describe("signIn", () => {
     });
   });
 
+  it("confirm signin SMS", async () => {
+    const testUser = { ...TEST_USER, challengeName: SMS_MFA };
+    Auth.signIn.mockImplementation(() => Promise.resolve(testUser));
+
+    await authStore.dispatch(signIn("user", "password"));
+    expect(Auth.signIn).toHaveBeenCalledTimes(1);
+    expect(Auth.signIn).toHaveBeenCalledWith("user", "password");
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "",
+      state: CONFIRM_SIGN_IN,
+      user: testUser,
+    });
+  });
+
+  it("confirm signin TOTP", async () => {
+    const testUser = { ...TEST_USER, challengeName: SOFTWARE_TOKEN_MFA };
+    Auth.signIn.mockImplementation(() => Promise.resolve(testUser));
+
+    await authStore.dispatch(signIn("user", "password"));
+    expect(Auth.signIn).toHaveBeenCalledTimes(1);
+    expect(Auth.signIn).toHaveBeenCalledWith("user", "password");
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "",
+      state: CONFIRM_SIGN_IN,
+      user: testUser,
+    });
+  });
+
+  it("mfa TOTP setup", async () => {
+    const testUser = { ...TEST_USER, challengeName: "MFA_SETUP" };
+    Auth.signIn.mockImplementation(() => Promise.resolve(testUser));
+
+    await authStore.dispatch(signIn("user", "password"));
+    expect(Auth.signIn).toHaveBeenCalledTimes(1);
+    expect(Auth.signIn).toHaveBeenCalledWith("user", "password");
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "",
+      state: TOTP_SETUP,
+      user: testUser,
+    });
+  });
+
   it("confirm registration", async () => {
     Auth.signIn.mockImplementation(() =>
       Promise.reject({
@@ -238,6 +294,104 @@ describe("signIn", () => {
       errorMessage: "test error",
       state: REGISTER,
       user: undefined,
+    });
+  });
+});
+
+describe("confirmSignIn", () => {
+  beforeEach(() => {
+    authStore.dispatch(setAuthState(CONFIRM_SIGN_IN, TEST_USER));
+
+    Auth.verifiedContact.mockReset();
+    Auth.confirmSignIn.mockReset();
+
+    Auth.verifiedContact.mockImplementation(() => Promise.resolve({}));
+  });
+
+  it("confirm SMS success", async () => {
+    Auth.confirmSignIn.mockImplementation(() => Promise.resolve(true));
+
+    await authStore.dispatch(
+      confirmSignIn(TEST_USER, "passcode", MFA_OPTION_SMS)
+    );
+    expect(Auth.confirmSignIn).toHaveBeenCalledTimes(1);
+    expect(Auth.confirmSignIn).toHaveBeenCalledWith(
+      TEST_USER,
+      "passcode",
+      null
+    );
+    expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
+    expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "",
+      state: SIGNED_IN,
+      user: TEST_USER,
+    });
+  });
+
+  it("confirm TOTP success", async () => {
+    Auth.confirmSignIn.mockImplementation(() => Promise.resolve(true));
+
+    await authStore.dispatch(
+      confirmSignIn(TEST_USER, "passcode", MFA_OPTION_TOTP)
+    );
+    expect(Auth.confirmSignIn).toHaveBeenCalledTimes(1);
+    expect(Auth.confirmSignIn).toHaveBeenCalledWith(
+      TEST_USER,
+      "passcode",
+      SOFTWARE_TOKEN_MFA
+    );
+    expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
+    expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "",
+      state: SIGNED_IN,
+      user: TEST_USER,
+    });
+  });
+
+  it("error calling verifiedContact", async () => {
+    Auth.confirmSignIn.mockImplementation(() => Promise.resolve(true));
+    Auth.verifiedContact.mockImplementation(() =>
+      Promise.reject(new Error("test error"))
+    );
+
+    await authStore.dispatch(
+      confirmSignIn(TEST_USER, "passcode", MFA_OPTION_SMS)
+    );
+    expect(Auth.confirmSignIn).toHaveBeenCalledTimes(1);
+    expect(Auth.confirmSignIn).toHaveBeenCalledWith(
+      TEST_USER,
+      "passcode",
+      null
+    );
+    expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
+    expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "test error",
+      state: CONFIRM_SIGN_IN,
+      user: TEST_USER,
+    });
+  });
+
+  it("error calling confirmSignIn", async () => {
+    Auth.confirmSignIn.mockImplementation(() =>
+      Promise.reject(new Error("test error"))
+    );
+
+    await authStore.dispatch(
+      confirmSignIn(TEST_USER, "passcode", MFA_OPTION_SMS)
+    );
+    expect(Auth.confirmSignIn).toHaveBeenCalledTimes(1);
+    expect(Auth.confirmSignIn).toHaveBeenCalledWith(
+      TEST_USER,
+      "passcode",
+      null
+    );
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "test error",
+      state: CONFIRM_SIGN_IN,
+      user: TEST_USER,
     });
   });
 });
@@ -886,15 +1040,44 @@ describe("signInCurrentUser", () => {
     Auth.currentAuthenticatedUser.mockImplementation(() =>
       Promise.resolve({ username: TEST_USERNAME })
     );
+
+    Auth.userAttributes.mockReset();
+    Auth.userAttributes.mockImplementation(() =>
+      Promise.resolve([
+        {
+          Name: "email",
+          Value: TEST_USERNAME,
+        },
+      ])
+    );
   });
 
-  it("success", async () => {
+  it("success with existing email", async () => {
+    Auth.currentAuthenticatedUser.mockImplementation(() =>
+      Promise.resolve({
+        username: TEST_USERNAME,
+        attributes: { email: TEST_USERNAME },
+      })
+    );
+
     await authStore.dispatch(signInCurrentUser());
     expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
+    expect(Auth.userAttributes).not.toHaveBeenCalled();
     expect(authStore.getState().authentication).toStrictEqual({
       errorMessage: "",
       state: SIGNED_IN,
-      user: { username: TEST_USERNAME },
+      user: { username: TEST_USERNAME, attributes: { email: TEST_USERNAME } },
+    });
+  });
+
+  it("success without existing email", async () => {
+    await authStore.dispatch(signInCurrentUser());
+    expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
+    expect(Auth.userAttributes).toHaveBeenCalledTimes(1);
+    expect(authStore.getState().authentication).toStrictEqual({
+      errorMessage: "",
+      state: SIGNED_IN,
+      user: { username: TEST_USERNAME, attributes: { email: TEST_USERNAME } },
     });
   });
 
@@ -905,10 +1088,200 @@ describe("signInCurrentUser", () => {
 
     await authStore.dispatch(signInCurrentUser());
     expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
+    expect(Auth.userAttributes).not.toHaveBeenCalled();
     expect(authStore.getState().authentication).toStrictEqual({
       errorMessage: "",
       state: FORGOT_PASSWORD_SUBMIT,
       user: undefined,
     });
+  });
+});
+
+describe("getTOTPSetupQrCode", () => {
+  beforeEach(() => {
+    authStore.dispatch(setAuthState(REGISTER, undefined));
+
+    Auth.setupTOTP.mockReset();
+    Auth.setupTOTP.mockImplementation((user) =>
+      Promise.resolve("secret key for " + user.username)
+    );
+    Auth.setPreferredMFA.mockReset();
+    Auth.setPreferredMFA.mockImplementation(() => Promise.resolve("success"));
+
+    QRCode.toDataURL.mockReset();
+    QRCode.toDataURL.mockImplementation((key) =>
+      Promise.resolve("image data with " + key)
+    );
+  });
+
+  it("success", () => {
+    const expectedData =
+      "image data with otpauth://totp/AWSCognito:" +
+      TEST_USERNAME +
+      "?secret=secret key for " +
+      TEST_USERNAME +
+      "&issuer=AWSCognito";
+    return getTOTPSetupQrCode(TEST_USER).then((result) => {
+      expect(result).toStrictEqual(expectedData);
+      expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
+      expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
+        TEST_USER,
+        MFA_OPTION_NONE
+      );
+    });
+  });
+});
+
+describe("getUserMFA", () => {
+  beforeEach(() => {
+    Auth.getPreferredMFA.mockReset();
+  });
+
+  it("mfa TOTP", () => {
+    Auth.getPreferredMFA.mockImplementation(() =>
+      Promise.resolve(SOFTWARE_TOKEN_MFA)
+    );
+
+    return getUserMFA(TEST_USER).then((result) => {
+      expect(result).toStrictEqual(MFA_OPTION_TOTP);
+      expect(Auth.getPreferredMFA).toHaveBeenCalledTimes(1);
+      expect(Auth.getPreferredMFA).toHaveBeenCalledWith(TEST_USER);
+    });
+  });
+
+  it("mfa SMS", () => {
+    Auth.getPreferredMFA.mockImplementation(() => Promise.resolve(SMS_MFA));
+
+    return getUserMFA(TEST_USER).then((result) => {
+      expect(result).toStrictEqual(MFA_OPTION_SMS);
+      expect(Auth.getPreferredMFA).toHaveBeenCalledTimes(1);
+      expect(Auth.getPreferredMFA).toHaveBeenCalledWith(TEST_USER);
+    });
+  });
+
+  it("mfa NOMFA", () => {
+    Auth.getPreferredMFA.mockImplementation(() => Promise.resolve(NO_MFA));
+
+    return getUserMFA(TEST_USER).then((result) => {
+      expect(result).toStrictEqual(MFA_OPTION_NONE);
+      expect(Auth.getPreferredMFA).toHaveBeenCalledTimes(1);
+      expect(Auth.getPreferredMFA).toHaveBeenCalledWith(TEST_USER);
+    });
+  });
+});
+
+describe("verifyTOTPSetup", () => {
+  beforeEach(() => {
+    authStore.dispatch(setAuthState(TOTP_SETUP, TEST_USER));
+
+    Auth.verifiedContact.mockReset();
+    Auth.verifyTotpToken.mockReset();
+    Auth.setPreferredMFA.mockReset();
+
+    Auth.verifiedContact.mockImplementation(() => Promise.resolve({}));
+    Auth.verifyTotpToken.mockImplementation(() => Promise.resolve({}));
+    Auth.setPreferredMFA.mockImplementation(() => Promise.resolve({}));
+  });
+
+  it("success", async () => {
+    return authStore
+      .dispatch(verifyTOTPSetup(TEST_USER, "passcode"))
+      .then(() => {
+        expect(Auth.verifyTotpToken).toHaveBeenCalledTimes(1);
+        expect(Auth.verifyTotpToken).toHaveBeenCalledWith(
+          TEST_USER,
+          "passcode"
+        );
+        expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
+        expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
+          TEST_USER,
+          MFA_OPTION_TOTP
+        );
+        expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
+        expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
+        expect(authStore.getState().authentication).toStrictEqual({
+          errorMessage: "",
+          state: SIGNED_IN,
+          user: TEST_USER,
+        });
+      });
+  });
+
+  it("error calling verifiedContact", async () => {
+    Auth.verifiedContact.mockImplementation(() =>
+      Promise.reject(new Error("test error"))
+    );
+
+    return authStore
+      .dispatch(verifyTOTPSetup(TEST_USER, "passcode"))
+      .then(() => {
+        expect(Auth.verifyTotpToken).toHaveBeenCalledTimes(1);
+        expect(Auth.verifyTotpToken).toHaveBeenCalledWith(
+          TEST_USER,
+          "passcode"
+        );
+        expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
+        expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
+          TEST_USER,
+          MFA_OPTION_TOTP
+        );
+        expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
+        expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
+        expect(authStore.getState().authentication).toStrictEqual({
+          errorMessage: "test error",
+          state: TOTP_SETUP,
+          user: TEST_USER,
+        });
+      });
+  });
+
+  it("error calling setPreferredMFA", async () => {
+    Auth.setPreferredMFA.mockImplementation(() =>
+      Promise.reject(new Error("test error"))
+    );
+
+    return authStore
+      .dispatch(verifyTOTPSetup(TEST_USER, "passcode"))
+      .then(() => {
+        expect(Auth.verifyTotpToken).toHaveBeenCalledTimes(1);
+        expect(Auth.verifyTotpToken).toHaveBeenCalledWith(
+          TEST_USER,
+          "passcode"
+        );
+        expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
+        expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
+          TEST_USER,
+          MFA_OPTION_TOTP
+        );
+        expect(Auth.verifiedContact).not.toHaveBeenCalled();
+        expect(authStore.getState().authentication).toStrictEqual({
+          errorMessage: "test error",
+          state: TOTP_SETUP,
+          user: TEST_USER,
+        });
+      });
+  });
+
+  it("error calling verifyTotpToken", async () => {
+    Auth.verifyTotpToken.mockImplementation(() =>
+      Promise.reject(new Error("test error"))
+    );
+
+    return authStore
+      .dispatch(verifyTOTPSetup(TEST_USER, "passcode"))
+      .then(() => {
+        expect(Auth.verifyTotpToken).toHaveBeenCalledTimes(1);
+        expect(Auth.verifyTotpToken).toHaveBeenCalledWith(
+          TEST_USER,
+          "passcode"
+        );
+        expect(Auth.setPreferredMFA).not.toHaveBeenCalled();
+        expect(Auth.verifiedContact).not.toHaveBeenCalled();
+        expect(authStore.getState().authentication).toStrictEqual({
+          errorMessage: "test error",
+          state: TOTP_SETUP,
+          user: TEST_USER,
+        });
+      });
   });
 });

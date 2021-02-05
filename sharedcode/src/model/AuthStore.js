@@ -43,22 +43,12 @@ function setAuthState(state, { authState, user }) {
     console.error("authState cannot be undefined");
     return state;
   }
-
   const result = {
     ...state,
     authentication: { state: authState, user: user, errorMessage: "" },
     // Show welcome screen on every login
     hasSeenSplashPage: state.hasSeenSplashPage && authState !== SIGNED_IN,
   };
-
-  // TODO necessary?
-  // if (authState === SIGNED_IN) {
-  //   try {
-  //     result.authentication.user = await Auth.currentAuthenticatedUser();
-  //   } catch (e) {
-  //     logger.error("User is not authenticated");
-  //   }
-  // }
   return result;
 }
 
@@ -82,5 +72,5 @@ function clearAuthError(state) {
 }
 
 export function getAuthStore() {
-    return createStore(authReducer, applyMiddleware(thunk));
+  return createStore(authReducer, applyMiddleware(thunk));
 }

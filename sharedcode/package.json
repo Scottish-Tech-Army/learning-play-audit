@@ -97,5 +97,8 @@
       "jest/prefer-spy-on": "off",
       "jest/no-test-return-statement": "off"
     }
+  },
+  "dependencies": {
+    "qrcode": "^1.4.4"
   }
 }
