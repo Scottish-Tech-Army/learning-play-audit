@@ -10,14 +10,20 @@ import { SET_AUTH_STATE } from "../../model/AuthActionTypes";
 import {
   SIGNED_IN,
   SIGN_IN,
+  CONFIRM_SIGN_IN,
   SIGNED_OUT,
   REGISTER,
   CONFIRM_REGISTRATION,
   FORGOT_PASSWORD_REQUEST,
   FORGOT_PASSWORD_SUBMIT,
   RESET_PASSWORD,
+  TOTP_SETUP,
 } from "../../model/AuthStates";
-import { setAuthState, signInCurrentUser } from "../../model/AuthActions";
+import {
+  setAuthState,
+  signInCurrentUser,
+  getTOTPSetupQrCode,
+} from "../../model/AuthActions";
 
 const TEST_USER = "test@example.com";
 const authStore = getAuthStore();
@@ -39,6 +45,7 @@ describe("component Authenticator", () => {
 
     signInCurrentUser.mockReset();
     signInCurrentUser.mockImplementation(() => () => Promise.resolve({}));
+    getTOTPSetupQrCode.mockImplementation(() => Promise.resolve(""));
     setAuthState.mockImplementation(() => () => "dummy action");
   });
 
@@ -77,11 +84,13 @@ describe("component Authenticator", () => {
 
   it("states with visuals", () => {
     checkAuthStateTitle(SIGN_IN, "Login");
+    checkAuthStateTitle(CONFIRM_SIGN_IN, "Confirm SMS Code");
     checkAuthStateTitle(REGISTER, "Register");
     checkAuthStateTitle(CONFIRM_REGISTRATION, "Confirm Sign up");
     checkAuthStateTitle(FORGOT_PASSWORD_REQUEST, "Reset your password");
     checkAuthStateTitle(FORGOT_PASSWORD_SUBMIT, "Confirm password reset");
     checkAuthStateTitle(RESET_PASSWORD, "Change Password");
+    checkAuthStateTitle(TOTP_SETUP, "Scan then enter verification code");
   });
 
   it("initial effect check", () => {

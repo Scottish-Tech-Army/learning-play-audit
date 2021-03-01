@@ -1,4 +1,4 @@
-# Learning Through Landscapes - Learning and Play Audit Survey
+# Learning Through Landscapes Trust - Learning and Play Audit Survey
 
 This monorepo contains the following projects:
 
@@ -9,9 +9,9 @@ This monorepo contains the following projects:
 
 Built by [Scottish Tech Army](https://www.scottishtecharmy.org/) volunteers.
 
-This project is property of [Learning Through Landscapes](https://www.ltl.org.uk/). The project code is Open Source
+This project is property of [Learning Through Landscapes Trust](https://www.ltl.org.uk/). The project code is Open Source
 licensed as described below, while the survey content (i.e. the questions and descriptions within the
-survey) are Copyright 2020 Learning Through Landscapes.
+survey) are Copyright 2020 Learning Through Landscapes Trust.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at
 

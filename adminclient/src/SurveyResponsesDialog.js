@@ -122,7 +122,7 @@ function SurveyResponsesDialog({ isOpen, surveyIds, handleClose }) {
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
       maxWidth="lg"
-      fullWidth
+      fullWidth={true}
     >
       <DialogContent dividers={true}>
         <TabContext value={selectedTab}>

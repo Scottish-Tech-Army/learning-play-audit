@@ -1,6 +1,7 @@
 :root {
   --colour-ltl-loader-grey: #f3f3f3;
   --colour-ltl-blue: #2d6a89;
+  --colour-ltl-green: #afcd4b;
 }
 
 /** Generic elements and formatting **/
@@ -51,12 +52,17 @@
 
 /** Active shadows **/
 
-.section.authenticator button {
+.section.authenticator button,
+.mfa-setup-dialog #confirm-button,
+.mfa-setup-dialog #reset-totp-button {
   box-shadow: 0px 2px 4px #00000080;
 }
 
 .section.authenticator button:disabled,
-.section.authenticator button:active {
+.section.authenticator button:active,
+.mfa-setup-dialog #confirm-button:disabled,
+.mfa-setup-dialog #confirm-button:active,
+.mfa-setup-dialog #reset-totp-button:active {
   box-shadow: none;
 }
 
@@ -104,22 +110,28 @@
   justify-content: start;
 }
 
-.section.authenticator button {
+.section.authenticator button,
+.mfa-setup-dialog #confirm-button,
+.mfa-setup-dialog #reset-totp-button {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100px;
-  height: 40px;
   background-color: var(--colour-ltl-blue);
   color: white;
   font-size: 12px;
   font-weight: normal;
   border: none;
+}
+
+.section.authenticator button {
+  width: 100px;
+  height: 40px;
   margin-top: 15px;
   margin-bottom: 20px;
 }
 
-.section.authenticator button:disabled {
+.section.authenticator button:disabled,
+.mfa-setup-dialog #confirm-button:disabled {
   background-color: darkGrey;
   color: white;
 }
@@ -155,7 +167,8 @@
   padding: 5px 10px;
   font-size: 18px;
 }
-.section.authenticator input[type="number"] {
+.section.authenticator input[type="number"],
+.mfa-setup-dialog #codeInput {
   appearance: textfield;
   -moz-appearance: textfield;
   -webkit-appearance: textfield;
@@ -171,4 +184,80 @@
 
 .section.authenticator #confirmEmailInput {
   background-color: lightgray;
+}
+
+.mfa-setup-dialog .content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mfa-setup-dialog .action-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.mfa-setup-dialog .toggle-button-group {
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+.mfa-setup-dialog .toggle-button-group button {
+  background-color: #fafafa;
+  border: 1px solid #cec6c6;
+  cursor: pointer;
+  float: left;
+  text-transform: uppercase;
+  /* font-family: var(--font-family-ltl-bold); */
+  font-size: 12px;
+  font-weight: bold;
+  width: 157px;
+  height: 37px;
+}
+.mfa-setup-dialog .toggle-button-group button:hover {
+  background-color: #d7e6a5;
+}
+.mfa-setup-dialog .toggle-button-group button.selected {
+  background-color: var(--colour-ltl-green);
+}
+.mfa-setup-dialog .toggle-button-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+.mfa-setup-dialog #codeInput {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  height: 39px;
+  width: 140px;
+  border: solid 1px black;
+  padding: 5px 10px;
+  font-size: 18px;
+}
+
+.mfa-setup-dialog #confirm-button,
+.mfa-setup-dialog #reset-totp-button {
+  height: 51px;
+}
+
+.mfa-setup-dialog #confirm-button {
+  margin: 5px 0 5px 10px;
+}
+
+.mfa-setup-dialog #reset-totp-button {
+  margin: 20px 0 10px 0;
+}
+
+.mfa-setup-dialog .sms-error-message {
+  color: darkred;
+  margin-top: 20px;
+}
+
+.mfa-setup-dialog .totp-error-message {
+  color: darkred;
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  text-align: center;
 }

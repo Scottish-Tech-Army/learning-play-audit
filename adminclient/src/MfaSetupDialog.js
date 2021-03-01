@@ -1,0 +1,231 @@
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import "./App.css";
+import { makeStyles } from "@material-ui/core/styles";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Button from "@material-ui/core/Button";
+import CloseIcon from "@material-ui/icons/Close";
+import { Auth } from "@aws-amplify/auth";
+import {
+  MFA_OPTION_TOTP,
+  MFA_OPTION_NONE,
+  getTOTPSetupQrCode,
+  verifyTOTPSetup,
+  getUserMFA,
+  setAuthError,
+} from "learning-play-audit-shared";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: "100%",
+  },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    flexBasis: "33.33%",
+    flexShrink: 0,
+  },
+  secondaryHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    color: theme.palette.text.secondary,
+  },
+  title: {
+    flexGrow: 1,
+  },
+  paper: {
+    position: "absolute",
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+  photo: {
+    height: "50px",
+  },
+  scrollPaper: {
+    alignItems: "start",
+  },
+}));
+
+export const ERROR_TOTP_NOT_SETUP = "User has not set up software token mfa";
+export const ERROR_TOTP_NOT_VERIFIED =
+  "User has not verified software token mfa";
+export const ERROR_TOTP_CODE_MISMATCH =
+  "Code mismatch and fail enable Software Token MFA";
+
+const CODE_ID = "codeInput";
+
+export default function MfaSetupDialog({ isOpen, surveyIds, handleClose }) {
+  const classes = useStyles();
+
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.authentication.user);
+  const errorMessage = useSelector(
+    (state) => state.authentication.errorMessage
+  );
+
+  const [mfaOption, setMfaOption] = useState();
+  const [setupTOTP, setSetupTOTP] = useState(false);
+  const [code, setCode] = useState("");
+  const [qrCodeImageSource, setQrCodeImageSource] = useState();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getUserMFA(user).then((option) => setMfaOption(option));
+  }, [user]);
+
+  const handleSetMfa = (newValue) => {
+    console.log("Set MFA", newValue);
+    if (mfaOption !== newValue) {
+      Auth.setPreferredMFA(user, newValue)
+        .then((data) => {
+          console.log("Set MFA result", data);
+          setMfaOption(newValue);
+          setSetupTOTP(false);
+          dispatch(setAuthError(""));
+        })
+        .catch((error) => {
+          console.error("Set MFA failed", error);
+          dispatch(setAuthError(error));
+          if (
+            newValue === MFA_OPTION_TOTP &&
+            (error.message === ERROR_TOTP_NOT_SETUP ||
+              error.message === ERROR_TOTP_NOT_VERIFIED)
+          ) {
+            getTOTPSetupQrCode(user)
+              .then((qrCode) => {
+                setQrCodeImageSource(qrCode);
+                setSetupTOTP(true);
+              })
+              .catch((error) => {
+                console.error(error);
+                dispatch(setAuthError(error));
+              });
+          }
+        });
+    }
+  };
+
+  function toggleButton(value, label) {
+    return (
+      <button
+        id={value}
+        className={mfaOption === value ? "selected" : ""}
+        onClick={() => handleSetMfa(value)}
+        aria-label={label}
+      >
+        {label}
+      </button>
+    );
+  }
+
+  useEffect(() => {
+    setLoading(false);
+  }, [errorMessage]);
+
+  function handleConfirm() {
+    console.log("Called handleConfirm");
+    setLoading(true);
+    dispatch(verifyTOTPSetup(user, code))
+      .then(() => getUserMFA(user))
+      .then((data) => {
+        if (data !== mfaOption) {
+          setMfaOption(data);
+        }
+        setSetupTOTP(false);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+      });
+  }
+
+  return (
+    <Dialog
+      className="mfa-setup-dialog"
+      classes={{
+        scrollPaper: classes.scrollPaper,
+      }}
+      open={true}
+      onClose={handleClose}
+      aria-labelledby="scroll-dialog-title"
+      aria-describedby="scroll-dialog-description"
+      maxWidth="lg"
+      fullWidth={true}
+    >
+      <DialogTitle id="dialog-title">Set Login Security</DialogTitle>
+      <DialogContent dividers={true}>
+        <div className="content">
+          <h3>Setup software token security:</h3>
+          <p>
+            You can enable a TOTP software token such as Google Authenticator or
+            FreeOTP to add extra security to your login.
+          </p>
+          <div className="toggle-button-group">
+            {toggleButton(MFA_OPTION_NONE, "Disable software token")}
+            {toggleButton(MFA_OPTION_TOTP, "Enable software token")}
+          </div>
+          {!setupTOTP && mfaOption === MFA_OPTION_TOTP && (
+            <button
+              id="reset-totp-button"
+              onClick={() => {
+                getTOTPSetupQrCode(user)
+                  .then((qrCode) => {
+                    setQrCodeImageSource(qrCode);
+                    setSetupTOTP(true);
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                    dispatch(setAuthError(error));
+                  });
+              }}
+            >
+              RESET SECURITY TOKEN
+            </button>
+          )}
+          {setupTOTP && (
+            <>
+              <h3>Scan then enter verification code:</h3>
+
+              <img id="qr-code" src={qrCodeImageSource} alt="qrcode" />
+              <div className="action-row">
+                <input
+                  id={CODE_ID}
+                  type="number"
+                  onInput={(event) => setCode(event.target.value)}
+                  placeholder="Enter your code"
+                  min="0"
+                />
+                <button
+                  id="confirm-button"
+                  onClick={handleConfirm}
+                  disabled={loading || code.length < 6}
+                >
+                  {loading ? (
+                    <div className="loader" />
+                  ) : (
+                    <span>VERIFY SECURITY TOKEN</span>
+                  )}
+                </button>
+                {errorMessage === ERROR_TOTP_CODE_MISMATCH && (
+                  <div className="error-message">
+                    Invalid code.
+                    <br /> Please try again.
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="primary" startIcon={<CloseIcon />}>
+          Done
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

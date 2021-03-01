@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
@@ -8,11 +8,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import SurveyResultsTable from "./SurveyResultsTable";
 import { Amplify } from "@aws-amplify/core";
 import SurveyResponsesDialog from "./SurveyResponsesDialog";
+import MfaSetupDialog from "./MfaSetupDialog";
 import { exportSurveysAsCsv } from "./SurveysAsCsv";
 import {
   Authenticator,
-  AuthSignOut,
   isAuthenticating,
+  signOut,
 } from "learning-play-audit-shared";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import {
@@ -20,6 +21,10 @@ import {
   getFullResponses,
   allSurveysRetrieved,
 } from "./model/SurveyModel";
+import IconButton from "@material-ui/core/IconButton";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
 
 // Configure these properties in .env.local
 const REGION = process.env.REACT_APP_AWS_REGION;
@@ -86,12 +91,16 @@ export default function App() {
   const authState = useSelector((state) => state.authentication.state);
   const surveyResponses = useSelector((state) => state.surveyResponses);
   const fullSurveyResponses = useSelector((state) => state.fullSurveyResponses);
+  const user = useSelector((state) => state.authentication.user);
 
   const classes = useStyles();
   const [dataRows, setDataRows] = useState([]);
   const [openSurveyResponses, setOpenSurveyResponses] = useState(false);
   const [selectedSurveyIds, setSelectedSurveyIds] = useState([]);
   const [exportCsvRequested, setExportCsvRequested] = useState(false);
+  const appBarRef = useRef(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mfaSetupOpen, setMfaSetupOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticating(authState)) {
@@ -155,7 +164,55 @@ export default function App() {
               Learning Through Landscapes Learning and Play Audit Admin
               {!isLive && " (" + ENVIRONMENT_NAME + ")"} - Overview
             </Typography>
-            <AuthSignOut />
+            <div>
+              <IconButton
+                ref={appBarRef}
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={() => setUserMenuOpen(true)}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-user"
+                anchorEl={appBarRef.current}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={userMenuOpen}
+                onClose={() => setUserMenuOpen(false)}
+              >
+                <MenuItem disabled={true}>
+                  {user && user.attributes && user.attributes.email
+                    ? user.attributes.email
+                    : ""}
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    setMfaSetupOpen(true);
+                  }}
+                >
+                  SET SECURITY
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    dispatch(signOut());
+                  }}
+                >
+                  LOG OUT
+                </MenuItem>
+              </Menu>
+            </div>
           </Toolbar>
         </AppBar>
         <SurveyResultsTable
@@ -174,6 +231,9 @@ export default function App() {
             surveyIds={selectedSurveyIds}
             handleClose={() => setOpenSurveyResponses(false)}
           />
+        )}
+        {mfaSetupOpen && (
+          <MfaSetupDialog handleClose={() => setMfaSetupOpen(false)} />
         )}
       </div>
     </ThemeProvider>
