@@ -60,7 +60,7 @@ describe("component GallerySection", () => {
       {
         sectionId: "wellbeing-colourful",
         title:
-          "Wellbeing - entrances and signs are colourful, bright, happy and welcoming",
+          "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
           { description: "test photo1", imageData: btoa("image data1") },
           { description: "test photo2", imageData: btoa("image data2") },
@@ -85,7 +85,7 @@ describe("component GallerySection", () => {
       {
         sectionId: "wellbeing-colourful",
         title:
-          "Wellbeing - entrances and signs are colourful, bright, happy and welcoming",
+          "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
           { description: "test photo1", imageData: btoa("image data1") },
           { description: "test photo2", imageData: btoa("image data2") },
@@ -135,7 +135,7 @@ describe("component GallerySection", () => {
       {
         sectionId: "wellbeing-colourful",
         title:
-          "Wellbeing - entrances and signs are colourful, bright, happy and welcoming",
+          "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
           { description: "test photo1", imageData: btoa("image data1") },
           { description: "test photo2", imageData: btoa("image data2") },
@@ -176,7 +176,7 @@ describe("component GallerySection", () => {
       {
         sectionId: "wellbeing-colourful",
         title:
-          "Wellbeing - entrances and signs are colourful, bright, happy and welcoming",
+          "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
           { description: "test photo1", imageData: btoa("image data1") },
           { description: "test photo2", imageData: btoa("image data2") },

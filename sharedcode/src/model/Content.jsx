@@ -86,8 +86,8 @@ export const sectionsContent = [
           SCALE_WITH_COMMENT,
           "RME",
           <>
-            <b>RME/RMPS</b> - e.g. sensory garden, reflection area, themed murals,
-            labyrinth etc.
+            <b>RME/RMPS</b> - e.g. sensory garden, reflection area, themed
+            murals, labyrinth etc.
           </>
         )}
         <hr className="question-divider" />
@@ -105,16 +105,16 @@ export const sectionsContent = [
           "technologies",
           <>
             <b>technologies</b> - e.g. wind turbine, solar panels, use of
-            different materials, surfaces and finishes, web cam bird box, weather
-            station etc.
+            different materials, surfaces and finishes, web cam bird box,
+            weather station etc.
           </>
         )}
         <hr className="subsection-divider" />
-        <h2>Outdoor Classrooms</h2>
+        <h2>Outdoor Gathering Spaces</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "classroom",
-          "We have an outdoor classroom area that can be used by a whole class."
+          "We have an outdoor gathering space that can be used by a whole class."
         )}
         <hr className="question-divider" />
         {addQuestion(
@@ -126,13 +126,13 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "sheltered",
-          "Outdoor classrooms and seating areas are reasonably sheltered and comfortable to use."
+          "Outdoor gathering spaces and seating areas are reasonably sheltered and comfortable to use."
         )}
         <hr className="question-divider" />
         {addQuestion(
           SCALE_WITH_COMMENT,
           "disturbance",
-          "Using outdoor classrooms and curriculum features doesn't cause significant disturbance to indoor classes."
+          "The places you use for gathering a class or learning outdoors don’t cause significant disturbance to indoor classes."
         )}
       </>
     ),
@@ -140,12 +140,21 @@ export const sectionsContent = [
 
   {
     number: 3,
-    title: "Play",
+    title: "Play in Your Grounds",
     id: "play",
     content: (addQuestion) => (
       <>
         <h2>Active Play</h2>
-        {addQuestion(SCALE_WITH_COMMENT, "climbing", "Climbing and scrambling.")}
+        <p>
+          What opportunities for the following play activities are there in your
+          grounds?
+        </p>
+
+        {addQuestion(
+          SCALE_WITH_COMMENT,
+          "climbing",
+          "Climbing and scrambling."
+        )}
         <hr className="question-divider" />
         {addQuestion(SCALE_WITH_COMMENT, "balancing", "Balancing.")}
         <hr className="question-divider" />
@@ -636,7 +645,7 @@ export const sectionsContent = [
         {addQuestion(
           SCALE_WITH_COMMENT,
           "principles",
-          "Our outdoor learning programme is planned with reference to the CfE principles for curriculum design."
+          "Our outdoor learning programme is planned with reference to principles for curriculum design."
         )}
         <hr className="question-divider" />
         {addQuestion(SCALE_WITH_COMMENT, "growfood", "We grow food in school.")}

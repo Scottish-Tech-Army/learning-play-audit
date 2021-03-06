@@ -19,7 +19,7 @@ export default function QuestionCommentDialog({
   const [localComment, setLocalComment] = useState(questionAnswers.comments);
 
   const handleCommentChange = () => {
-    console.log("handleCommentChange");
+    // console.log("handleCommentChange");
     dispatch({
       type: SET_ANSWER,
       sectionId: sectionId,

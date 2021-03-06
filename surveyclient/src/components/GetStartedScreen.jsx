@@ -17,7 +17,8 @@ export default function GetStartedScreen({ downloadButton }) {
 
       <p>
         The Learning Through Landscapes Learning and Play Audit Survey can be
-        filled in offline outdoors.
+        filled in offline outdoors. We strongly suggest that you undertake the
+        survey while walking around your outdoor space.
       </p>
       <p>
         However you will need to have access to a reliable internet connection
@@ -25,10 +26,14 @@ export default function GetStartedScreen({ downloadButton }) {
       </p>
       {downloadButton && (
         <p>
-          You can either fill in the survey here in your brower, or download it
+          You can either fill in the survey here in your browser, or download it
           as an app using the Install button.
         </p>
       )}
+      <p>
+        At the end of the survey you will have access to the results, notes and
+        images you added. You will be emailed a copy too.
+      </p>
       <div className="action-row">
         <button
           className="confirm-button"

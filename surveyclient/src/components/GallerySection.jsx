@@ -115,7 +115,7 @@ function GallerySection({ sections, setCurrentSection }) {
           style={{ display: "none" }}
           id="icon-button-add-photo"
           type="file"
-          multiple="true"
+          multiple={true}
           onChange={addPhoto}
         />
         <label htmlFor="icon-button-add-photo">

@@ -40,10 +40,10 @@ function IntroductionSection({ sections, setCurrentSection }) {
       <div className="section introduction">
         <h1 className="title">Introduction</h1>
         <p>
-          This audit tool was developed by Grounds for Learning to help you
-          reflect on your current outdoor spaces and practice, so that you can
-          identify priorities for development that might be supported by the
-          School Development Plan, colleagues and yourself.
+          This audit tool was developed by Learning through Landscapes (LtL) to
+          help you reflect on your current outdoor spaces and practice. You can
+          then identify priorities for development that might be supported by
+          the School Development Plan, colleagues and yourself.
         </p>
 
         <p>
@@ -62,13 +62,16 @@ function IntroductionSection({ sections, setCurrentSection }) {
           visit your nearest area that has potential for learning and play to
           get a better feel for the space. Again, you should check with all
           colleagues in case you are not aware of all the local trips that are
-          happening. Use the same session and tool to ask all staff what local
-          sessions they lead each year.
+          happening.
         </p>
 
         <p>
           The results of this audit are for you to then use - we hope it sparks
           thoughts and visits themes you are not aware of.
+        </p>
+        <p>
+          LtL will use anonymised mass data from this survey tool to inform our
+          work. Your data is secure and will not be shared with a third party.
         </p>
       </div>
       <div className="section introduction">
