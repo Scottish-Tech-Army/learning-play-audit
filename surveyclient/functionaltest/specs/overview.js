@@ -53,9 +53,6 @@ describe("Survey Client", () => {
         .setValue("test " + id + " comment" + timeSuffix);
     }
   }
-  // function setTextField(id, value, suffix = timeSuffix) {
-  //     client.textArea(id).setValue(value + timeSuffix);
-  // }
 
   function setOptionalTextField(id, suffix = timeSuffix) {
     if (setOptional()) {

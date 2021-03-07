@@ -24,7 +24,7 @@ export function exportSurveysAsCsv(surveys = []) {
 
   surveys.forEach((survey, i) => {
     const response = survey.surveyResponse;
-    console.log(survey);
+    console.debug(survey);
     const rowData = [survey.id];
 
     sectionsContent.forEach((section, i) => {
@@ -35,7 +35,7 @@ export function exportSurveysAsCsv(surveys = []) {
   });
 
   var csvData = data.map((row) => row.join(",")).join("\n");
-  console.log(csvData);
+  console.debug(csvData);
 
   var blob = new Blob([csvData], {
     type: "text/csv",

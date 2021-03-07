@@ -10,20 +10,20 @@ import {
 } from "./SubmitStates";
 
 function uploadPhoto(photoId, uploadUrl, photo, progressIncrementCallback) {
-  console.log("uploadPhoto", photoId, uploadUrl);
+  console.debug("uploadPhoto", photoId, uploadUrl);
 
   const imageData = Buffer.from(photo.imageData, "base64");
 
   return axios
     .put(uploadUrl, imageData, { headers: { "Content-Type": "image" } })
     .then((response) => {
-      console.log("uploadPhoto response", response);
+      console.debug("uploadPhoto response", response);
       if (response.status === 200) {
-        console.log("uploadPhoto succeeded");
+        console.debug("uploadPhoto succeeded");
         progressIncrementCallback();
         return Promise.resolve("uploadPhoto succeeded");
       } else {
-        console.log("uploadPhoto failed");
+        console.debug("uploadPhoto failed");
         return Promise.reject("uploadPhoto failed");
       }
     })
@@ -34,9 +34,9 @@ function uploadPhoto(photoId, uploadUrl, photo, progressIncrementCallback) {
 }
 
 function uploadPhotos({ uploadUrls }, photos, progressIncrementCallback) {
-  console.log("uploadPhotos", uploadUrls);
+  console.debug("uploadPhotos", uploadUrls);
   const photoIds = photos ? Object.keys(photos) : [];
-  console.log("photoIDs", photoIds);
+  console.debug("photoIDs", photoIds);
 
   return Promise.all(
     photoIds.map((photoId) =>
@@ -51,7 +51,7 @@ function uploadPhotos({ uploadUrls }, photos, progressIncrementCallback) {
 }
 
 function checkUploadPhotoUrls({ uploadUrls }, photos) {
-  console.log("checkUploadPhotoUrls", uploadUrls);
+  console.debug("checkUploadPhotoUrls", uploadUrls);
   const photoIds = photos ? Object.keys(photos) : [];
 
   photoIds.forEach((photoId) => {
@@ -62,12 +62,12 @@ function checkUploadPhotoUrls({ uploadUrls }, photos) {
 }
 
 function submitSurvey(endpoint, headers, body) {
-  console.log("POST survey"); //, headers, body);
+  console.debug("POST survey"); //, headers, body);
   return post(endpoint, "/survey", headers, body);
 }
 
 function confirmsurvey(endpoint, headers, body) {
-  console.log("POST confirmsurvey", headers, body);
+  console.debug("POST confirmsurvey", headers, body);
   return post(endpoint, "/confirmsurvey", headers, body);
 }
 
@@ -86,9 +86,11 @@ export function uploadResults(
   state,
   endpoint
 ) {
-  // console.log("Results:");
-  // console.log(JSON.stringify(state.answers));
-  // console.log(JSON.stringify(state.photoDetails));
+  console.debug(
+    "Results:",
+    JSON.stringify(state.answers),
+    JSON.stringify(state.photoDetails)
+  );
 
   let progress = 0;
   const maxProgressCount = Object.keys(state.photos).length + 2;
@@ -128,7 +130,7 @@ export function uploadResults(
       return submitSurvey(endpoint, headers, submitRequest);
     })
     .then((response) => {
-      console.log("submitSurvey complete", response);
+      console.debug("submitSurvey complete", response);
       if (
         response.status !== 200 ||
         !response.data ||
@@ -145,7 +147,7 @@ export function uploadResults(
       return uploadPhotos(response.data, state.photos, incrementProgress);
     })
     .then((response) => {
-      console.log("uploadPhotos complete", response);
+      console.debug("uploadPhotos complete", response);
       setSubmitState(SUBMITTING_CONFIRM);
       return confirmsurvey(endpoint, headers, {
         uuid: uuid,
@@ -153,7 +155,7 @@ export function uploadResults(
       });
     })
     .then((response) => {
-      console.log("confirmsurvey complete", response);
+      console.debug("confirmsurvey complete", response);
       if (response.status !== 200) {
         throw new Error(response);
       }

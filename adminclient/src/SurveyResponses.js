@@ -377,7 +377,7 @@ function SurveyResponses({ surveys = [] }) {
 
   if (surveys.length > 0) {
     surveys.forEach((item, i) => {
-      console.log(item.surveyResponse);
+      console.debug(item.surveyResponse);
     });
   }
 

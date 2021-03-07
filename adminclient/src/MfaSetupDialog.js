@@ -73,7 +73,7 @@ export default function MfaSetupDialog({ isOpen, surveyIds, handleClose }) {
   }, [errorMessage]);
 
   function handleConfirm() {
-    console.log("Called handleConfirm");
+    console.debug("Called handleConfirm");
     setLoading(true);
     dispatch(verifyTOTPSetup(user, code))
       .then(() => {

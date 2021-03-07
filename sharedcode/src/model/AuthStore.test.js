@@ -7,9 +7,6 @@ import {
 import { SIGNED_IN, SIGN_IN, REGISTER } from "./AuthStates";
 
 describe("authReducer", () => {
-  beforeEach(() => {
-    // localforage.config.mockClear();
-  });
 
   it("initial state - empty", () => {
     expect(authReducer(undefined, {})).toStrictEqual(EMPTY_STATE);

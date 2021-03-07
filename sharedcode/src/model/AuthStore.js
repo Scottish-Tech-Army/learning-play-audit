@@ -8,7 +8,7 @@ import {
 import { REGISTER, SIGNED_IN } from "./AuthStates.js";
 
 function initialState() {
-  // console.log("Setting initialState");
+  console.debug("Setting initialState");
   return {
     authentication: {
       errorMessage: "",
@@ -21,19 +21,19 @@ function initialState() {
 export function authReducer(state = initialState(), action) {
   switch (action.type) {
     case SET_AUTH_STATE:
-      // console.log("SET_AUTH_STATE");
+      console.debug("SET_AUTH_STATE");
       return setAuthState(state, action);
 
     case SET_AUTH_ERROR:
-      // console.log("SET_AUTH_ERROR");
+      console.debug("SET_AUTH_ERROR");
       return setAuthError(state, action);
 
     case CLEAR_AUTH_ERROR:
-      // console.log("CLEAR_AUTH_ERROR");
+      console.debug("CLEAR_AUTH_ERROR");
       return clearAuthError(state);
 
     default:
-      // console.log("Unknown action: " + JSON.stringify(action));
+      console.debug("Unknown action: " + JSON.stringify(action));
       return state;
   }
 }

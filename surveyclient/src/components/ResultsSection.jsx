@@ -2,7 +2,10 @@ import React, { useRef, useEffect } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
 import Chart from "chart.js";
-import { sectionsContent, SCALE_WITH_COMMENT } from "learning-play-audit-shared";
+import {
+  sectionsContent,
+  SCALE_WITH_COMMENT,
+} from "learning-play-audit-shared";
 import { RESULTS } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 
@@ -28,7 +31,10 @@ function ResultsSection({ sections, setCurrentSection }) {
       var questions = {};
       sections[section.id] = questions;
       // Use addQuestion to gather question weights
-      section.content((type, id, text, weight = 1) => (questions[id] = type === SCALE_WITH_COMMENT ? weight : 0));
+      section.content(
+        (type, id, text, weight = 1) =>
+          (questions[id] = type === SCALE_WITH_COMMENT ? weight : 0)
+      );
       return sections;
     }, {});
   }
@@ -104,8 +110,6 @@ function ResultsSection({ sections, setCurrentSection }) {
     }
 
     function chartDataAnswers() {
-      console.log("chartDataAnswers");
-
       return [
         calcSectionAnswers(answers, answerWeights, "learning"),
         calcSectionAnswers(answers, answerWeights, "play"),
@@ -116,7 +120,6 @@ function ResultsSection({ sections, setCurrentSection }) {
     }
 
     function chartDataPracticeAnswers() {
-      console.log("chartDataPracticeAnswers");
       return [
         calcMultipleAnswers(answers, answerWeights, "practice", [
           "developingcurriculum",
@@ -258,8 +261,7 @@ function ResultsSection({ sections, setCurrentSection }) {
         ["For Community", "& Participation"],
       ],
       chartDataAnswers(),
-      "#2d6a89",
-      false
+      "#2d6a89"
     );
     updateCharts(
       chartContainer2small,

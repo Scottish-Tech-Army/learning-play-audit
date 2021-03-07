@@ -31,7 +31,7 @@ const SURVEY_RESPONSES_SUMMARY_INDEX =
 const IMAGE_NOT_FOUND = "[Image not found]";
 
 function initialState() {
-  // console.log("Setting initialState");
+  console.debug("Setting initialState");
   return {
     surveyResponses: [],
     fullSurveyResponses: {},
@@ -48,11 +48,11 @@ function initialState() {
 function surveyAnswersReducer(state, action) {
   switch (action.type) {
     case SET_SUMMARY_RESPONSES:
-      // console.log("SET_SUMMARY_RESPONSES", action);
+      console.debug("SET_SUMMARY_RESPONSES", action);
       return { ...state, surveyResponses: action.responses };
 
     case SET_FULL_RESPONSES:
-      // console.log("SET_FULL_RESPONSES", action);
+      console.debug("SET_FULL_RESPONSES", action);
       return {
         ...state,
         fullSurveyResponses: {
@@ -62,24 +62,24 @@ function surveyAnswersReducer(state, action) {
       };
 
     case SET_PHOTOS:
-      // console.log("SET_PHOTOS", action);
+      console.debug("SET_PHOTOS", action);
       return {
         ...state,
         photos: { ...state.photos, ...action.photos },
       };
 
     case REFRESH_STATE:
-      // console.log("REFRESH_STATE", action.state);
+      console.debug("REFRESH_STATE", action.state);
       return action.state;
 
     default:
-      // console.log("Unknown action: ", action);
+      console.debug("Unknown action: ", action);
       return state;
   }
 }
 
 export function getSummaryResponses() {
-  // console.log("getSummaryResponses");
+  console.debug("getSummaryResponses");
   return function (dispatch, getState) {
     if (getState().authentication.state !== SIGNED_IN) {
       console.error("User not signed in");
@@ -97,7 +97,7 @@ export function getSummaryResponses() {
           IndexName: SURVEY_RESPONSES_SUMMARY_INDEX,
           ReturnConsumedCapacity: "TOTAL",
         };
-        // console.log("Scanning data", params);
+        console.debug("Scanning data", params);
         return dynamodbClient.send(new ScanCommand(params));
       })
       .then((result) => {
@@ -114,7 +114,7 @@ export function getSummaryResponses() {
 }
 
 export function getFullResponses(surveyIds) {
-  // console.log("getFullResponses", surveyIds);
+  console.debug("getFullResponses", surveyIds);
   return function (dispatch, getState) {
     if (getState().authentication.state !== SIGNED_IN) {
       console.error("User not signed in");
@@ -145,7 +145,7 @@ export function getFullResponses(surveyIds) {
             return { id: { S: id } };
           }),
         };
-        // console.log("Retrieving full responses data", params);
+        console.debug("Retrieving full responses data", params);
         return dynamodbClient.send(new BatchGetItemCommand(params));
       })
       .then((result) => {
@@ -169,12 +169,12 @@ export function getFullResponses(surveyIds) {
 }
 
 export function getPhotosForSurveys(surveys) {
-  // console.log("getPhotosForSurveys", surveys);
+  console.debug("getPhotosForSurveys", surveys);
   return getPhotos(getPhotoKeysForSurveys(surveys));
 }
 
 export function getPhotoKeysForSurveys(surveys) {
-  // console.log("getPhotoKeysForSurveys", surveys);
+  console.debug("getPhotoKeysForSurveys", surveys);
   return surveys
     .filter((survey) => survey.photos.length > 0)
     .map((survey) => survey.photos.map((photo) => photo.fullsize.key))
@@ -182,7 +182,7 @@ export function getPhotoKeysForSurveys(surveys) {
 }
 
 function getPhotos(photoKeys) {
-  // console.log("getPhotos", photoKeys);
+  console.debug("getPhotos", photoKeys);
   return function (dispatch, getState) {
     if (getState().authentication.state !== SIGNED_IN) {
       console.error("User not signed in");
@@ -195,7 +195,7 @@ function getPhotos(photoKeys) {
     );
 
     if (remainingPhotoKeys.length === 0) {
-      console.log("All photos already retrieved");
+      console.debug("All photos already retrieved");
       return Promise.resolve();
     }
 

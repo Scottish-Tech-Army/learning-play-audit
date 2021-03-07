@@ -41,11 +41,8 @@ const awsConfig = {
   },
 };
 
-console.log("Configure", Amplify.configure(awsConfig));
-
 //window.LOG_LEVEL = "DEBUG";
-
-// console.log(AuthCurrentUser, Authenticator);
+console.debug("Configure", Amplify.configure(awsConfig));
 
 function App() {
   const dispatch = useDispatch();
@@ -65,7 +62,7 @@ function App() {
 
   useEffect(() => {
     const listener = (event) => {
-      console.log("beforeinstallprompt triggered");
+      console.debug("beforeinstallprompt triggered");
       event.preventDefault();
       setDeferredInstallEvent(event);
     };
@@ -99,7 +96,7 @@ function App() {
         displayMode = "standalone";
         setAppInstalled(true);
       }
-      console.log("Running mode: ", displayMode);
+      console.debug("Running mode: ", displayMode);
     };
     window.addEventListener("DOMContentLoaded", listener);
 
@@ -115,7 +112,7 @@ function App() {
         displayMode = "standalone";
         setAppInstalled(true);
       }
-      console.log("Running mode: ", displayMode);
+      console.debug("Running mode: ", displayMode);
     };
     const outerListener = () => {
       window

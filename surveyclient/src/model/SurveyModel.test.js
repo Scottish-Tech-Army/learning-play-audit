@@ -39,9 +39,6 @@ test("localforage configuration", () => {
 });
 
 describe("surveyReducer", () => {
-  beforeEach(() => {
-    // localforage.config.mockClear();
-  });
 
   it("initial state - empty", () => {
     expect(surveyReducer(undefined, {})).toStrictEqual(EMPTY_STATE);
@@ -651,9 +648,6 @@ describe("surveyReducer", () => {
 });
 
 describe("surveyReducer using authReducer", () => {
-  beforeEach(() => {
-    // localforage.config.mockClear();
-  });
 
   it("initial state - empty", () => {
     expect(surveyReducer(undefined, {})).toStrictEqual(EMPTY_STATE);

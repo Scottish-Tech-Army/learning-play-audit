@@ -62,7 +62,7 @@ function createAnswerCounts() {
 }
 
 function initialState() {
-  // console.log("Setting initialState");
+  console.debug("Setting initialState");
   return {
     answers: createEmptyAnswers(),
     answerCounts: createAnswerCounts(),
@@ -84,26 +84,26 @@ function surveyAnswersReducer(state, action) {
   let newState;
   switch (action.type) {
     case CONFIRM_WELCOME:
-      // console.log("CONFIRM_WELCOME");
+      console.debug("CONFIRM_WELCOME");
       newState = { ...state, hasSeenSplashPage: true, hasEverLoggedIn: true };
       writeAnswers(newState);
       return newState;
 
     case SET_ANSWER:
-      // console.log("SET_ANSWER", action);
+      console.debug("SET_ANSWER", action);
       newState = setAnswer(state, action);
       writeAnswers(newState);
       return newState;
 
     case RESET_STATE:
-      // console.log("RESET_STATE");
+      console.debug("RESET_STATE");
       newState = { ...initialState(), initialisingState: false };
       writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case RESTART_SURVEY:
-      // console.log("RESTART_SURVEY");
+      console.debug("RESTART_SURVEY");
       newState = {
         ...state,
         answers: createEmptyAnswers(),
@@ -117,43 +117,43 @@ function surveyAnswersReducer(state, action) {
       return newState;
 
     case REFRESH_STATE:
-      // console.log("REFRESH_STATE", action.state);
+      console.debug("REFRESH_STATE", action.state);
       return action.state;
 
     case ADD_PHOTO:
-      // console.log("ADD_PHOTO");
+      console.debug("ADD_PHOTO");
       newState = addPhoto(state, action);
       writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case DELETE_PHOTO:
-      // console.log("DELETE_PHOTO");
+      console.debug("DELETE_PHOTO");
       newState = deletePhoto(state, action);
       writeAnswers(newState);
       writePhotos(newState);
       return newState;
 
     case UPDATE_PHOTO_DESCRIPTION:
-      // console.log("UPDATE_PHOTO_DESCRIPTION", action);
+      console.debug("UPDATE_PHOTO_DESCRIPTION", action);
       newState = updatePhotoDescription(state, action);
       writeAnswers(newState);
       return newState;
 
     case SET_AUTH_STATE:
-      // console.log("SET_AUTH_STATE");
+      console.debug("SET_AUTH_STATE");
       // Action handled in authReducer, but persist here
       writeAnswers(state);
       return state;
 
     default:
-      // console.log("Unknown action: ", action);
+      console.log("Unknown action: ", action);
       return state;
   }
 }
 
 function addPhoto(state, action) {
-  // console.log("addPhoto", action.sectionId, action.questionId);
+  console.debug("addPhoto", action.sectionId, action.questionId);
   const photoId = uuidv4();
   const result = { ...state };
   result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
@@ -168,7 +168,7 @@ function addPhoto(state, action) {
 }
 
 export function loadPhotos(files, sectionId = null, questionId = null) {
-  console.log("loadPhoto", sectionId, questionId);
+  console.debug("loadPhoto", sectionId, questionId);
   return function (dispatch) {
     return Promise.allSettled(
       files.map((file) =>
@@ -190,7 +190,7 @@ function readFileAsync(file) {
     let reader = new FileReader();
 
     reader.onload = () => {
-      console.log("photo loaded");
+      console.debug("photo loaded");
       resolve(reader.result);
     };
     reader.onerror = reject;
@@ -200,7 +200,7 @@ function readFileAsync(file) {
 }
 
 function deletePhoto(state, action) {
-  console.log("deletePhoto", action);
+  console.debug("deletePhoto", action);
   const result = { ...state };
   result.photoDetails = state.photoDetails ? { ...state.photoDetails } : {};
   delete result.photoDetails[action.photoId];
@@ -255,9 +255,9 @@ const writeAnswers = ({
   hasEverLoggedIn,
   initialisingState,
 }) => {
-  // console.log("writeAnswers");
+  console.debug("writeAnswers");
   if (initialisingState) {
-    console.log("Still initialisingState, skipping writeAnswers");
+    console.debug("Still initialisingState, skipping writeAnswers");
     return Promise.resolve();
   }
   return localforage.setItem("answers", {
@@ -271,9 +271,9 @@ const writeAnswers = ({
 const readAnswers = () => localforage.getItem("answers");
 
 const writePhotos = ({ photos, initialisingState }) => {
-  // console.log("writePhotos");
+  console.debug("writePhotos");
   if (initialisingState) {
-    console.log("Still initialisingState, skipping writePhotos");
+    console.debug("Still initialisingState, skipping writePhotos");
     return Promise.resolve();
   }
   return localforage.setItem("photos", { photos: photos });

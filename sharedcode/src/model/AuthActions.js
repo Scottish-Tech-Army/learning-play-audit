@@ -37,7 +37,7 @@ export function clearAuthError() {
 }
 
 export function checkContact(user) {
-  // console.log("checkContact");
+  console.debug("checkContact");
   return function (dispatch) {
     return Auth.verifiedContact(user)
       .then((data) => {
@@ -55,7 +55,7 @@ export function checkContact(user) {
 }
 
 function checkHasEmail(user) {
-  // console.log("checkHasEmail");
+  console.debug("checkHasEmail");
   return function (dispatch) {
     if (user.attributes && user.attributes.email) {
       dispatch(setAuthState(SIGNED_IN, user));
@@ -81,7 +81,7 @@ function checkHasEmail(user) {
 }
 
 export function signIn(username, password) {
-  // console.log("signIn");
+  console.debug("signIn");
   return function (dispatch) {
     return Auth.signIn(username, password)
       .then((user) => {
@@ -116,7 +116,7 @@ export function signIn(username, password) {
 }
 
 export function resendConfirmCode(user) {
-  // console.log("resendConfirmCode");
+  console.debug("resendConfirmCode");
   return function (dispatch) {
     return Auth.resendSignUp(user.username)
       .then(() => {
@@ -127,7 +127,7 @@ export function resendConfirmCode(user) {
 }
 
 export function confirmRegistration(user, code, signUpAttrs) {
-  // console.log("confirmRegistration");
+  console.debug("confirmRegistration");
   return function (dispatch) {
     return Auth.confirmSignUp(user.username, code)
       .then((result) => {
@@ -150,7 +150,7 @@ export function confirmRegistration(user, code, signUpAttrs) {
 }
 
 export function confirmSignIn(user, code, mfaOption) {
-  // console.log("confirmSignIn");
+  console.debug("confirmSignIn");
   return function (dispatch) {
     return Auth.confirmSignIn(
       user,
@@ -163,7 +163,7 @@ export function confirmSignIn(user, code, mfaOption) {
 }
 
 export function register(username, password) {
-  // console.log("register");
+  console.debug("register");
   return function (dispatch) {
     const signUpAttributes = { username: username, password: password };
     return Auth.signUp(signUpAttributes)
@@ -188,7 +188,7 @@ export function register(username, password) {
 }
 
 export function completeNewPassword(user, newPassword) {
-  // console.log("completeNewPassword");
+  console.debug("completeNewPassword");
   return function (dispatch) {
     let getUserPromise = null;
     if (!user) {
@@ -204,7 +204,7 @@ export function completeNewPassword(user, newPassword) {
 }
 
 export function signOut() {
-  // console.log("signOut");
+  console.debug("signOut");
   return function (dispatch) {
     return Auth.signOut()
       .then(() => dispatch(setAuthState(SIGN_IN)))
@@ -213,7 +213,7 @@ export function signOut() {
 }
 
 export function forgotPasswordRequest(username) {
-  // console.log("forgotPasswordRequest");
+  console.debug("forgotPasswordRequest");
   return function (dispatch) {
     return Auth.forgotPassword(username)
       .then(() =>
@@ -224,7 +224,7 @@ export function forgotPasswordRequest(username) {
 }
 
 export function forgotPasswordSubmit(username, code, newPassword) {
-  // console.log("forgotPasswordSubmit");
+  console.debug("forgotPasswordSubmit");
   return function (dispatch) {
     return Auth.forgotPasswordSubmit(username, code, newPassword)
       .then(() => dispatch(setAuthState(SIGN_IN)))
@@ -233,7 +233,7 @@ export function forgotPasswordSubmit(username, code, newPassword) {
 }
 
 export function signInCurrentUser(username, code, newPassword) {
-  // console.log("signInCurrentUser");
+  console.debug("signInCurrentUser");
   return function (dispatch) {
     return Auth.currentAuthenticatedUser()
       .then((user) => dispatch(checkHasEmail(user)))
@@ -245,7 +245,7 @@ export function signInCurrentUser(username, code, newPassword) {
 }
 
 export function getTOTPSetupQrCode(user) {
-  // console.log("getTOTPSetupQrCode");
+  console.debug("getTOTPSetupQrCode");
   return Auth.setupTOTP(user)
     .then((secretKey) =>
       Promise.resolve(
@@ -257,7 +257,7 @@ export function getTOTPSetupQrCode(user) {
 }
 
 export function verifyTOTPSetup(user, code) {
-  // console.log("verifyTOTPSetup");
+  console.debug("verifyTOTPSetup");
   return function (dispatch) {
     return Auth.verifyTotpToken(user, code)
       .then(() => dispatch(checkContact(user)))
@@ -269,9 +269,9 @@ export function verifyTOTPSetup(user, code) {
 }
 
 export function getUserMFA(user) {
-  // console.log("getUserMFA");
+  console.debug("getUserMFA");
   return Auth.getPreferredMFA(user).then((data) => {
-    console.log("Preferred MFA", data);
+    console.debug("Preferred MFA", data);
     if (data === SOFTWARE_TOKEN_MFA) {
       return MFA_OPTION_TOTP;
     }
