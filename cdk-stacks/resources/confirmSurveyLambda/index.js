@@ -83,7 +83,7 @@ async function updateSurveyResponse(surveyResponse) {
     TableName: process.env.SURVEY_DB_TABLE,
     Item: marshall({
       ...surveyResponse,
-      state: STATE_COMPLETE,
+      uploadState: STATE_COMPLETE,
       updatedAt: new Date().toISOString(),
     }),
   };

@@ -24,7 +24,7 @@ function storeSurveyResponse(surveyResponse) {
     TableName: process.env.SURVEY_DB_TABLE,
     Item: marshall({
       __typename: "SurveyResponse",
-      state: STATE_PENDING,
+      uploadState: STATE_PENDING,
       createdAt: creationDate,
       updatedAt: creationDate,
       ...surveyResponse,

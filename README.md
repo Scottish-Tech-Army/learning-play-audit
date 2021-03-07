@@ -77,6 +77,23 @@ arn:aws:cloudformation:eu-west-2:ACCOUNT_NUMBER:stack/PREFIX-Backend-dev/0000000
 
 These outputs are also shown in the outputs section of the CloudformationStack in the AWS Console. They are used to populate the environment specific parameters in the build of the frontend clients below.
 
+Note - there currently appears to be a bug in CDK/CloudFormation cognito pool deployments with MFA set to required. If the error message `SMS configuration and Auto verification for phone_number are required when MFA is required/optional` appears, then
+- Manually remove the remaining created resources
+- Comment out the following section from the `adminClientUserPool` declaration in `cdk-backend-stack.js`:
+  ```
+        mfa: cognito.Mfa.REQUIRED,
+        mfaSecondFactor: {
+          sms: false,
+          otp: true,
+        },
+```
+- Redeploy the backend stack - it should succeed this time
+- Execute the following AWS API command to manually set up MFA
+  ```
+aws cognito-idp set-user-pool-mfa-config --profile [aws profile] --user-pool-id [created admin user pool id] --software-token-mfa-configuration Enabled=true --mfa-configuration ON
+```
+- Uncomment the commented out code above - future deployments to the same stack should work
+
 ### Build the frontend components
 
 #### Configure environment specific settings
