@@ -1123,11 +1123,6 @@ describe("getTOTPSetupQrCode", () => {
       "&issuer=AWSCognito";
     return getTOTPSetupQrCode(TEST_USER).then((result) => {
       expect(result).toStrictEqual(expectedData);
-      expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
-      expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
-        TEST_USER,
-        MFA_OPTION_NONE
-      );
     });
   });
 });
@@ -1192,11 +1187,6 @@ describe("verifyTOTPSetup", () => {
           TEST_USER,
           "passcode"
         );
-        expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
-        expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
-          TEST_USER,
-          MFA_OPTION_TOTP
-        );
         expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
         expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
         expect(authStore.getState().authentication).toStrictEqual({
@@ -1220,40 +1210,8 @@ describe("verifyTOTPSetup", () => {
           TEST_USER,
           "passcode"
         );
-        expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
-        expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
-          TEST_USER,
-          MFA_OPTION_TOTP
-        );
         expect(Auth.verifiedContact).toHaveBeenCalledTimes(1);
         expect(Auth.verifiedContact).toHaveBeenCalledWith(TEST_USER);
-        expect(authStore.getState().authentication).toStrictEqual({
-          errorMessage: "test error",
-          state: TOTP_SETUP,
-          user: TEST_USER,
-        });
-      });
-  });
-
-  it("error calling setPreferredMFA", async () => {
-    Auth.setPreferredMFA.mockImplementation(() =>
-      Promise.reject(new Error("test error"))
-    );
-
-    return authStore
-      .dispatch(verifyTOTPSetup(TEST_USER, "passcode"))
-      .then(() => {
-        expect(Auth.verifyTotpToken).toHaveBeenCalledTimes(1);
-        expect(Auth.verifyTotpToken).toHaveBeenCalledWith(
-          TEST_USER,
-          "passcode"
-        );
-        expect(Auth.setPreferredMFA).toHaveBeenCalledTimes(1);
-        expect(Auth.setPreferredMFA).toHaveBeenCalledWith(
-          TEST_USER,
-          MFA_OPTION_TOTP
-        );
-        expect(Auth.verifiedContact).not.toHaveBeenCalled();
         expect(authStore.getState().authentication).toStrictEqual({
           errorMessage: "test error",
           state: TOTP_SETUP,
@@ -1275,7 +1233,6 @@ describe("verifyTOTPSetup", () => {
           TEST_USER,
           "passcode"
         );
-        expect(Auth.setPreferredMFA).not.toHaveBeenCalled();
         expect(Auth.verifiedContact).not.toHaveBeenCalled();
         expect(authStore.getState().authentication).toStrictEqual({
           errorMessage: "test error",

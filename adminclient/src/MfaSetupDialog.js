@@ -8,13 +8,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
 import CloseIcon from "@material-ui/icons/Close";
-import { Auth } from "@aws-amplify/auth";
 import {
-  MFA_OPTION_TOTP,
-  MFA_OPTION_NONE,
   getTOTPSetupQrCode,
   verifyTOTPSetup,
-  getUserMFA,
   setAuthError,
 } from "learning-play-audit-shared";
 
@@ -67,60 +63,10 @@ export default function MfaSetupDialog({ isOpen, surveyIds, handleClose }) {
     (state) => state.authentication.errorMessage
   );
 
-  const [mfaOption, setMfaOption] = useState();
   const [setupTOTP, setSetupTOTP] = useState(false);
   const [code, setCode] = useState("");
   const [qrCodeImageSource, setQrCodeImageSource] = useState();
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    getUserMFA(user).then((option) => setMfaOption(option));
-  }, [user]);
-
-  const handleSetMfa = (newValue) => {
-    console.log("Set MFA", newValue);
-    if (mfaOption !== newValue) {
-      Auth.setPreferredMFA(user, newValue)
-        .then((data) => {
-          console.log("Set MFA result", data);
-          setMfaOption(newValue);
-          setSetupTOTP(false);
-          dispatch(setAuthError(""));
-        })
-        .catch((error) => {
-          console.error("Set MFA failed", error);
-          dispatch(setAuthError(error));
-          if (
-            newValue === MFA_OPTION_TOTP &&
-            (error.message === ERROR_TOTP_NOT_SETUP ||
-              error.message === ERROR_TOTP_NOT_VERIFIED)
-          ) {
-            getTOTPSetupQrCode(user)
-              .then((qrCode) => {
-                setQrCodeImageSource(qrCode);
-                setSetupTOTP(true);
-              })
-              .catch((error) => {
-                console.error(error);
-                dispatch(setAuthError(error));
-              });
-          }
-        });
-    }
-  };
-
-  function toggleButton(value, label) {
-    return (
-      <button
-        id={value}
-        className={mfaOption === value ? "selected" : ""}
-        onClick={() => handleSetMfa(value)}
-        aria-label={label}
-      >
-        {label}
-      </button>
-    );
-  }
 
   useEffect(() => {
     setLoading(false);
@@ -130,11 +76,7 @@ export default function MfaSetupDialog({ isOpen, surveyIds, handleClose }) {
     console.log("Called handleConfirm");
     setLoading(true);
     dispatch(verifyTOTPSetup(user, code))
-      .then(() => getUserMFA(user))
-      .then((data) => {
-        if (data !== mfaOption) {
-          setMfaOption(data);
-        }
+      .then(() => {
         setSetupTOTP(false);
         setLoading(false);
       })
@@ -159,16 +101,10 @@ export default function MfaSetupDialog({ isOpen, surveyIds, handleClose }) {
       <DialogTitle id="dialog-title">Set Login Security</DialogTitle>
       <DialogContent dividers={true}>
         <div className="content">
-          <h3>Setup software token security:</h3>
           <p>
-            You can enable a TOTP software token such as Google Authenticator or
-            FreeOTP to add extra security to your login.
+            Click the button below to reset your TOTP software token.
           </p>
-          <div className="toggle-button-group">
-            {toggleButton(MFA_OPTION_NONE, "Disable software token")}
-            {toggleButton(MFA_OPTION_TOTP, "Enable software token")}
-          </div>
-          {!setupTOTP && mfaOption === MFA_OPTION_TOTP && (
+          {!setupTOTP && (
             <button
               id="reset-totp-button"
               onClick={() => {

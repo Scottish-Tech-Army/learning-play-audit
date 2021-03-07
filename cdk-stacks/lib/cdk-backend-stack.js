@@ -22,9 +22,6 @@ class CdkBackendStack extends cdk.Stack {
     const region = stack.region;
     const { environment, resourcePrefix } = props;
 
-    //provisionedthroughput - cost of lower
-    //perhaps remove s3 abort
-
     // The following are fixed resource names with environment stage suffixes
     // These resources will not be replaced during updates
     const SURVEY_RESOURCES_BUCKET_NAME =
@@ -228,8 +225,11 @@ class CdkBackendStack extends cdk.Stack {
         requireDigits: true,
         requireSymbols: true,
       },
-
-      // TODO - enable MFA for admin ?
+      mfa: cognito.Mfa.REQUIRED,
+      mfaSecondFactor: {
+        sms: false,
+        otp: true,
+      },
     });
     adminClientUserPool.node.defaultChild.applyRemovalPolicy(
       cdk.RemovalPolicy.RETAIN

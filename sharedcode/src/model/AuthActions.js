@@ -246,9 +246,7 @@ export function signInCurrentUser(username, code, newPassword) {
 
 export function getTOTPSetupQrCode(user) {
   // console.log("getTOTPSetupQrCode");
-  // workaround for https://github.com/aws-amplify/amplify-js/issues/1226
-  return Auth.setPreferredMFA(user, MFA_OPTION_NONE)
-    .then(() => Auth.setupTOTP(user))
+  return Auth.setupTOTP(user)
     .then((secretKey) =>
       Promise.resolve(
         QRCode.toDataURL(
@@ -262,7 +260,6 @@ export function verifyTOTPSetup(user, code) {
   // console.log("verifyTOTPSetup");
   return function (dispatch) {
     return Auth.verifyTotpToken(user, code)
-      .then(() => Auth.setPreferredMFA(user, MFA_OPTION_TOTP))
       .then(() => dispatch(checkContact(user)))
       .catch((error) => {
         console.error(error);

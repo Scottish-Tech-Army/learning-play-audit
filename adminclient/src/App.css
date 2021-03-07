@@ -186,6 +186,10 @@
   background-color: lightgray;
 }
 
+.section.authenticator #qr-code {
+    align-self: center;
+}
+
 .mfa-setup-dialog .content {
   display: flex;
   flex-direction: column;
