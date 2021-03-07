@@ -18,16 +18,16 @@ export function exportSurveysAsCsv(surveys = []) {
   // Clone the header rows
   const data = headerRows.map((row) => [...row]);
 
-  sectionsContent.forEach((section, i) => {
+  sectionsContent.forEach((section) => {
     renderSectionHeader(data, section);
   });
 
-  surveys.forEach((survey, i) => {
+  surveys.forEach((survey) => {
     const response = survey.surveyResponse;
     console.debug(survey);
     const rowData = [survey.id];
 
-    sectionsContent.forEach((section, i) => {
+    sectionsContent.forEach((section) => {
       renderSectionAnswers(rowData, section, response[section.id]);
     });
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { setAuthState } from "../../model/AuthActions";
 import { useDispatch, useSelector } from "react-redux";
 import { SIGN_IN } from "../../model/AuthStates";
 import {
+  setAuthState,
   resendConfirmCode,
   confirmRegistration,
 } from "../../model/AuthActions";

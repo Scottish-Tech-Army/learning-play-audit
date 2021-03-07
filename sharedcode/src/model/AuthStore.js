@@ -43,13 +43,12 @@ function setAuthState(state, { authState, user }) {
     console.error("authState cannot be undefined");
     return state;
   }
-  const result = {
+  return {
     ...state,
     authentication: { state: authState, user: user, errorMessage: "" },
     // Show welcome screen on every login
     hasSeenSplashPage: state.hasSeenSplashPage && authState !== SIGNED_IN,
   };
-  return result;
 }
 
 function setAuthError(state, { message }) {

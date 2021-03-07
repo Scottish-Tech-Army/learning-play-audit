@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { setAuthState } from "../../model/AuthActions";
 import { useDispatch, useSelector } from "react-redux";
 import {
   SIGN_IN,
@@ -7,7 +6,7 @@ import {
   MFA_OPTION_SMS,
   SOFTWARE_TOKEN_MFA,
 } from "../../model/AuthStates";
-import { confirmSignIn } from "../../model/AuthActions";
+import { setAuthState, confirmSignIn } from "../../model/AuthActions";
 
 const CODE_ID = "codeInput";
 

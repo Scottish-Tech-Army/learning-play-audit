@@ -4,7 +4,11 @@ import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  makeStyles,
+  createMuiTheme,
+  ThemeProvider,
+} from "@material-ui/core/styles";
 import SurveyResultsTable from "./SurveyResultsTable";
 import { Amplify } from "@aws-amplify/core";
 import SurveyResponsesDialog from "./SurveyResponsesDialog";
@@ -15,7 +19,6 @@ import {
   isAuthenticating,
   signOut,
 } from "learning-play-audit-shared";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import {
   getSummaryResponses,
   getFullResponses,

@@ -17,7 +17,9 @@ import {
 } from "./components/FixedSectionTypes";
 
 jest.mock("@aws-amplify/core");
-jest.spyOn(window, "scrollTo").mockImplementation(() => {});
+jest.spyOn(window, "scrollTo").mockImplementation(() => {
+    // Do nothing
+});
 
 describe("main App", () => {
   var container = null;

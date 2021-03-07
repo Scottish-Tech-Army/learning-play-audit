@@ -202,7 +202,7 @@ function createTestState() {
     return result;
   }
 
-  const result = {
+  return {
     ...EMPTY_STATE,
     answerCounts: populateAnswerCounts(),
     answers: populateAnswers(),
@@ -235,7 +235,6 @@ function createTestState() {
       },
     },
   };
-  return result;
 }
 
 export const INPUT_STATE = createTestState();

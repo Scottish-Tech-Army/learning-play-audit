@@ -23,8 +23,7 @@ import {
 
 const IMAGE_NOT_FOUND = "[Image not found]";
 
-
-export function exportSurveysAsDocx(surveys = [], photos) {
+export function exportSurveysAsDocx(surveys, photos) {
   if (surveys.length === 0) {
     console.log("No surveys to export");
   }
@@ -149,7 +148,11 @@ function tableCell(content) {
   });
 }
 
-function questionSelectWithComment(question, questionNumber, responses) {
+function renderQuestionTypeSelectWithComment(
+  question,
+  questionNumber,
+  responses
+) {
   function getAnswer(response) {
     switch (response.answer) {
       case "a":
@@ -181,7 +184,7 @@ function questionSelectWithComment(question, questionNumber, responses) {
   ];
 }
 
-function questionUserSelect(question, questionNumber, responses) {
+function renderQuestionTypeUserSelect(question, questionNumber, responses) {
   function getAnswer(response) {
     switch (response.answer) {
       case "a":
@@ -229,7 +232,7 @@ function questionUserSelect(question, questionNumber, responses) {
   ];
 }
 
-function questionText(question, questionNumber, responses) {
+function renderQuestionTypeText(question, questionNumber, responses) {
   return [
     renderQuestionText(questionNumber, question.text),
     new Table({
@@ -246,7 +249,7 @@ function questionText(question, questionNumber, responses) {
   ];
 }
 
-function questionTextWithYear(question, questionNumber, responses) {
+function renderQuestionTypeTextWithYear(question, questionNumber, responses) {
   function yearAnswerRow(response, answerKey, yearKey, index) {
     const answer = response[answerKey] != null ? response[answerKey] : "";
     const year = response[yearKey] != null ? response[yearKey] : "";
@@ -315,25 +318,29 @@ function renderSection(section, sectionResponses) {
       docQuestions.splice(
         docQuestions.length,
         0,
-        ...questionSelectWithComment(question, questionIndex, responses)
+        ...renderQuestionTypeSelectWithComment(
+          question,
+          questionIndex,
+          responses
+        )
       );
     } else if (USER_TYPE_WITH_COMMENT === type) {
       docQuestions.splice(
         docQuestions.length,
         0,
-        ...questionUserSelect(question, questionIndex, responses)
+        ...renderQuestionTypeUserSelect(question, questionIndex, responses)
       );
     } else if (TEXT_AREA === type || TEXT_FIELD === type) {
       docQuestions.splice(
         docQuestions.length,
         0,
-        ...questionText(question, questionIndex, responses)
+        ...renderQuestionTypeText(question, questionIndex, responses)
       );
     } else if (TEXT_WITH_YEAR === type) {
       docQuestions.splice(
         docQuestions.length,
         0,
-        ...questionTextWithYear(question, questionIndex, responses)
+        ...renderQuestionTypeTextWithYear(question, questionIndex, responses)
       );
     } else {
       throw new Error("unknown question type: " + type);

@@ -242,13 +242,13 @@ function getPhoto(s3, photoKey) {
 export function objectResponseToUint8Array(responseBody) {
   if (typeof Blob === "function" && responseBody instanceof Blob) {
     return new Promise(function (resolve) {
-      var reader = new FileReader();
+      var fileReader = new FileReader();
 
-      reader.onloadend = function () {
-        resolve(reader.result);
+      fileReader.onloadend = function () {
+        resolve(fileReader.result);
       };
 
-      reader.readAsArrayBuffer(responseBody);
+      fileReader.readAsArrayBuffer(responseBody);
     }).then((arrayBuffer) => Promise.resolve(new Uint8Array(arrayBuffer)));
   }
 
@@ -301,7 +301,7 @@ export function allSurveysRetrieved(selectedSurveyIds, fullSurveyResponses) {
 }
 
 // Exported for unit tests
-export function surveyReducer(state = initialState(), action) {
+export function surveyReducer(state = initialState(), action = undefined) {
   return surveyAnswersReducer(authReducer(state, action), action);
 }
 

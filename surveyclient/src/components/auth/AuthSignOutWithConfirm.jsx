@@ -4,7 +4,7 @@ import { signOut } from "learning-play-audit-shared";
 import ConfirmDialog from "../ConfirmDialog";
 import "../../App.css";
 
-export default function AuthSignOut() {
+export default function AuthSignOutWithConfirm() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const dispatch = useDispatch();

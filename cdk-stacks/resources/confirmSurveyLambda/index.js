@@ -115,7 +115,7 @@ exports.handler = async (event) => {
 
   console.log("Update result", updateResult);
 
-  const response = {
+  return {
     statusCode: 200,
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -124,5 +124,4 @@ exports.handler = async (event) => {
     },
     body: JSON.stringify({ result: "Submission complete" }),
   };
-  return response;
 };

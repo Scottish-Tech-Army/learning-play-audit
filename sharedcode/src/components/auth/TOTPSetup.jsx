@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { setAuthState } from "../../model/AuthActions";
 import { useDispatch, useSelector } from "react-redux";
+import { SIGN_IN } from "../../model/AuthStates";
 import {
-  SIGN_IN,
-  MFA_OPTION_TOTP,
-  MFA_OPTION_SMS,
-  SOFTWARE_TOKEN_MFA,
-} from "../../model/AuthStates";
-import {
+  setAuthState,
   getTOTPSetupQrCode,
   verifyTOTPSetup,
   setAuthError,

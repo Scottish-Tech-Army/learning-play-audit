@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
 function GalleryPhoto({ photo }) {
   const classes = useStyles();
 
-  // TODO default to downloading image ?
   const [imgSrc, setImgSrc] = useState(null);
 
   useEffect(() => {
