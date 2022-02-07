@@ -1,4 +1,4 @@
-# CDK Deployment stack for LTL Survey Audit application
+# CDK Deployment stack for LtL Survey Audit application
 
 This project handles the CDK creation of backend resources and frontend deployments of the Admin and Survey React applications.
 
@@ -8,7 +8,7 @@ See the [monorepo build and deploy instructions](../README.md)
 
 ## AWS Deployment architecture
 
-The LTL Survey consists of:
+The LtL Survey consists of:
 
 - Backend
   - A DominoDB table of survey responses. Each item contains some indexing fields, the survey response in JSON format, and keys to photos submitted as part of the survey response

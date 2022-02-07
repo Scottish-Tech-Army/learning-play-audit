@@ -21,6 +21,7 @@ import {
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
 
+// eslint-disable-next-line jest/require-hook
 localforage.config({
   name: "learning-play-audit",
   version: 1.0,

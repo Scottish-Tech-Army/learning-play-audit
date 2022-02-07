@@ -1,8 +1,8 @@
-const cdk = require("@aws-cdk/core");
-const { Bucket } = require("@aws-cdk/aws-s3");
-const cloudfront = require("@aws-cdk/aws-cloudfront");
-const origins = require("@aws-cdk/aws-cloudfront-origins");
-const s3deploy = require("@aws-cdk/aws-s3-deployment");
+const cdk = require("aws-cdk-lib");
+const { Bucket } = require("aws-cdk-lib/aws-s3");
+const cloudfront = require("aws-cdk-lib/aws-cloudfront");
+const origins = require("aws-cdk-lib/aws-cloudfront-origins");
+const s3deploy = require("aws-cdk-lib/aws-s3-deployment");
 
 class CdkFrontendStack extends cdk.Stack {
   /**

@@ -1,4 +1,4 @@
-// Survey content Copyright 2020 Learning Through Landscapes https://www.ltl.org.uk/
+// Survey content Copyright 2020 Learning through Landscapes https://www.ltl.org.uk/
 
 import React from "react";
 
@@ -421,7 +421,7 @@ export const sectionsContent = [
           "We encourage nature in our grounds in other ways."
         )}
         <hr className="subsection-divider" />
-        <h2>Sustainable Practices</h2>
+        <h2>Sustainable Practice and Climate Change</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "cycle",
@@ -444,6 +444,24 @@ export const sectionsContent = [
           SCALE_WITH_COMMENT,
           "renewableenergy",
           "We have renewable energy features of some kind."
+        )}
+        <hr className="question-divider" />
+        {addQuestion(
+          SCALE_WITH_COMMENT,
+          "overheating",
+          "We have features that address overheating in our grounds. (This includes such things as shade from natural or man made items, natural surfaces and running water.)"
+        )}
+        <hr className="question-divider" />
+        {addQuestion(
+          SCALE_WITH_COMMENT,
+          "airquality",
+          "Our air quality is good. (This is because we are away from pollution sources such as roads and factories and/or we have mitigating features such as planting or running water.)"
+        )}
+        <hr className="question-divider" />
+        {addQuestion(
+          SCALE_WITH_COMMENT,
+          "heavyrain",
+          "Our grounds have features to help manage heavy rain or drought conditions. (Items such as good drains, SUDS, mulch on planted areas and resilient plant species.)"
         )}
         <hr className="subsection-divider" />
         <h2>Food</h2>
@@ -731,7 +749,8 @@ export const sectionsContent = [
           "CPD",
           "CPD on how to develop some of the ideas suggested in this audit would be really useful."
         )}
-        <hr className="question-divider" />
+        <hr className="subsection-divider" />
+        <h2>About this survey</h2>
         {addQuestion(
           SCALE_WITH_COMMENT,
           "straightforward",

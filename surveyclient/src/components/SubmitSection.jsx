@@ -35,7 +35,7 @@ function SubmitSection({ sections, setCurrentSection, endpoint }) {
     <div className="section submit">
       <h1 className="title">Upload survey response</h1>
       <p>
-        Upload your completed survey to send your answers to Learning Through
+        Upload your completed survey to send your answers to Learning through
         Landscapes.
       </p>
       <p>

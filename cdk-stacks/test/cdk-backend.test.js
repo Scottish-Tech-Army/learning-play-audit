@@ -1,5 +1,5 @@
 const { expect, matchTemplate, MatchStyle } = require('@aws-cdk/assert');
-const cdk = require('@aws-cdk/core');
+const cdk = require("aws-cdk-lib");
 const CdkBackend = require('../lib/cdk-backend-stack');
 
 test('Empty Stack', () => {

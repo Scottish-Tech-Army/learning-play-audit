@@ -12,7 +12,7 @@ import {
   Packer,
   Paragraph,
   TextRun,
-  Media,
+  ImageRun,
   HeadingLevel,
   Table,
   TableRow,
@@ -29,7 +29,6 @@ export function exportSurveysAsDocx(surveys, photos) {
   }
 
   const responses = surveys.map((survey) => survey.surveyResponse);
-  const doc = new Document();
 
   const paragraphs = sectionsContent
     .map((section, i) => {
@@ -40,7 +39,9 @@ export function exportSurveysAsDocx(surveys, photos) {
     })
     .flat();
 
-  doc.addSection({
+    const sections = [];
+
+  sections.push({
     properties: {},
     children: [
       new Paragraph({
@@ -51,11 +52,12 @@ export function exportSurveysAsDocx(surveys, photos) {
     ],
   });
 
-  function renderPhoto(photoKey, description) {
+  function renderPhoto(photoKey, description, height, width) {
     const photoData = photos[photoKey];
     if (photoData.data !== undefined) {
+      const scaledWidth = width * 200 / height;
       return [
-        new Paragraph(Media.addImage(doc, photoData.data)),
+        new Paragraph({ children: [new ImageRun({ data: photoData.data, transformation: {height: 200, width: scaledWidth} })] }),
         new Paragraph({ children: [new TextRun({ text: description })] }),
       ];
     }
@@ -79,7 +81,7 @@ export function exportSurveysAsDocx(surveys, photos) {
       }),
       ...survey.photos
         .map((photoRef) =>
-          renderPhoto(photoRef.fullsize.key, photoRef.description)
+          renderPhoto(photoRef.fullsize.key, photoRef.description, photoRef.fullsize.height, photoRef.fullsize.width)
         )
         .flat(),
     ];
@@ -89,7 +91,7 @@ export function exportSurveysAsDocx(surveys, photos) {
     .filter((survey) => survey.photos.length > 0)
     .map(renderSurveyPhotos);
 
-  doc.addSection({
+    sections.push({
     children: [
       new Paragraph({
         text: "Survey Photos",
@@ -98,6 +100,8 @@ export function exportSurveysAsDocx(surveys, photos) {
       ...photoSections.flat(),
     ],
   });
+
+  const doc = new Document({sections: sections});
 
   Packer.toBlob(doc).then((blob) => {
     saveAs(blob, "SurveyReport.docx");
@@ -178,7 +182,7 @@ function renderQuestionTypeSelectWithComment(
       columnWidths: [300, 1600, 7000],
       borders: GREY_BORDER,
       rows: responses.map((response, i) => {
-        return tableRow("" + (i + 1), getAnswer(response), response.comments);
+        return tableRow("" + (i + 1), response ? getAnswer(response) : "", response ? response.comments : "");
       }),
     }),
   ];

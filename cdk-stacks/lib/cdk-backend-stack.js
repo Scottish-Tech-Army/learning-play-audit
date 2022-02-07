@@ -1,11 +1,11 @@
-const cdk = require("@aws-cdk/core");
-const { HttpMethods, Bucket } = require("@aws-cdk/aws-s3");
-const dynamodb = require("@aws-cdk/aws-dynamodb");
-const { NodejsFunction } = require("@aws-cdk/aws-lambda-nodejs");
-const lambda = require("@aws-cdk/aws-lambda");
-const apigateway = require("@aws-cdk/aws-apigateway");
-const cognito = require("@aws-cdk/aws-cognito");
-const iam = require("@aws-cdk/aws-iam");
+const cdk = require("aws-cdk-lib");
+const { HttpMethods, Bucket } = require("aws-cdk-lib/aws-s3");
+const dynamodb = require("aws-cdk-lib/aws-dynamodb");
+const { NodejsFunction } = require("aws-cdk-lib/aws-lambda-nodejs");
+const lambda = require("aws-cdk-lib/aws-lambda");
+const apigateway = require("aws-cdk-lib/aws-apigateway");
+const cognito = require("aws-cdk-lib/aws-cognito");
+const iam = require("aws-cdk-lib/aws-iam");
 
 class CdkBackendStack extends cdk.Stack {
   /**
@@ -102,9 +102,9 @@ class CdkBackendStack extends cdk.Stack {
       selfSignUpEnabled: true,
       userVerification: {
         emailSubject:
-          "Please verify your email for the Learning Through Landscapes Audit Survey",
+          "Please verify your email for the Learning through Landscapes Audit Survey",
         emailBody:
-          "This email address was recently added as your Learning Through Landscapes contact email address. " +
+          "This email address was recently added as your Learning through Landscapes contact email address. " +
           "Please enter the confirmation code {####} in the audit survey to verify your email address.",
         emailStyle: cognito.VerificationEmailStyle.CODE,
       },

@@ -164,7 +164,7 @@ export default function App() {
           />
           <Toolbar className={classes.toolBar}>
             <Typography variant="h6" className={classes.title}>
-              Learning Through Landscapes Learning and Play Audit Admin
+              Learning through Landscapes Learning and Play Audit Admin
               {!isLive && " (" + ENVIRONMENT_NAME + ")"} - Overview
             </Typography>
             <div>

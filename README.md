@@ -1,17 +1,17 @@
-# Learning Through Landscapes Trust - Learning and Play Audit Survey
+# Learning through Landscapes Trust - Learning and Play Audit Survey
 
 This monorepo contains the following projects:
 
 - [cdk-stacks](cdk-stacks) - AWS CDK project to build required AWS components and deploy web applications.
-- [surveyclient](surveyclient) - React (PWA) web application for completing the LTL audit surveys.
-- [adminclient](adminclient) - React web application for review and retrieval of LTL audit survey responses.
+- [surveyclient](surveyclient) - React (PWA) web application for completing the LtL audit surveys.
+- [adminclient](adminclient) - React web application for review and retrieval of LtL audit survey responses.
 - [sharedcode](sharedcode) - content common to surveyclient and adminclient - the survey questions and description.
 
 Built by [Scottish Tech Army](https://www.scottishtecharmy.org/) volunteers.
 
-This project is property of [Learning Through Landscapes Trust](https://www.ltl.org.uk/). The project code is Open Source
+This project is property of [Learning through Landscapes Trust](https://www.ltl.org.uk/). The project code is Open Source
 licensed as described below, while the survey content (i.e. the questions and descriptions within the
-survey) are Copyright 2020 Learning Through Landscapes Trust.
+survey) are Copyright 2020 Learning through Landscapes Trust.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at
 
@@ -46,9 +46,18 @@ cd ../confirmSurveyLambda; npm install
 
 #### Deploy backend
 
+If it's the first time CDK use in an environment, the environment needs to be [prepared](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html) for the deployment. Run the following first
+
+```
+cdk bootstrap aws://AWS_ACCOUNT_NUMBER/REGION --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX
+```
+Here `aws://AWS_ACCOUNT_NUMBER/REGION` is the AWS account and region to use for the deployment, e.g. `aws://1234567890/eu-west-2`.
+
+Once that's done, the rest of the deploy should go smoothly
+
 ```
 cd PROJECT_ROOT/cdk-stacks
-cdk deploy PREFIX-Backend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX`
+cdk deploy PREFIX-Backend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX
 ```
 
 Here `PREFIX` is the resource prefix for your deployment, e.g. '`MySurvey`'. This needs to be unique to your deployment as it is used for resource name generation and S3 resource names must be unique within their AWS region.
@@ -80,7 +89,7 @@ These outputs are also shown in the outputs section of the CloudformationStack i
 Note - there currently appears to be a bug in CDK/CloudFormation cognito pool deployments with MFA set to required. If the error message `SMS configuration and Auto verification for phone_number are required when MFA is required/optional` appears, then
 - Manually remove the remaining created resources
 - Comment out the following section from the `adminClientUserPool` declaration in `cdk-backend-stack.js`:
-  ```
+```
         mfa: cognito.Mfa.REQUIRED,
         mfaSecondFactor: {
           sms: false,
@@ -89,7 +98,7 @@ Note - there currently appears to be a bug in CDK/CloudFormation cognito pool de
 ```
 - Redeploy the backend stack - it should succeed this time
 - Execute the following AWS API command to manually set up MFA
-  ```
+```
 aws cognito-idp set-user-pool-mfa-config --profile [aws profile] --user-pool-id [created admin user pool id] --software-token-mfa-configuration Enabled=true --mfa-configuration ON
 ```
 - Uncomment the commented out code above - future deployments to the same stack should work

@@ -87,7 +87,7 @@ function renderSectionHeader(data, section) {
 
 function renderSectionAnswers(rowData, section, sectionResponse) {
   function addQuestion(type, id, text) {
-    const response = sectionResponse[id];
+    const response = sectionResponse[id] || {answer: "", comments:""};
 
     if (SCALE_WITH_COMMENT === type || USER_TYPE_WITH_COMMENT === type) {
       addAnswers(rowData, response.answer, response.comments);

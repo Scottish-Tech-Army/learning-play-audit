@@ -1,13 +1,18 @@
 import React, { useRef, useEffect } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
-import Chart from "chart.js";
+import {BarController, BarElement, CategoryScale, LinearScale, Chart} from "chart.js";
 import {
   sectionsContent,
   SCALE_WITH_COMMENT,
 } from "learning-play-audit-shared";
 import { RESULTS } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
+
+// eslint-disable-next-line jest/require-hook
+Chart.register(
+  BarController, BarElement, CategoryScale, LinearScale
+);
 
 function ResultsSection({ sections, setCurrentSection }) {
   const answers = useSelector((state) => state.answers);
@@ -156,20 +161,22 @@ function ResultsSection({ sections, setCurrentSection }) {
       }
 
       const valueAxis = {
-        gridLines: {
+        type: 'linear',
+        grid: {
           color: "#807d7d",
           z: 1,
         },
+        min: 0,
+        max: 100,
         ticks: {
           beginAtZero: true,
-          suggestedMin: 0,
-          suggestedMax: 100,
           fontSize: 14,
         },
       };
 
       const categoryAxis = {
-        gridLines: {
+        type: 'category',
+        grid: {
           color: "#807d7d",
           z: 1,
         },
@@ -180,7 +187,7 @@ function ResultsSection({ sections, setCurrentSection }) {
       };
 
       const configuration = {
-        type: small ? "bar" : "horizontalBar",
+        type: "bar",
         options: {
           animation: {
             duration: 0,
@@ -194,12 +201,13 @@ function ResultsSection({ sections, setCurrentSection }) {
           legend: false,
           borderWidth: 10,
           scales: {
-            xAxes: [small ? categoryAxis : valueAxis],
-            yAxes: [small ? valueAxis : categoryAxis],
+            x: small ? categoryAxis : valueAxis,
+            y: small ? valueAxis : categoryAxis,
           },
           tooltips: {
             enabled: false,
           },
+          indexAxis: small ? 'x' : 'y'
         },
         data: {
           labels: labels,

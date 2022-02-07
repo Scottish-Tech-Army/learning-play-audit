@@ -18,7 +18,6 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { createRequest } from "@aws-sdk/util-create-request";
 import { S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
 import { formatUrl } from "@aws-sdk/util-format-url";
-import GrowableUint8Array from "@fictivekin/growable-uint8-array";
 
 // Configure these properties in .env.local
 const REGION = process.env.REACT_APP_AWS_REGION;
@@ -252,20 +251,30 @@ export function objectResponseToUint8Array(responseBody) {
     }).then((arrayBuffer) => Promise.resolve(new Uint8Array(arrayBuffer)));
   }
 
-  // responseBody == ReadableStream
-  const incoming = new GrowableUint8Array();
+  const INITIAL_BUFFER_SIZE = 1024;
+  let buffer = new Uint8Array(INITIAL_BUFFER_SIZE);
+  let bytesUsed = 0;
+
   const reader = responseBody.getReader();
   async function readStream() {
     let isDone = false;
     while (!isDone) {
       const { done, value } = await reader.read();
       if (value) {
-        incoming.extend(value);
+        if (value.length + bytesUsed > buffer.byteLength) {
+          let oldBuffer = buffer;
+          var newSize = Math.max(buffer.byteLength * 2, value.length + bytesUsed + 1);
+          buffer = new Uint8Array(newSize);
+          buffer.set(oldBuffer);
+        }
+      
+        buffer.set(value, bytesUsed);
+        bytesUsed += value.length;
       }
       isDone = done;
     }
   }
-  return readStream().then(() => Promise.resolve(incoming.unwrap()));
+  return readStream().then(() => Promise.resolve(buffer.subarray(0, bytesUsed)));
 }
 
 export function getPhotoUrl(photoKey) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const cdk = require("@aws-cdk/core");
+const cdk = require("aws-cdk-lib");
 const { CdkBackendStack } = require("../lib/cdk-backend-stack");
 const { CdkFrontendStack } = require("../lib/cdk-frontend-stack");
 

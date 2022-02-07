@@ -9,6 +9,24 @@ import localforage from "localforage";
 // Mock local storage
 jest.mock("localforage");
 
+window.ResizeObserver =
+    window.ResizeObserver ||
+    jest.fn().mockImplementation(() => ({
+        disconnect: jest.fn(),
+        observe: jest.fn(),
+        unobserve: jest.fn(),
+    }));
+    
+    global.console = {
+      log: jest.fn(),
+      info: jest.fn(),
+      debug: jest.fn(),
+    
+      // Keep native behaviour for other methods
+      error: console.error,
+      warn: console.warn,
+    };
+
 beforeEach(() => {
   localforage.getItem.mockReset();
   localforage.setItem.mockReset();

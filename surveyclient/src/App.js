@@ -42,6 +42,7 @@ const awsConfig = {
 };
 
 //window.LOG_LEVEL = "DEBUG";
+// eslint-disable-next-line jest/require-hook
 console.debug("Configure", Amplify.configure(awsConfig));
 
 function App() {
@@ -238,14 +239,14 @@ function App() {
       return (
         <>
           <h1 className="title large">
-            Welcome to the Learning Through Landscapes
+            Welcome to the Learning through Landscapes
             <br />
             Learning and Play Audit Survey
           </h1>
           <h1 className="title small">
             Welcome to the
             <br />
-            <span className="ltl-title">Learning Through Landscapes</span>
+            <span className="ltl-title">Learning through Landscapes</span>
             <br />
             Learning and Play Audit Survey
           </h1>
@@ -255,7 +256,7 @@ function App() {
 
     return (
       <h1 className="title">
-        Learning Through Landscapes
+        Learning through Landscapes
         <br />
         Learning and Play Audit Survey
       </h1>

@@ -1,6 +1,6 @@
 # Learning and Play Audit Survey Admin web application
 
-This project contains the React web application for LTL survey administration.
+This project contains the React web application for LtL survey administration.
 It was created using [Create React App](https://facebook.github.io/create-react-app/docs/getting-started).
 
 ## Building

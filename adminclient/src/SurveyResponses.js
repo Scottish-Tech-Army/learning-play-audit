@@ -132,8 +132,8 @@ function QuestionSelectWithComment({ question, questionNumber, responses }) {
             return (
               <tr key={"" + i}>
                 {getResponseNumberCell(responses, i + 1)}
-                <td className="scale-value">{getAnswer(response)}</td>
-                <td>{hasComment(response) ? response.comments : <></>}</td>
+                <td className="scale-value">{response ? getAnswer(response) : <></>}</td>
+                <td>{response && hasComment(response) ? response.comments : <></>}</td>
               </tr>
             );
           })}

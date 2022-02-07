@@ -20,7 +20,7 @@ export default function Register() {
   const authError = useSelector((state) => state.authentication.errorMessage);
   const dispatch = useDispatch();
 
-  const EMAIL_USE_TEXT = `Learning Through Landscapes may use this email address to contact
+  const EMAIL_USE_TEXT = `Learning through Landscapes may use this email address to contact
 you in relation to this survey. Your email address will not be used
 for any other purpose.`;
 
@@ -127,13 +127,13 @@ for any other purpose.`;
 
       {checkbox(
         "tnc-check",
-        <div>I agree to the {policyLink("Terms & Conditions")}</div>,
+        <div>I agree to the {policyLink("Terms & Conditions")}, which include you receiving an email with your survey results and subscribing to the LtL newsletter. You can unsubscribe at any time.</div>,
         tcChecked,
         setTcChecked
       )}
       {checkbox(
         "gdpr-check",
-        <span>I agree to the {policyLink("LTL GDPR Policy")}</span>,
+        <span>I agree to the {policyLink("LtL GDPR Policy")}</span>,
         gdprChecked,
         setGdprChecked
       )}

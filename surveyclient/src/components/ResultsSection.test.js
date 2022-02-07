@@ -72,7 +72,7 @@ describe("component ResultsSection", () => {
     inputState.answers.sustainability.bughotels.answer = "b";
     inputState.answers.sustainability.composting.answer = "c";
     inputState.answers.sustainability.cycle.answer = "d";
-    const sustainabilityValue = ((1 + 0.7 + 0.3 + 0) * 100) / 15;
+    const sustainabilityValue = ((1 + 0.7 + 0.3 + 0) * 100) / 18;
 
     inputState.answers.community.adultsoutside.answer = "a";
     inputState.answers.community.childrenoutside.answer = "b";
