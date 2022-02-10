@@ -43,6 +43,7 @@ const awsConfig = {
   },
 };
 
+// eslint-disable-next-line jest/require-hook
 Amplify.configure(awsConfig);
 
 const COLOUR_LTL_GREEN = "#afcd4b";

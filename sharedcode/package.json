@@ -55,7 +55,18 @@
     ],
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest"
+      "^.+\\.(js|jsx|ts|tsx)$": [
+        "babel-jest",
+        {
+          "presets": [
+            "@babel/preset-env",
+            "@babel/preset-react"
+          ],
+          "plugins": [
+            "@babel/transform-runtime"
+          ]
+        }
+      ]
     },
     "watchPlugins": [
       "jest-watch-typeahead/filename",
@@ -68,14 +79,9 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-env",
       "@babel/preset-react"
-    ],
-    "plugins": [
-      [
-        "@babel/transform-runtime"
-      ]
     ]
+   
   },
   "eslintConfig": {
     "env": {

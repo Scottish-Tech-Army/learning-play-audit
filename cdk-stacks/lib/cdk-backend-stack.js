@@ -153,7 +153,7 @@ class CdkBackendStack extends cdk.Stack {
     );
 
     const addSurveyLambda = new NodejsFunction(this, "AddSurveyLambda", {
-      runtime: lambda.Runtime.NODEJS_12_X,
+      runtime: lambda.Runtime.NODEJS_14_X,
       entry: "resources/addSurveyLambda/index.js",
       handler: "handler",
       environment: {
@@ -184,7 +184,7 @@ class CdkBackendStack extends cdk.Stack {
       this,
       "ConfirmSurveyLambda",
       {
-        runtime: lambda.Runtime.NODEJS_12_X,
+        runtime: lambda.Runtime.NODEJS_14_X,
         entry: "resources/confirmSurveyLambda/index.js",
         handler: "handler",
         environment: {
