@@ -10,6 +10,7 @@ import {
   SUBMIT_COMPLETE,
   SUBMIT_FAILED,
 } from "./SubmitStates";
+import { Buffer } from 'buffer/';
 
 const TEST_ENDPOINT = "http://localhost:9999/testEndpoint";
 

@@ -9,6 +9,8 @@ import {
   SUBMIT_FAILED,
 } from "./SubmitStates";
 
+import { Buffer } from 'buffer/';
+
 function uploadPhoto(photoId, uploadUrl, photo, progressIncrementCallback) {
   console.debug("uploadPhoto", photoId, uploadUrl);
 
