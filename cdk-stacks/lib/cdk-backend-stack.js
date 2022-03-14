@@ -20,7 +20,12 @@ class CdkBackendStack extends cdk.Stack {
     // Common resources
     const stack = cdk.Stack.of(this);
     const region = stack.region;
-    const { environment, resourcePrefix } = props;
+    const {
+      environment,
+      resourcePrefix,
+      confirmSurveyEmailBcc,
+      confirmSurveyEmailFrom,
+    } = props;
 
     // The following are fixed resource names with environment stage suffixes
     // These resources will not be replaced during updates
@@ -190,6 +195,8 @@ class CdkBackendStack extends cdk.Stack {
         environment: {
           REGION: region,
           SURVEY_DB_TABLE: surveyResponsesTable.tableName,
+          CONFIRM_SURVEY_EMAIL_BCC: confirmSurveyEmailBcc,
+          CONFIRM_SURVEY_EMAIL_FROM: confirmSurveyEmailFrom,
         },
         timeout: cdk.Duration.seconds(30),
       }

@@ -28,6 +28,7 @@ export function exportSurveysAsDocx(surveys, photos) {
     console.log("No surveys to export");
   }
 
+  console.log("exportSurveysAsDocx", surveys, photos);
   const responses = surveys.map((survey) => survey.surveyResponse);
 
   const paragraphs = sectionsContent

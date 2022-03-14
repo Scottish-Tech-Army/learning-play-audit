@@ -4,11 +4,50 @@
   "description": "CDK ConfirmSurvey Lambda function",
   "main": "index.js",
   "license": "Apache-2.0",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.48.0",
     "@aws-sdk/client-s3": "^3.48.0",
+    "@aws-sdk/client-ses": "^3.50.0",
     "@aws-sdk/util-dynamodb": "^3.48.0",
+    "@babel/runtime": "^7.17.2",
+    "docx": "^7.3.0",
     "es6-promise": "^4.2.8",
-    "isomorphic-fetch": "^3.0.0"
+    "isomorphic-fetch": "^3.0.0",
+    "mimemessage": "^1.0.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "babel-jest": "^27.5.1",
+    "file-saver": "^2.0.5",
+    "jest": "^27.5.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": [
+        "babel-jest",
+        {
+          "plugins": [
+            "@babel/plugin-transform-runtime"
+          ],
+          "presets": [
+            "@babel/preset-env"
+          ]
+        }
+      ]
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "web.ts",
+      "ts",
+      "json",
+      "node"
+    ],
+    "maxWorkers": "50%"
   }
 }

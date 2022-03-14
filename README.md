@@ -49,7 +49,7 @@ cd ../confirmSurveyLambda; npm install
 If it's the first time CDK use in an environment, the environment needs to be [prepared](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html) for the deployment. Run the following first
 
 ```
-cdk bootstrap aws://AWS_ACCOUNT_NUMBER/REGION --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX
+cdk bootstrap aws://AWS_ACCOUNT_NUMBER/REGION --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX --context confirmSurveyEmailBcc=EMAIL_ADDRESS --context confirmSurveyEmailFrom=EMAIL_ADDRESS
 ```
 Here `aws://AWS_ACCOUNT_NUMBER/REGION` is the AWS account and region to use for the deployment, e.g. `aws://1234567890/eu-west-2`.
 
@@ -57,7 +57,7 @@ Once that's done, the rest of the deploy should go smoothly
 
 ```
 cd PROJECT_ROOT/cdk-stacks
-cdk deploy PREFIX-Backend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX
+cdk deploy PREFIX-Backend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX --context confirmSurveyEmailBcc=EMAIL_ADDRESS --context confirmSurveyEmailFrom=EMAIL_ADDRESS
 ```
 
 Here `PREFIX` is the resource prefix for your deployment, e.g. '`MySurvey`'. This needs to be unique to your deployment as it is used for resource name generation and S3 resource names must be unique within their AWS region.
@@ -200,7 +200,7 @@ As the two web clients are static sites, you can either deploy to AWS and direct
 
 ```
 cd PROJECT_ROOT/cdk-stacks
-cdk deploy PREFIX-Frontend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX`
+cdk deploy PREFIX-Frontend-dev --profile AWS_PROFILE --context env=dev --context nameprefix=PREFIX --context confirmSurveyEmailBcc=EMAIL_ADDRESS --context confirmSurveyEmailFrom=EMAIL_ADDRESS
 ```
 
 Use the same environment and prefix as for the backend above. The CDK will create and deploy a CloudFormation stack of the frontend AWS components. If it completes successfully, it will return output like:
