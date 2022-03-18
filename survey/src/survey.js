@@ -279,7 +279,7 @@ export const sectionsContent = [
             type: SCALE_WITH_COMMENT,
             id: "seating",
             text: "Seating is widely available in our grounds.",
-            weight: 2
+            weight: 2,
           },
           {
             type: SCALE_WITH_COMMENT,
@@ -315,7 +315,7 @@ export const sectionsContent = [
             type: SCALE_WITH_COMMENT,
             id: "socialspaces",
             text: "There is a wide range of different social spaces that cater for varying group sizes and activities.",
-            weight: 2
+            weight: 2,
           },
         ],
       },
@@ -333,7 +333,7 @@ export const sectionsContent = [
             type: SCALE_WITH_COMMENT,
             id: "quiet",
             text: "Staff and pupils have access to attractive outdoor spaces designed for quiet and calm.",
-            weight: 2
+            weight: 2,
           },
           {
             type: SCALE_WITH_COMMENT,
@@ -512,9 +512,9 @@ export const sectionsContent = [
           {
             tag: "p",
             content: [
-              "Pupils are actively involved in",
+              "Pupils are actively involved in ",
               { tag: "b", content: "managing" },
-              "the following aspects of the grounds:",
+              " the following aspects of the grounds:",
             ],
           },
         ],
@@ -556,7 +556,7 @@ export const sectionsContent = [
             type: SCALE_WITH_COMMENT,
             id: "communityoutside",
             text: "Other community organisations [guides, youth clubs etc.] make good use of our grounds outside of school time.",
-            weight: 0.5
+            weight: 0.5,
           },
           {
             type: TEXT_AREA,
@@ -791,3 +791,10 @@ function createSectionsContentMap() {
 }
 
 export const sectionsContentMap = createSectionsContentMap();
+
+export function sectionQuestions(section) {
+  return section.subsections.reduce((questions, subsection) => {
+    questions.push(...subsection.questions);
+    return questions;
+  }, []);
+}

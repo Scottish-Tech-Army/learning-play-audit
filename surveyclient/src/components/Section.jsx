@@ -13,8 +13,10 @@ import {
   TEXT_WITH_YEAR,
   TEXT_FIELD,
   USER_TYPE_WITH_COMMENT,
-} from "learning-play-audit-shared";
+  sectionQuestions,
+} from "learning-play-audit-survey";
 import SectionSummary from "./SectionSummary";
+import { renderMarkup } from "./RenderMarkup";
 
 function Section({ section, sections, setCurrentSection }) {
   const SCROLL_OFFSET = 220;
@@ -25,9 +27,7 @@ function Section({ section, sections, setCurrentSection }) {
   const sectionRef = useRef();
 
   useEffect(() => {
-    var questionCount = 0;
-    section.content((type, id) => (questionCount += 1));
-    setTotalQuestions(questionCount);
+    setTotalQuestions(sectionQuestions(section).length);
   }, [section]);
 
   const answerCounts = useSelector(
@@ -37,7 +37,7 @@ function Section({ section, sections, setCurrentSection }) {
 
   var questionIndex = 0;
 
-  function addQuestion(type, id, text) {
+  function addQuestion({ type, id, text }) {
     questionIndex += 1;
     const key = sectionId + "-" + id;
     const question = { id: id, text: text };
@@ -91,7 +91,7 @@ function Section({ section, sections, setCurrentSection }) {
 
   function findUnansweredQuestion() {
     let unansweredQuestionId = null;
-    section.content((type, id) => {
+    sectionQuestions(section).forEach(({ type, id }) => {
       if (unansweredQuestionId !== null) {
         return;
       }
@@ -136,6 +136,31 @@ function Section({ section, sections, setCurrentSection }) {
     );
   }
 
+  function addSubsectionDividers(subsections) {
+     const result = [];
+     subsections.forEach((subsection, i) => {
+      result.push(subsection);
+      if (i < subsections.length - 1) {
+        result.push(<hr key={`${subsection.id}-${i}`} className="subsection-divider" />);
+      }
+    });
+    return result;
+  }
+
+  function addQuestionDividers(questions, isBackground) {
+    if (isBackground) {
+      return questions;
+    }
+    const result = [];
+    questions.forEach((question, i) => {
+      result.push(question);
+      if (i < questions.length - 1) {
+        result.push(<hr key={`${question.id}-${i}`} className="question-divider" />);
+      }
+    });
+    return result;
+  }
+
   return (
     <div className={"section survey " + section.id} ref={sectionRef}>
       <div className="mobile-header">
@@ -149,7 +174,19 @@ function Section({ section, sections, setCurrentSection }) {
       <h1 className="title">
         {section.number}. {section.title}
       </h1>
-      {section.content(addQuestion)}
+      {addSubsectionDividers(section.subsections.map((subsection) => {
+        let result = [];
+        if (subsection.title) {
+          result.push(renderMarkup(subsection.title));
+        }
+        result.push(
+          ...addQuestionDividers(
+            subsection.questions.map(addQuestion),
+            section.id === BACKGROUND
+          )
+        );
+        return result;
+      }))}
       {section.id !== BACKGROUND && <hr className="subsection-divider" />}
       <SectionBottomNavigation
         sections={sections}

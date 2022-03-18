@@ -76,7 +76,6 @@ describe("renderSubsectionTitle", () => {
       new Paragraph({
         children: [
           new TextRun({ text: "test text1" }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "test text2" }),
         ],
       }),
@@ -110,9 +109,7 @@ describe("renderSubsectionTitle", () => {
       new Paragraph({
         children: [
           new TextRun({ text: "Paragraph with" }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "bold text", bold: true }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "in the middle" }),
         ],
       }),
@@ -137,9 +134,7 @@ describe("renderSubsectionTitle", () => {
       new Paragraph({
         children: [
           new TextRun({ text: "Paragraph with" }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "bold text", bold: true }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "in the middle" }),
         ],
       }),
@@ -184,7 +179,6 @@ describe("renderQuestionText", () => {
         children: [
           new TextRun({ text: "3:\t", bold: true }),
           new TextRun({ text: "test text1" }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "test text2" }),
         ],
         tabStops: [{ type: TabStopType.LEFT, position: 500 }],
@@ -206,9 +200,7 @@ describe("renderQuestionText", () => {
         children: [
           new TextRun({ text: "3:\t", bold: true }),
           new TextRun({ text: "Paragraph with" }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "bold text", bold: true }),
-          new TextRun({ text: " " }),
           new TextRun({ text: "in the middle" }),
         ],
         tabStops: [{ type: TabStopType.LEFT, position: 500 }],

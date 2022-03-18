@@ -13,7 +13,7 @@ import {
   TEXT_AREA,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "learning-play-audit-shared";
+} from "learning-play-audit-survey";
 
 jest.mock("./CircularProgressWithLabel", () => {
   return {
@@ -46,17 +46,27 @@ const SECTION_CONTENT = {
   number: 6,
   title: "Community and Participation",
   id: "community",
-  content: (addQuestion) => (
-    <>
-      <h2>Test questions</h2>
-      {addQuestion(USER_TYPE_WITH_COMMENT, "parentsdesign", "question 1")}
-      {addQuestion(SCALE_WITH_COMMENT, "pupilsdesign", "question 2")}
-      {addQuestion(TEXT_WITH_YEAR, "datedImprovements", "question 3")}
-      {addQuestion(TEXT_AREA, "othercommunity", "question 4")}
-    </>
-  ),
+  subsections: [
+    {
+      title: {
+        tag: "h2",
+        content: "Test questions",
+      },
+      questions: [
+        {
+          type: USER_TYPE_WITH_COMMENT,
+          id: "parentsdesign",
+          text: "question 1",
+        },
+        { type: SCALE_WITH_COMMENT, id: "pupilsdesign", text: "question 2" },
+        { type: TEXT_WITH_YEAR, id: "datedImprovements", text: "question 3" },
+        { type: TEXT_AREA, id: "othercommunity", text: "question 4" },
+      ],
+    },
+  ],
 };
-var sectionContent = SECTION_CONTENT;
+
+let sectionContent;
 
 const NOTE_BUTTON_TEXT = "Add Additional Information?";
 const PHOTO_BUTTON_TEXT = "add photoAdd Relevant Photo?";
@@ -84,11 +94,14 @@ describe("component Section", () => {
   it("standard render", () => {
     renderComponent();
 
-    expect(mobileHeader().textContent).toStrictEqual(
+    expect(mobileHeader().textContent).toBe(
       "6Community and Participation[25,3 questions remaining,1/4]"
     );
-    expect(section().querySelector("h1").textContent).toStrictEqual(
+    expect(section().querySelector("h1").textContent).toBe(
       "6. Community and Participation"
+    );
+    expect(section().querySelector("h2").textContent).toBe(
+      "Test questions"
     );
     expect(questions().map((question) => question.textContent)).toStrictEqual([
       "I am ateacherparentpupilother Details",
@@ -107,11 +120,22 @@ describe("component Section", () => {
     sectionContent = {
       ...SECTION_CONTENT,
       id: BACKGROUND,
-      content: (addQuestion) => <h2>Test questions</h2>,
+      subsections: [
+        {
+          title: {
+            tag: "h2",
+            content: "Test questions",
+          },
+          questions: [],
+        },
+      ],
     };
 
     renderComponent();
 
+    expect(section().querySelector("h2").textContent).toBe(
+      "Test questions"
+    );
     expect(section().getAttribute("class")).toContain("background");
   });
 
@@ -164,10 +188,10 @@ describe("component Section", () => {
     renderComponent();
 
     click(previousButton());
-    expect(storedSectionId).toStrictEqual("section2");
+    expect(storedSectionId).toBe("section2");
 
     click(nextButton());
-    expect(storedSectionId).toStrictEqual("section4");
+    expect(storedSectionId).toBe("section4");
   });
 
   const previousButton = () =>

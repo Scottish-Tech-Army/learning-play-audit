@@ -1,4 +1,3 @@
-export * from "./model/Content";
 export * from "./model/AuthActions";
 export * from "./model/AuthActionTypes";
 export * from "./model/AuthStore";

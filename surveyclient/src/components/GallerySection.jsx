@@ -6,7 +6,7 @@ import GalleryPhoto from "./GalleryPhoto";
 import { GALLERY } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 import { addPhotoSvg } from "./SvgUtils";
-import { sectionsContent } from "learning-play-audit-shared";
+import { sectionQuestions, sectionsContent } from "learning-play-audit-survey";
 import Modal from "@material-ui/core/Modal";
 
 function GallerySection({ sections, setCurrentSection }) {
@@ -80,16 +80,16 @@ function GallerySection({ sections, setCurrentSection }) {
         return;
       }
 
-      section.content((type, questionId, text) => {
-        const photoQuestion = photoSection[questionId];
+      sectionQuestions(section).forEach(({id, text}) => {
+        const photoQuestion = photoSection[id];
         if (photoQuestion === undefined) {
           return;
         }
 
         output.push(
           <div
-            key={sectionId + "-" + questionId}
-            id={sectionId + "-" + questionId}
+            key={sectionId + "-" + id}
+            id={sectionId + "-" + id}
             className="gallery-section-question"
           >
             <h3>

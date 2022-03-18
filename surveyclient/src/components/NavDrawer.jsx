@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { sectionsContent } from "learning-play-audit-shared";
+import { sectionQuestions, sectionsContent } from "learning-play-audit-survey";
 import SectionSummary from "./SectionSummary";
 import Modal from "@material-ui/core/Modal";
 import { INTRODUCTION, RESULTS, GALLERY, SUBMIT } from "./FixedSectionTypes";
@@ -16,9 +16,7 @@ export default function NavDrawer({
   useEffect(() => {
     var result = new Map();
     sectionsContent.forEach((section) => {
-      var questionCount = 0;
-      section.content((type, id) => (questionCount += 1));
-      result.set(section.id, questionCount);
+      result.set(section.id, sectionQuestions(section).length);
     });
     setTotalQuestionsMap(result);
   }, []);

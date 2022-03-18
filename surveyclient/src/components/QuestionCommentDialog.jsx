@@ -3,6 +3,7 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes";
 import Modal from "@material-ui/core/Modal";
+import { renderMarkup } from "./RenderMarkup";
 
 export default function QuestionCommentDialog({
   sectionId,
@@ -42,7 +43,7 @@ export default function QuestionCommentDialog({
         <h2 className="title">Add Note</h2>
         <div className="question-line">
           <div className="question-number">{questionNumber}</div>
-          <div className="question-text">{questionText}</div>
+          <div className="question-text">{renderMarkup(questionText)}</div>
         </div>
         <textarea
           onChange={(event) =>

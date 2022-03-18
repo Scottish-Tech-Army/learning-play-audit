@@ -5,7 +5,7 @@ import {
   TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "./Content";
+} from "learning-play-audit-survey";
 import {
   Document,
   Paragraph,
@@ -256,21 +256,6 @@ export async function exportSurveyAsDocx(
   });
 }
 
-function spaceTextRuns(textRuns) {
-  if (textRuns.length <= 1) {
-    return textRuns;
-  }
-
-  // Add spaces between textruns
-  const spacedTextRuns = [];
-  textRuns.forEach((node) => {
-    spacedTextRuns.push(node);
-    spacedTextRuns.push(new TextRun({ text: " " }));
-  });
-  spacedTextRuns.pop();
-  return spacedTextRuns;
-}
-
 export function renderQuestionText(questionNumber, questionText) {
   const nodes = questionText instanceof Array ? questionText : [questionText];
 
@@ -290,7 +275,7 @@ export function renderQuestionText(questionNumber, questionText) {
         text: questionNumber + ":\t",
         bold: true,
       }),
-      ...spaceTextRuns(children),
+      ...children,
     ],
     tabStops: [{ type: TabStopType.LEFT, position: 500 }],
     indent: { start: 500, hanging: 500 },
@@ -317,7 +302,7 @@ function renderSubsectionParagraph({ tag, content }) {
       }
     });
 
-    return new Paragraph({ children: spaceTextRuns(children) });
+    return new Paragraph({ children });
   }
 }
 
@@ -484,7 +469,7 @@ function renderQuestion(
   sectionResponses,
   paragraphs
 ) {
-  const question = { id: id, text: text };
+  const question = { id, text };
   const response = sectionResponses[id];
 
   if (SCALE_WITH_COMMENT === type) {

@@ -1,11 +1,12 @@
 import {
+  sectionQuestions,
   sectionsContent,
   SCALE_WITH_COMMENT,
   TEXT_AREA,
   TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "learning-play-audit-shared";
+} from "learning-play-audit-survey";
 import { saveAs } from "file-saver";
 
 const headerRows = [[""], [""], ["Id"]];
@@ -48,20 +49,18 @@ function renderSectionHeader(data, section) {
   // Contains question and question part headers
   var questionData = [[], []];
 
-  function addQuestion(type, id, text) {
-    const question = { id: id, text: text };
-
+  function addQuestion({type, id}) {
     if (SCALE_WITH_COMMENT === type) {
-      questionData[0].push(question.id, "");
+      questionData[0].push(id, "");
       questionData[1].push("answer", "comment");
     } else if (USER_TYPE_WITH_COMMENT === type) {
-      questionData[0].push(question.id, "");
+      questionData[0].push(id, "");
       questionData[1].push("role", "details");
     } else if (TEXT_AREA === type || TEXT_FIELD === type) {
-      questionData[0].push(question.id);
+      questionData[0].push(id);
       questionData[1].push("answer");
     } else if (TEXT_WITH_YEAR === type) {
-      questionData[0].push(question.id, "", "", "", "", "");
+      questionData[0].push(id, "", "", "", "", "");
       questionData[1].push(
         "answer1",
         "year1",
@@ -75,7 +74,7 @@ function renderSectionHeader(data, section) {
     }
   }
 
-  section.content(addQuestion);
+  sectionQuestions(section).forEach(addQuestion);
 
   const sectionData = Array(questionData[0].length).fill("");
   sectionData[0] = section.id;
@@ -86,7 +85,7 @@ function renderSectionHeader(data, section) {
 }
 
 function renderSectionAnswers(rowData, section, sectionResponse) {
-  function addQuestion(type, id, text) {
+  function addQuestion({type, id}) {
     const response = sectionResponse[id] || {answer: "", comments:""};
 
     if (SCALE_WITH_COMMENT === type || USER_TYPE_WITH_COMMENT === type) {
@@ -108,7 +107,7 @@ function renderSectionAnswers(rowData, section, sectionResponse) {
     }
   }
 
-  section.content(addQuestion);
+  sectionQuestions(section).forEach(addQuestion);
 }
 
 function addAnswers(rowData, ...answers) {

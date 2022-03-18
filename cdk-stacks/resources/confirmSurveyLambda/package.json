@@ -16,7 +16,8 @@
     "docx": "^7.3.0",
     "es6-promise": "^4.2.8",
     "isomorphic-fetch": "^3.0.0",
-    "mimemessage": "^1.0.5"
+    "mimemessage": "^1.0.5",
+    "learning-play-audit-survey": "file:../../../survey/learning-play-audit-survey-0.1.0.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
@@ -40,6 +41,9 @@
         }
       ]
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(learning-play-audit-survey)/)"
+    ],
     "moduleFileExtensions": [
       "web.js",
       "js",

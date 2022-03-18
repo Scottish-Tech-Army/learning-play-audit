@@ -3,6 +3,7 @@ import "../App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes";
 import QuestionAddPhotosButton from "./QuestionAddPhotosButton";
+import { renderMarkup } from "./RenderMarkup";
 
 function QuestionText({
   sectionId,
@@ -32,7 +33,7 @@ function QuestionText({
   if (textField) {
     return (
       <div id={id} className="question">
-        <label htmlFor={id + "-text"}>{question.text}</label>
+        <label htmlFor={id + "-text"}>{renderMarkup(question.text)}</label>
         <input
           id={id + "-text"}
           type="text"
@@ -48,7 +49,7 @@ function QuestionText({
     <div id={id} className="question text">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
-        <div className="question-text">{question.text}</div>
+        <div className="question-text">{renderMarkup(question.text)}</div>
         <QuestionAddPhotosButton
           sectionId={sectionId}
           questionId={questionId}

@@ -11,7 +11,7 @@ export const EMPTY_STATE = {
     wellbeing: { answer: 0, comments: 0 },
   },
   answers: {
-    surveyVersion: "0.9.0",
+    surveyVersion: "0.10.0",
     background: {
       contactname: { answer: "", comments: "" },
       localauthority: { answer: "", comments: "" },

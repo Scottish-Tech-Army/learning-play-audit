@@ -11,13 +11,16 @@ import {
   CONFIRM_WELCOME,
 } from "./ActionTypes";
 import {
-  sectionsContent,
-  SURVEY_VERSION,
-  TEXT_WITH_YEAR,
   authReducer,
   SET_AUTH_STATE,
   REGISTER,
 } from "learning-play-audit-shared";
+import {
+  SURVEY_VERSION,
+  TEXT_WITH_YEAR,
+  sectionQuestions,
+  sectionsContent,
+} from "learning-play-audit-survey";
 import localforage from "localforage";
 import { v4 as uuidv4 } from "uuid";
 
@@ -30,29 +33,25 @@ localforage.config({
 });
 
 function createEmptyAnswers() {
-  return sectionsContent.reduce(
-    (sections, section) => {
-      var questions = {};
-      sections[section.id] = questions;
-      // Use addQuestion to gather question ids
-      section.content(
-        (type, id) =>
-          (questions[id] =
-            type === TEXT_WITH_YEAR
-              ? {
-                  answer1: "",
-                  year1: "",
-                  answer2: "",
-                  year2: "",
-                  answer3: "",
-                  year3: "",
-                }
-              : { answer: "", comments: "" })
-      );
-      return sections;
-    },
-    { surveyVersion: SURVEY_VERSION }
-  );
+  const sections = { surveyVersion: SURVEY_VERSION };
+  sectionsContent.forEach((section) => {
+    var questions = {};
+    sections[section.id] = questions;
+    sectionQuestions(section).forEach(({ type, id }) => {
+      questions[id] =
+        type === TEXT_WITH_YEAR
+          ? {
+              answer1: "",
+              year1: "",
+              answer2: "",
+              year2: "",
+              answer3: "",
+              year3: "",
+            }
+          : { answer: "", comments: "" };
+    });
+  });
+  return sections;
 }
 
 function createAnswerCounts() {

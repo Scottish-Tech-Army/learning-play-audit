@@ -12,25 +12,18 @@ const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
 const paths = require("./paths");
 const getClientEnvironment = require("./env");
 const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
-const ESLintPlugin = require('eslint-webpack-plugin');
-
+const ESLintPlugin = require("eslint-webpack-plugin");
 
 const postcssNormalize = require("postcss-normalize");
-
-const imageInlineSizeLimit = parseInt(
-  process.env.IMAGE_INLINE_SIZE_LIMIT || "10000"
-);
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function () {
- 
   // We will provide `paths.publicUrlOrPath` to our app
   // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
   // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
   // Get environment variables to inject into our app.
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
-
 
   return {
     mode: "development",
@@ -43,10 +36,8 @@ module.exports = function () {
       open: true,
       hot: true,
     },
-  
-    entry: [
-      paths.appIndexJs,
-    ],
+
+    entry: [paths.appIndexJs],
     output: {
       // The build folder.
       path: undefined,
@@ -62,25 +53,25 @@ module.exports = function () {
       // We inferred the "public path" (such as / or /my-project) from homepage.
       publicPath: paths.publicUrlOrPath,
       // Point sourcemap entries to original disk location (format as URL on Windows)
-      devtoolModuleFilenameTemplate: 
-          ((info) =>
-            path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
+      devtoolModuleFilenameTemplate: (info) =>
+        path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"),
+
+      assetModuleFilename: "static/media/[name].[hash:8].[ext]",
     },
     optimization: {
       minimize: false,
     },
     resolve: {
       modules: ["node_modules"],
-      extensions: paths.moduleFileExtensions
-        .map((ext) => `.${ext}`),
+      extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
         // guards against forgotten dependencies and such.
         PnpWebpackPlugin,
       ],
       fallback: {
-        fs: false
-      }
+        fs: false,
+      },
     },
     resolveLoader: {
       plugins: [
@@ -92,7 +83,6 @@ module.exports = function () {
     module: {
       strictExportPresence: true,
       rules: [
- 
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
@@ -103,11 +93,7 @@ module.exports = function () {
             // A missing `test` is equivalent to a match.
             {
               test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-              loader: require.resolve("url-loader"),
-              options: {
-                limit: imageInlineSizeLimit,
-                name: "static/media/[name].[hash:8].[ext]",
-              },
+              type: "asset",
             },
             // Process application JS with Babel.
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
@@ -157,17 +143,17 @@ module.exports = function () {
                   loader: require.resolve("postcss-loader"),
                   options: {
                     postcssOptions: {
-                    plugins:  [
-                      require("postcss-flexbugs-fixes"),
-                      require("postcss-preset-env")({
-                        autoprefixer: {
-                          flexbox: "no-2009",
-                        },
-                        stage: 3,
-                      }),
-                      postcssNormalize(),
-                    ],
-                  },
+                      plugins: [
+                        require("postcss-flexbugs-fixes"),
+                        require("postcss-preset-env")({
+                          autoprefixer: {
+                            flexbox: "no-2009",
+                          },
+                          stage: 3,
+                        }),
+                        postcssNormalize(),
+                      ],
+                    },
                     sourceMap: false,
                   },
                 },
@@ -180,22 +166,19 @@ module.exports = function () {
             // This loader doesn't use a "test" so it will catch all modules
             // that fall through the other loaders.
             {
-              loader: require.resolve("file-loader"),
               // Exclude `js` files to keep "css" loader working as it injects
               // its runtime that would otherwise be processed through "file" loader.
               // Also exclude `html` and `json` extensions so they get processed
               // by webpacks internal loaders.
-              exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
-              options: {
-                name: "static/media/[name].[hash:8].[ext]",
-              },
+              type: "asset/resource",
+              exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /^$/],
             },
           ],
         },
       ],
     },
     plugins: [
-      new ESLintPlugin( {
+      new ESLintPlugin({
         extensions: [`js`, `jsx`],
       }),
       new CopyWebpackPlugin({
@@ -209,12 +192,10 @@ module.exports = function () {
         ],
       }),
       // Generates an `index.html` file with the <script> injected.
-      new HtmlWebpackPlugin(
-          {
-            inject: true,
-            template: paths.appHtml,
-          }
-      ),
+      new HtmlWebpackPlugin({
+        inject: true,
+        template: paths.appHtml,
+      }),
       // Makes some environment variables available in index.html.
       // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
       // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">

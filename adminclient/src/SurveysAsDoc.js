@@ -1,11 +1,12 @@
 import {
+  sectionQuestions,
   sectionsContent,
   SCALE_WITH_COMMENT,
   TEXT_AREA,
   TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "learning-play-audit-shared";
+} from "learning-play-audit-survey";
 import { saveAs } from "file-saver";
 import {
   Document,
@@ -40,7 +41,7 @@ export function exportSurveysAsDocx(surveys, photos) {
     })
     .flat();
 
-    const sections = [];
+  const sections = [];
 
   sections.push({
     properties: {},
@@ -56,9 +57,16 @@ export function exportSurveysAsDocx(surveys, photos) {
   function renderPhoto(photoKey, description, height, width) {
     const photoData = photos[photoKey];
     if (photoData.data !== undefined) {
-      const scaledWidth = width * 200 / height;
+      const scaledWidth = (width * 200) / height;
       return [
-        new Paragraph({ children: [new ImageRun({ data: photoData.data, transformation: {height: 200, width: scaledWidth} })] }),
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: photoData.data,
+              transformation: { height: 200, width: scaledWidth },
+            }),
+          ],
+        }),
         new Paragraph({ children: [new TextRun({ text: description })] }),
       ];
     }
@@ -82,7 +90,12 @@ export function exportSurveysAsDocx(surveys, photos) {
       }),
       ...survey.photos
         .map((photoRef) =>
-          renderPhoto(photoRef.fullsize.key, photoRef.description, photoRef.fullsize.height, photoRef.fullsize.width)
+          renderPhoto(
+            photoRef.fullsize.key,
+            photoRef.description,
+            photoRef.fullsize.height,
+            photoRef.fullsize.width
+          )
         )
         .flat(),
     ];
@@ -92,7 +105,7 @@ export function exportSurveysAsDocx(surveys, photos) {
     .filter((survey) => survey.photos.length > 0)
     .map(renderSurveyPhotos);
 
-    sections.push({
+  sections.push({
     children: [
       new Paragraph({
         text: "Survey Photos",
@@ -102,30 +115,32 @@ export function exportSurveysAsDocx(surveys, photos) {
     ],
   });
 
-  const doc = new Document({sections: sections});
+  const doc = new Document({ sections: sections });
 
   Packer.toBlob(doc).then((blob) => {
     saveAs(blob, "SurveyReport.docx");
   });
 }
 
-function getReactElementText(node) {
-  if (["string", "number"].includes(typeof node)) {
-    return node;
+function renderMarkup(markup) {
+  console.log("renderMarkup", markup);
+  if (!markup) {
+    return "";
   }
-  if (node instanceof Array) {
-    return node.map(getReactElementText).join("");
+  if (typeof markup === "string") {
+    return markup;
   }
-  if (typeof node === "object" && node) {
-    return getReactElementText(node.props.children);
+  if (Array.isArray(markup)) {
+    return markup.map(renderMarkup).join("");
   }
+  return renderMarkup(markup.content)
 }
 
 function renderQuestionText(questionNumber, questionText) {
   return new Paragraph({
     children: [
       new TextRun({
-        text: questionNumber + ": " + getReactElementText(questionText),
+        text: questionNumber + ": " + renderMarkup(questionText),
         bold: true,
       }),
     ],
@@ -183,7 +198,11 @@ function renderQuestionTypeSelectWithComment(
       columnWidths: [300, 1600, 7000],
       borders: GREY_BORDER,
       rows: responses.map((response, i) => {
-        return tableRow("" + (i + 1), response ? getAnswer(response) : "", response ? response.comments : "");
+        return tableRow(
+          "" + (i + 1),
+          response ? getAnswer(response) : "",
+          response ? response.comments : ""
+        );
       }),
     }),
   ];
@@ -312,7 +331,7 @@ function renderSection(section, sectionResponses) {
   ];
 
   var questionIndex = 0;
-  function addQuestion(type, id, text) {
+  function addQuestion({type, id, text}) {
     questionIndex += 1;
     const question = { id: id, text: text };
     const responses = sectionResponses.map(
@@ -352,7 +371,7 @@ function renderSection(section, sectionResponses) {
     }
   }
 
-  section.content(addQuestion);
+  sectionQuestions(section).forEach(addQuestion);
 
   return docQuestions;
 }

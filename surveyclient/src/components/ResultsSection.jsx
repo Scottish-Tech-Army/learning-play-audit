@@ -1,18 +1,23 @@
 import React, { useRef, useEffect } from "react";
 import "../App.css";
 import { useSelector } from "react-redux";
-import {BarController, BarElement, CategoryScale, LinearScale, Chart} from "chart.js";
 import {
-  sectionsContent,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Chart,
+} from "chart.js";
+import {
   SCALE_WITH_COMMENT,
-} from "learning-play-audit-shared";
+  sectionQuestions,
+  sectionsContent,
+} from "learning-play-audit-survey";
 import { RESULTS } from "./FixedSectionTypes";
 import SectionBottomNavigation from "./SectionBottomNavigation";
 
 // eslint-disable-next-line jest/require-hook
-Chart.register(
-  BarController, BarElement, CategoryScale, LinearScale
-);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale);
 
 function ResultsSection({ sections, setCurrentSection }) {
   const answers = useSelector((state) => state.answers);
@@ -35,11 +40,11 @@ function ResultsSection({ sections, setCurrentSection }) {
     return sectionsContent.reduce((sections, section) => {
       var questions = {};
       sections[section.id] = questions;
-      // Use addQuestion to gather question weights
-      section.content(
-        (type, id, text, weight = 1) =>
-          (questions[id] = type === SCALE_WITH_COMMENT ? weight : 0)
-      );
+
+      sectionQuestions(section).forEach(({ type, id, weight = 1 }) => {
+        questions[id] = type === SCALE_WITH_COMMENT ? weight : 0;
+      });
+
       return sections;
     }, {});
   }
@@ -161,7 +166,7 @@ function ResultsSection({ sections, setCurrentSection }) {
       }
 
       const valueAxis = {
-        type: 'linear',
+        type: "linear",
         grid: {
           color: "#807d7d",
           z: 1,
@@ -175,7 +180,7 @@ function ResultsSection({ sections, setCurrentSection }) {
       };
 
       const categoryAxis = {
-        type: 'category',
+        type: "category",
         grid: {
           color: "#807d7d",
           z: 1,
@@ -207,7 +212,7 @@ function ResultsSection({ sections, setCurrentSection }) {
           tooltips: {
             enabled: false,
           },
-          indexAxis: small ? 'x' : 'y'
+          indexAxis: small ? "x" : "y",
         },
         data: {
           labels: labels,

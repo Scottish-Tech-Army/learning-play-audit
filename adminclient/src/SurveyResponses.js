@@ -8,8 +8,9 @@ import {
   TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
-} from "learning-play-audit-shared";
+} from "learning-play-audit-survey";
 import Box from "@material-ui/core/Box";
+import { renderMarkup } from "./RenderMarkup";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -123,7 +124,7 @@ function QuestionSelectWithComment({ question, questionNumber, responses }) {
     <div className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionText}>
-          {questionNumber}: {question.text}
+          {questionNumber}: {renderMarkup(question.text)}
         </div>
       </Box>
       <table className={classes.responsesGrid}>
@@ -178,7 +179,7 @@ function QuestionUserSelect({ question, questionNumber, responses }) {
     <div className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionText}>
-          {questionNumber}: {question.text}
+          {questionNumber}: {renderMarkup(question.text)}
         </div>
       </Box>
       <table className={classes.responsesGrid}>
@@ -209,7 +210,7 @@ function QuestionText({ question, questionNumber, responses }) {
     <div className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionText}>
-          {questionNumber}: {question.text}
+          {questionNumber}: {renderMarkup(question.text)}
         </div>
       </Box>
       <table className={classes.responsesGrid}>
@@ -256,7 +257,7 @@ function QuestionTextWithYear({ question, questionNumber, responses }) {
     <div className={classes.question}>
       <Box flexDirection="row">
         <div className={classes.questionText}>
-          {questionNumber}: {question.text}
+          {questionNumber}: {renderMarkup(question.text)}
         </div>
       </Box>
       <table className={classes.responsesGrid}>
@@ -306,10 +307,10 @@ function Section({ section, sectionResponses }) {
   const sectionId = section.id;
 
   var questionIndex = 0;
-  function addQuestion(type, id, text) {
+  function addQuestion({type, id, text}) {
     questionIndex += 1;
     const key = sectionId + "-" + id;
-    const question = { id: id, text: text };
+    const question = { id, text };
     const responses = sectionResponses.map(
       (sectionResponse) => sectionResponse[id]
     );
@@ -367,7 +368,16 @@ function Section({ section, sectionResponses }) {
       <h1>
         Section {section.number} - {section.title}
       </h1>
-      {section.content(addQuestion)}
+      {section.subsections.map((subsection) => {
+        let result = [];
+        if (subsection.title) {
+          result.push(renderMarkup(subsection.title));
+        }
+        result.push(
+          ...subsection.questions.map(addQuestion)          
+        );
+        return result;
+      })}
     </Box>
   );
 }

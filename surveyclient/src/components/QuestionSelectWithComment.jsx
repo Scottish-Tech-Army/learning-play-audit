@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { SET_ANSWER } from "../model/ActionTypes";
 import QuestionAddCommentButton from "./QuestionAddCommentButton";
 import QuestionAddPhotosButton from "./QuestionAddPhotosButton";
+import { renderMarkup } from "./RenderMarkup";
 
 export default function QuestionSelectWithComment({
   sectionId,
@@ -45,7 +46,7 @@ export default function QuestionSelectWithComment({
     <div id={id} className="question select">
       <div className="question-line">
         <div className="question-number">{questionNumber}</div>
-        <div className="question-text">{question.text}</div>
+        <div className="question-text">{renderMarkup(question.text)}</div>
       </div>
       <div className="action-row">
         <div className="toggle-button-group" aria-label={questionId}>
