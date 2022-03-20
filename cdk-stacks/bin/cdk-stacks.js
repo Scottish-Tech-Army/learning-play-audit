@@ -7,20 +7,20 @@ const { CdkFrontendStack } = require("../lib/cdk-frontend-stack");
 const app = new cdk.App();
 const envStageName = app.node.tryGetContext("env");
 const resourcePrefixName = app.node.tryGetContext("nameprefix");
-const confirmSurveyEmailBcc = app.node.tryGetContext("confirmSurveyEmailBcc");
-const confirmSurveyEmailFrom = app.node.tryGetContext("confirmSurveyEmailFrom");
+const surveyEmailBcc = app.node.tryGetContext("surveyEmailBcc");
+const surveyEmailFrom = app.node.tryGetContext("surveyEmailFrom");
 
 if (
   !envStageName ||
   !resourcePrefixName ||
-  !confirmSurveyEmailBcc ||
-  !confirmSurveyEmailFrom
+  !surveyEmailBcc ||
+  !surveyEmailFrom
 ) {
   throw new Error(
     `run with parameters:
   --context nameprefix=AWS_RESOURCE_NAME_PREFIX
-  --context confirmSurveyEmailBcc=EMAIL_ADDRESS
-  --context confirmSurveyEmailFrom=EMAIL_ADDRESS
+  --context surveyEmailBcc=EMAIL_ADDRESS
+  --context surveyEmailFrom=EMAIL_ADDRESS
   --context env=ENVIRONMENT_NAME (i.e. dev, test, live, etc.)`
   );
 }
@@ -30,8 +30,8 @@ const backendStack = new CdkBackendStack(
   resourcePrefixName + "-Backend-" + envStageName,
   {
     environment: envStageName,
-    confirmSurveyEmailBcc: confirmSurveyEmailBcc,
-    confirmSurveyEmailFrom: confirmSurveyEmailFrom,
+    surveyEmailBcc: surveyEmailBcc,
+    surveyEmailFrom: surveyEmailFrom,
     resourcePrefix: resourcePrefixName + "-" + envStageName,
   }
 );

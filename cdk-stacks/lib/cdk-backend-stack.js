@@ -20,12 +20,8 @@ class CdkBackendStack extends cdk.Stack {
     // Common resources
     const stack = cdk.Stack.of(this);
     const region = stack.region;
-    const {
-      environment,
-      resourcePrefix,
-      confirmSurveyEmailBcc,
-      confirmSurveyEmailFrom,
-    } = props;
+    const { environment, resourcePrefix, surveyEmailBcc, surveyEmailFrom } =
+      props;
 
     // The following are fixed resource names with environment stage suffixes
     // These resources will not be replaced during updates
@@ -185,6 +181,30 @@ class CdkBackendStack extends cdk.Stack {
       apiAuthoriser
     );
 
+    const emailSurveyLambda = new NodejsFunction(this, "EmailSurveyLambda", {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      entry: "resources/emailSurveyLambda/index.js",
+      handler: "handler",
+      environment: {
+        REGION: region,
+        SURVEY_DB_TABLE: surveyResponsesTable.tableName,
+        SURVEY_EMAIL_BCC: surveyEmailBcc,
+        SURVEY_EMAIL_FROM: surveyEmailFrom,
+      },
+      timeout: cdk.Duration.seconds(30),
+    });
+
+    surveyResponsesTable.grant(emailSurveyLambda, "dynamodb:GetItem");
+    surveyResourcesBucket.grantRead(emailSurveyLambda);
+
+    emailSurveyLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["SES:SendRawEmail"],
+        resources: ["*"],
+        effect: iam.Effect.ALLOW,
+      })
+    );
+
     const confirmSurveyLambda = new NodejsFunction(
       this,
       "ConfirmSurveyLambda",
@@ -195,8 +215,7 @@ class CdkBackendStack extends cdk.Stack {
         environment: {
           REGION: region,
           SURVEY_DB_TABLE: surveyResponsesTable.tableName,
-          CONFIRM_SURVEY_EMAIL_BCC: confirmSurveyEmailBcc,
-          CONFIRM_SURVEY_EMAIL_FROM: confirmSurveyEmailFrom,
+          EMAIL_FUNCTION: emailSurveyLambda.functionName,
         },
         timeout: cdk.Duration.seconds(30),
       }
@@ -216,6 +235,8 @@ class CdkBackendStack extends cdk.Stack {
       confirmSurveyLambda,
       apiAuthoriser
     );
+
+    emailSurveyLambda.grantInvoke(confirmSurveyLambda);
 
     // Admin client
 

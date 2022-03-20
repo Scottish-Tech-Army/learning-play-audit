@@ -1,7 +1,7 @@
 {
-  "name": "confirmSurveyLambda",
+  "name": "emailSurveyLambda",
   "version": "2.0.0",
-  "description": "CDK ConfirmSurvey Lambda function",
+  "description": "CDK EmailSurvey Lambda function",
   "main": "index.js",
   "license": "Apache-2.0",
   "scripts": {
@@ -9,20 +9,23 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.48.0",
-    "@aws-sdk/client-lambda": "^3.54.1",
     "@aws-sdk/client-s3": "^3.48.0",
+    "@aws-sdk/client-ses": "^3.50.0",
     "@aws-sdk/util-dynamodb": "^3.48.0",
     "@babel/runtime": "^7.17.2",
+    "docx": "^7.3.0",
     "es6-promise": "^4.2.8",
-    "install": "^0.13.0",
     "isomorphic-fetch": "^3.0.0",
-    "npm": "^8.5.5"
+    "learning-play-audit-survey": "file:../../../survey/learning-play-audit-survey-0.1.0.tgz",
+    "mimemessage": "^1.0.5",
+    "sharp": "^0.30.3"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "babel-jest": "^27.5.1",
+    "file-saver": "^2.0.5",
     "jest": "^27.5.1"
   },
   "jest": {
