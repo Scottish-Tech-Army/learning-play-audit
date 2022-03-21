@@ -191,7 +191,11 @@ class CdkBackendStack extends cdk.Stack {
         SURVEY_EMAIL_BCC: surveyEmailBcc,
         SURVEY_EMAIL_FROM: surveyEmailFrom,
       },
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(600),
+      memorySize: 512,
+      bundling: {
+        nodeModules: ['sharp'],
+      },
     });
 
     surveyResponsesTable.grant(emailSurveyLambda, "dynamodb:GetItem");

@@ -8,7 +8,7 @@ const { Packer } = require("docx");
 var mimemessage = require("mimemessage");
 const { s3Client, dynamodbClient, emailClient } = require("./aws");
 const { default: exportSurveyAsDocx } = require("./SurveysAsDoc");
-// const sharp = require("sharp");
+const sharp = require("sharp");
 
 const MAX_DOCUMENT_SIZE = 9 * 1024 * 1024; // 9Mb
 
@@ -38,32 +38,30 @@ function getPhoto(photo) {
   }
 
   return s3Client
-    .send(
-      new GetObjectCommand({
-        Bucket: photo.bucket,
-        Key: key,
-      })
-    )
+    .send(new GetObjectCommand({ Bucket: photo.bucket, Key: key }))
     .then((result) => {
       console.log("get result", result);
-      return result.Body;
+      return Promise.resolve(result.Body);
     });
 }
 
-const MAX_ORIGINAL_PHOTO_SIZE = 250 * 1024;
-
 function resizePhoto(photoData) {
-  // if (photoData.length <= MAX_ORIGINAL_PHOTO_SIZE) {
-    return Promise.resolve(photoData);
-  // }
-
-  // return sharp(photoData)
-  //   .resize({ width: 1024, height: 1024, fit: "inside" })
-  //   .withMetadata()
-  //   .jpeg({
-  //     quality: 100,
-  //   })
-  //   .toBuffer();
+  console.log("resizePhoto", photoData);
+  try {
+    const pipeline = sharp()
+      .resize({
+        width: 1024,
+        height: 1024,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .withMetadata()
+      .jpeg({ quality: 90 });
+    return photoData?.pipe(pipeline);
+  } catch (err) {
+    console.log("resizePhoto error", err);
+    return undefined;
+  }
 }
 
 async function getPhotos(survey) {
@@ -71,14 +69,17 @@ async function getPhotos(survey) {
   await Promise.allSettled(
     survey.photos.map((photo) =>
       getPhoto(photo)
-        .then(resizePhoto)
-        .then((photoData) => {
-          result[photo.fullsize.key] = { data: photoData };
+        .then((photoData) =>
+          resizePhoto(photoData).toBuffer({ resolveWithObject: true })
+        )
+        .then((resizedPhoto) => {
+          console.log("resizedPhoto", resizedPhoto);
+          result[photo.fullsize.key] = resizedPhoto;
           return Promise.resolve();
         })
     )
   );
-  console.log("all photos retrieved");
+  console.log("all photos retrieved", result);
   return result;
 }
 

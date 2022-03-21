@@ -205,13 +205,10 @@ describe("handler", () => {
     dynamodbClient.send.mockResolvedValue(DB_RESPONSE);
 
     const response = await handler({
-      body: JSON.stringify({
-        uuid: "eb06ed58-3eaf-40de-96b9-7c18ee40bad9",
-        confirmId: "ba80fbb1-d612-4b54-ae4c-203d1b122f4c",
-      }),
+      surveyId: "ba80fbb1-d612-4b54-ae4c-203d1b122f4c",
     });
     expect(response).toEqual({
-      body: '{"result":"Submission complete"}',
+      body: '{"result":"Survey email sent"}',
       headers: {
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "OPTIONS,POST",

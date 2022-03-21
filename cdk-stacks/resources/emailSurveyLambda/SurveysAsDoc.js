@@ -77,8 +77,6 @@ export async function exportSurveyAsDocx(
         renderPhotoRow(
           photoRef.fullsize.key,
           photoRef.description,
-          photoRef.fullsize.height,
-          photoRef.fullsize.width
         )
       ),
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -165,10 +163,13 @@ export async function exportSurveyAsDocx(
     return { height: scaledHeight, width: MAX_PHOTO_WIDTH };
   }
 
-  function renderPhotoRow(photoKey, description, height, width) {
-    console.log("renderPhoto params", photoKey, description, height, width);
+  function renderPhotoRow(photoKey, description) {
+    console.log("renderPhoto params", photoKey, description);
     const photoData = photosData?.[photoKey];
     if (photoData?.data) {
+      const {height, width} = photoData.info;
+      console.log("renderPhoto dimensions", height, width);
+     
       return new TableRow({
         children: [
           new TableCell({

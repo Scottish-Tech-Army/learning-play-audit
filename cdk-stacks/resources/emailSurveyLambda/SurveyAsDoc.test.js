@@ -1,4 +1,11 @@
-import { HeadingLevel, Packer, Paragraph, ShadingType, TabStopType, TextRun } from "docx";
+import {
+  HeadingLevel,
+  Packer,
+  Paragraph,
+  ShadingType,
+  TabStopType,
+  TextRun,
+} from "docx";
 import exportSurveyAsDocx, {
   renderQuestionText,
   renderSubsectionTitle,
@@ -43,13 +50,24 @@ describe("exportSurveyAsDocx", () => {
   };
 
   const PHOTODATA = {
-    "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-aaaaaaaaaaaa": { data: fs.readFileSync("testImage.jpg")},
-    "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-bbbbbbbbbbbb": { data: fs.readFileSync("testImage.jpg")}
-  }
-
+    "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-aaaaaaaaaaaa":
+      {
+        data: fs.readFileSync("testImage.jpg"),
+        info: { width: 81, height: 117 },
+      },
+    "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-bbbbbbbbbbbb":
+      {
+        data: fs.readFileSync("testImage.jpg"),
+        info: { width: 81, height: 117 },
+      },
+  };
 
   it("render document", async () => {
-    const document = await exportSurveyAsDocx(SURVEY.surveyResponse, SURVEY.photos, PHOTODATA);
+    const document = await exportSurveyAsDocx(
+      SURVEY.surveyResponse,
+      SURVEY.photos,
+      PHOTODATA
+    );
     await Packer.toBuffer(document).then((buffer) => {
       return fs.writeFileSync("test.docx", buffer);
     });
@@ -153,7 +171,8 @@ describe("renderQuestionText", () => {
         tabStops: [{ type: TabStopType.LEFT, position: 500 }],
         indent: { start: 500, hanging: 500 },
         shading: { type: ShadingType.CLEAR, fill: "D0D0D0" },
-        spacing: { before: 200, after: 50 },      })
+        spacing: { before: 200, after: 50 },
+      })
     );
   });
 
@@ -169,7 +188,8 @@ describe("renderQuestionText", () => {
         tabStops: [{ type: TabStopType.LEFT, position: 500 }],
         indent: { start: 500, hanging: 500 },
         shading: { type: ShadingType.CLEAR, fill: "D0D0D0" },
-        spacing: { before: 200, after: 50 },      })
+        spacing: { before: 200, after: 50 },
+      })
     );
   });
 
@@ -184,7 +204,8 @@ describe("renderQuestionText", () => {
         tabStops: [{ type: TabStopType.LEFT, position: 500 }],
         indent: { start: 500, hanging: 500 },
         shading: { type: ShadingType.CLEAR, fill: "D0D0D0" },
-        spacing: { before: 200, after: 50 },      })
+        spacing: { before: 200, after: 50 },
+      })
     );
   });
 
@@ -206,7 +227,8 @@ describe("renderQuestionText", () => {
         tabStops: [{ type: TabStopType.LEFT, position: 500 }],
         indent: { start: 500, hanging: 500 },
         shading: { type: ShadingType.CLEAR, fill: "D0D0D0" },
-        spacing: { before: 200, after: 50 },      })
+        spacing: { before: 200, after: 50 },
+      })
     );
   });
 });
