@@ -31,6 +31,7 @@ The following tools are needed in the build and deploy process, install them fir
 - Install [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/)
 - Install the [AWS CDK](https://docs.aws.amazon.com/cdk/index.html), described here: https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install
 - Install and start [Docker](https://www.docker.com/get-started) to build the Lambda functions
+- The backend components require Node v14 to build - as the Lambda runtime environment is Node v14 and there are some prebuilt dependencies
 
 ### Build and deploy the backend components
 

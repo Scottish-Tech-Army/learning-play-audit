@@ -31,6 +31,7 @@ import {
   REPORT_FOOTER_BASE64,
   REPORT_HEADER_BASE64,
 } from "./reportImagesBase64";
+import { getCharts } from "./SurveyCharts";
 
 const IMAGE_NOT_FOUND = "[Image not found]";
 
@@ -62,8 +63,6 @@ export async function exportSurveyAsDocx(
   photosDetails,
   photosData
 ) {
-  // console.log("exportSurveyAsDocx", survey, photos);
-
   const surveyQuestionParagraphs = sectionsContent
     .map((section) => {
       return renderSection(section, surveyResponse[section.id]);
@@ -91,6 +90,47 @@ export async function exportSurveyAsDocx(
       photosTable,
     ];
   }
+
+  const charts = await getCharts(surveyResponse);
+  const chartsParagraphs = [
+    new Paragraph({
+      text: "How Good Is Our Outdoor Space?",
+      heading: HeadingLevel.HEADING_2,
+      pageBreakBefore: true,
+    }),
+    new Paragraph({
+      children: [
+        new ImageRun({
+          data: charts.learningChart,
+          transformation: { height: 300, width: 600 },
+        }),
+      ],
+    }),
+    new Paragraph({
+      text: "How Good Is Our Local Greenspace?",
+      heading: HeadingLevel.HEADING_2,
+    }),
+    new Paragraph({
+      children: [
+        new ImageRun({
+          data: charts.greenspaceChart,
+          transformation: { height: 300, width: 600 },
+        }),
+      ],
+    }),
+    new Paragraph({
+      text: "How Good Is Our Outdoor Practice?",
+      heading: HeadingLevel.HEADING_2,
+    }),
+    new Paragraph({
+      children: [
+        new ImageRun({
+          data: charts.practiceChart,
+          transformation: { height: 150, width: 600 },
+        }),
+      ],
+    }),
+  ];
 
   const headers = {
     default: new Header({
@@ -251,6 +291,7 @@ export async function exportSurveyAsDocx(
           }),
           ...surveyQuestionParagraphs,
           ...photosParagraphs,
+          ...chartsParagraphs,
         ],
       },
     ],
