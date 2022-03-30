@@ -52,12 +52,12 @@ describe("exportSurveyAsDocx", () => {
   const PHOTODATA = {
     "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-aaaaaaaaaaaa":
       {
-        data: fs.readFileSync("testImage.jpg"),
+        data: fs.readFileSync("src/testImage.jpg"),
         info: { width: 81, height: 117 },
       },
     "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-bbbbbbbbbbbb":
       {
-        data: fs.readFileSync("testImage.jpg"),
+        data: fs.readFileSync("src/testImage.jpg"),
         info: { width: 81, height: 117 },
       },
   };

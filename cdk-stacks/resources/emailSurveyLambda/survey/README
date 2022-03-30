@@ -1,0 +1,5 @@
+This directory will hold a copy of the shared survey archive file (from the survey subproject).
+
+This is necessary as the file must be within the docker context of the cdk-stacks subproject.
+
+The file is copied after the npm pack operation within the survey subproject.

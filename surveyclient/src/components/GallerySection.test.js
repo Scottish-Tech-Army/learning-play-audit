@@ -54,7 +54,7 @@ describe("component GallerySection", () => {
         sectionId: "general",
         title: "General",
         photos: [
-          { description: "test photo3", imageData: btoa("image data3") },
+          { description: "test photo3", imageData: Buffer.from("image data3").toString("base64") },
         ],
       },
       {
@@ -62,12 +62,11 @@ describe("component GallerySection", () => {
         title:
           "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
-          { description: "test photo1", imageData: btoa("image data1") },
-          { description: "test photo2", imageData: btoa("image data2") },
+          { description: "test photo1", imageData: Buffer.from("image data1").toString("base64") },
+          { description: "test photo2", imageData: Buffer.from("image data2").toString("base64") },
         ],
       },
     ]);
-  });
 
   it("add photo", async () => {
     renderComponent();
@@ -78,8 +77,8 @@ describe("component GallerySection", () => {
         sectionId: "general",
         title: "General",
         photos: [
-          { description: "test photo3", imageData: btoa("image data3") },
-          { description: "", imageData: btoa("new imageData4") },
+          { description: "test photo3", imageData: Buffer.from("image data3").toString("base64") },
+          { description: "", imageData: Buffer.from("new imageData4").toString("base64") },
         ],
       },
       {
@@ -87,8 +86,8 @@ describe("component GallerySection", () => {
         title:
           "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
-          { description: "test photo1", imageData: btoa("image data1") },
-          { description: "test photo2", imageData: btoa("image data2") },
+          { description: "test photo1", imageData: Buffer.from("image data1").toString("base64") },
+          { description: "test photo2", imageData: Buffer.from("image data2").toString("base64") },
         ],
       },
     ]);
@@ -127,9 +126,9 @@ describe("component GallerySection", () => {
         sectionId: "general",
         title: "General",
         photos: [
-          { description: "test photo3", imageData: btoa("image data3") },
-          { description: "", imageData: btoa("new imageData4") },
-          { description: "", imageData: btoa("new imageData5") },
+          { description: "test photo3", imageData: Buffer.from("image data3").toString("base64") },
+          { description: "", imageData: Buffer.from("new imageData4").toString("base64") },
+          { description: "", imageData: Buffer.from("new imageData5").toString("base64") },
         ],
       },
       {
@@ -137,8 +136,8 @@ describe("component GallerySection", () => {
         title:
           "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
-          { description: "test photo1", imageData: btoa("image data1") },
-          { description: "test photo2", imageData: btoa("image data2") },
+          { description: "test photo1", imageData: Buffer.from("image data1").toString("base64") },
+          { description: "test photo2", imageData: Buffer.from("image data2").toString("base64") },
         ],
       },
     ]);
@@ -170,7 +169,7 @@ describe("component GallerySection", () => {
         sectionId: "general",
         title: "General",
         photos: [
-          { description: "new description", imageData: btoa("image data3") },
+          { description: "new description", imageData: Buffer.from("image data3").toString("base64") },
         ],
       },
       {
@@ -178,8 +177,8 @@ describe("component GallerySection", () => {
         title:
           "Wellbeing - Entrances and signs are colourful, bright, happy and welcoming.",
         photos: [
-          { description: "test photo1", imageData: btoa("image data1") },
-          { description: "test photo2", imageData: btoa("image data2") },
+          { description: "test photo1", imageData: Buffer.from("image data1").toString("base64") },
+          { description: "test photo2", imageData: Buffer.from("image data2").toString("base64") },
         ],
       },
     ]);

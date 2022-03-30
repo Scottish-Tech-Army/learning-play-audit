@@ -175,7 +175,7 @@ export function loadPhotos(files, sectionId = null, questionId = null) {
         readFileAsync(file).then((data) => {
           dispatch({
             type: ADD_PHOTO,
-            imageData: btoa(data),
+            imageData: Buffer.from(data).toString("base64"),
             sectionId: sectionId,
             questionId: questionId,
           });

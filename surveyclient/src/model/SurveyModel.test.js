@@ -1065,8 +1065,8 @@ describe("refreshState", () => {
 describe("loadPhotos", () => {
   const IMAGEDATA1 = "test image data1";
   const IMAGEDATA2 = "test image data2";
-  const IMAGEDATA1_BASE64 = btoa(IMAGEDATA1);
-  const IMAGEDATA2_BASE64 = btoa(IMAGEDATA2);
+  const IMAGEDATA1_BASE64 = Buffer.from(IMAGEDATA1).toString("base64");
+  const IMAGEDATA2_BASE64 = Buffer.from(IMAGEDATA2).toString("base64");
   const INPUT_FILE1 = new Blob([IMAGEDATA1], { type: "mimeType" });
   const INPUT_FILE2 = new Blob([IMAGEDATA2], { type: "mimeType" });
 

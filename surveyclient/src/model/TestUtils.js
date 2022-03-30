@@ -218,9 +218,9 @@ function createTestState() {
       user: { attributes: { email: "test@example.com" } },
     },
     photos: {
-      testPhotoId1: { imageData: btoa("image data1") },
-      testPhotoId2: { imageData: btoa("image data2") },
-      testPhotoId3: { imageData: btoa("image data3") },
+      testPhotoId1: { imageData: Buffer.from("image data1").toString("base64") },
+      testPhotoId2: { imageData: Buffer.from("image data2").toString("base64") },
+      testPhotoId3: { imageData: Buffer.from("image data3").toString("base64") },
     },
     photoDetails: {
       testPhotoId1: {

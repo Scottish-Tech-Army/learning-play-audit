@@ -85,7 +85,7 @@ describe("component QuestionPhotosDialog", () => {
     renderComponent();
     expect(photoContainers()).toHaveLength(0);
     const imageData = "new imageData3";
-    const imageDataBase64 = btoa(imageData);
+    const imageDataBase64 = Buffer.from(imageData).toString("base64");
 
     await addPhotoInput(imageData);
     expect(photoContainers()).toHaveLength(1);
@@ -139,8 +139,8 @@ describe("component QuestionPhotosDialog", () => {
     expect(photoContainers()).toHaveLength(0);
     const imageData1 = "new imageData1";
     const imageData2 = "new imageData2";
-    const imageData1Base64 = btoa(imageData1);
-    const imageData2Base64 = btoa(imageData2);
+    const imageData1Base64 = Buffer.from("image data1").toString("base64");
+    const imageData2Base64 = Buffer.from(imageData2).toString("base64");
 
     await addPhotoInput(imageData1, imageData2);
     expect(photoContainers()).toHaveLength(2);

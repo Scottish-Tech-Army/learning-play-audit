@@ -15,7 +15,7 @@ The LtL Survey consists of:
   - An S3 bucket containing the uploaded photos undexed above. The objects have keys `/surveys/[SURVEY UUID]/photos/[PHOTO UUID]`
   - Lambda functions for the survey client to [add](resources/addSurveyLambda) and [confirm](resources/confirmSurveyLambda) survey upload.
   - API Gateway wrapper for these lambda functions.
-  - Asynchronous Lambda function to  [email](resources/emailSurveyLambda) survey responses to the survey user (triggered by [confirm](resources/confirmSurveyLambda).
+  - Asynchronous Lambda function to  [email](resources/emailSurveyLambda) survey responses to the survey user (triggered by [confirm](resources/confirmSurveyLambda). As some required libraries have binary dependencies, this Lambda function is created as a Docker image.
   - Cognito user pools for survey users and survey admin users. Separate pools to allow for greater admin user security.
   - Cognito identity pool to assign role to survey admin user pool, allowing read access to the DynamoDB table and the S3 bucket.
 - Frontend

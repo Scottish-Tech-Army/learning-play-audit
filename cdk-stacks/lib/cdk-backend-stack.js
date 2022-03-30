@@ -181,32 +181,24 @@ class CdkBackendStack extends cdk.Stack {
       apiAuthoriser
     );
 
-    const emailSurveyLambda = new NodejsFunction(this, "EmailSurveyLambda", {
-      runtime: lambda.Runtime.NODEJS_14_X,
-      entry: "resources/emailSurveyLambda/index.js",
-      handler: "handler",
-      environment: {
-        REGION: region,
-        SURVEY_DB_TABLE: surveyResponsesTable.tableName,
-        SURVEY_EMAIL_BCC: surveyEmailBcc,
-        SURVEY_EMAIL_FROM: surveyEmailFrom,
-        LD_PRELOAD: '/var/task/node_modules/canvas/build/Release/libz.so.1',
-        FONTCONFIG_PATH: '/var/task/fonts'
-      },
-      timeout: cdk.Duration.seconds(600),
-      memorySize: 512,
-      bundling: {
-        nodeModules: ['sharp', 'canvas', 'chart.js'],
-        commandHooks: {
-          beforeBundling: () => [],
-          afterBundling: (inputDir, outputDir) => [
-            `cp -r ${inputDir}/resources/emailSurveyLambda/fonts ${outputDir}`,
-            `cp /usr/lib/x86_64-linux-gnu/libuuid.so.1 ${outputDir}/node_modules/canvas/build/Release`
-          ],
-          beforeInstall: () => [],
-        }
-      },
-    });
+    const emailSurveyLambda = new lambda.DockerImageFunction(
+      this,
+      "EmailSurveyLambdaDocker",
+      {
+        code: lambda.DockerImageCode.fromImageAsset(
+          "./resources/emailSurveyLambda",
+          {}
+        ),
+        timeout: cdk.Duration.seconds(600),
+        memorySize: 512,
+        environment: {
+          REGION: region,
+          SURVEY_DB_TABLE: surveyResponsesTable.tableName,
+          SURVEY_EMAIL_BCC: surveyEmailBcc,
+          SURVEY_EMAIL_FROM: surveyEmailFrom,
+        },
+      }
+    );
 
     surveyResponsesTable.grant(emailSurveyLambda, "dynamodb:GetItem");
     surveyResourcesBucket.grantRead(emailSurveyLambda);

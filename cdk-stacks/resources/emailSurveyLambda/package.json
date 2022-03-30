@@ -2,10 +2,16 @@
   "name": "emailSurveyLambda",
   "version": "2.0.0",
   "description": "CDK EmailSurvey Lambda function",
-  "main": "index.js",
+  "main": "dist/index.js",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "esbuild src/index.js --bundle --platform=node --target=node14 --outfile=dist/index.js --external:canvas --external:sharp --external:chartjs-node-canvas --external:./node_modules/chartjs"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.48.0",
@@ -19,15 +25,17 @@
     "docx": "^7.3.0",
     "es6-promise": "^4.2.8",
     "isomorphic-fetch": "^3.0.0",
-    "learning-play-audit-survey": "file:../../../survey/learning-play-audit-survey-0.1.0.tgz",
+    "learning-play-audit-survey": "file:./survey/learning-play-audit-survey-0.1.0.tgz",
     "mimemessage": "^1.0.5",
     "sharp": "^0.30.3"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.5",
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "babel-jest": "^27.5.1",
+    "esbuild": "^0.14.29",
     "file-saver": "^2.0.5",
     "jest": "^27.5.1"
   },
