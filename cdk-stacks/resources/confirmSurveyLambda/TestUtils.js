@@ -148,8 +148,6 @@ export const EMPTY_STATE = {
     },
   },
   authentication: { errorMessage: "", state: "Register", user: undefined },
-  hasEverLoggedIn: false,
-  hasSeenSplashPage: false,
   initialisingState: true,
   photoDetails: {},
   photos: {},
@@ -209,18 +207,22 @@ function createTestState() {
     ...EMPTY_STATE,
     answerCounts: populateAnswerCounts(),
     answers: populateAnswers(),
-    hasEverLoggedIn: !EMPTY_STATE.hasEverLoggedIn,
-    hasSeenSplashPage: !EMPTY_STATE.hasSeenSplashPage,
     initialisingState: false,
     authentication: {
       errorMessage: "",
       state: "SignedIn",
-      user: { attributes: { email: "test@example.com" } },
+      user: { email: "test@example.com" },
     },
     photos: {
-      testPhotoId1: { imageData: Buffer.from("image data1").toString("base64") },
-      testPhotoId2: { imageData: Buffer.from("image data2").toString("base64") },
-      testPhotoId3: { imageData: Buffer.from("image data3").toString("base64") },
+      testPhotoId1: {
+        imageData: Buffer.from("image data1").toString("base64"),
+      },
+      testPhotoId2: {
+        imageData: Buffer.from("image data2").toString("base64"),
+      },
+      testPhotoId3: {
+        imageData: Buffer.from("image data3").toString("base64"),
+      },
     },
     photoDetails: {
       testPhotoId1: {

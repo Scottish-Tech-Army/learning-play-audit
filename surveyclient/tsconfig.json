@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "jsx": "react"
+  },
+  
+}
