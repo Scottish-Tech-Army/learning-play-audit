@@ -440,13 +440,13 @@ function SurveyResponses({ id, surveys = [] }: SurveyResponsesProps) {
   const classes = useStyles();
 
   if (surveys.length > 0) {
-    surveys.forEach((item, i) => {
+    surveys.forEach((item) => {
       console.debug(item.surveyResponse);
     });
   }
 
   function renderSurveys() {
-    const responses = surveys.map((item, i) => item.surveyResponse);
+    const responses = surveys.map((item) => item.surveyResponse);
     return sectionsContent.map((section) => {
       return (
         <Section

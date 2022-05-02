@@ -31,7 +31,7 @@ function GallerySection() {
 
     Object.keys(photoDetails)
       .filter((photoId) => !isGeneralPhoto(photoDetails[photoId]))
-      .forEach((photoId, i) => {
+      .forEach((photoId) => {
         const current = photoDetails[photoId];
 
         let section = result[current.sectionId!];

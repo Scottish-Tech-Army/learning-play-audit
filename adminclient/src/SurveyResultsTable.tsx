@@ -47,7 +47,7 @@ const useStyles = makeStyles({
   },
 });
 
-const useToolbarStyles = makeStyles((theme) => ({
+const useToolbarStyles = makeStyles(() => ({
   root: {
     justifyContent: "space-between",
   },
@@ -260,7 +260,7 @@ function SurveyResultsTable({
   openSurveyResponses,
   exportCsv,
 }: SurveyResultsTableProps) {
-  const classes = useStyles;
+  const classes = useStyles();
 
   const summaryResponses = useSelector(getSummaryResponses);
 
@@ -337,7 +337,7 @@ function SurveyResultsTable({
           <TableBody>
             {orderedDataRows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
+              .map((row) => {
                 const isItemChecked = selectedSurveyIds.includes(row.id);
 
                 return (
@@ -372,7 +372,7 @@ function SurveyResultsTable({
                 count={summaryResponses.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                onPageChange={(event, newPage) => setPage(newPage)}
+                onPageChange={(_event, newPage) => setPage(newPage)}
                 onRowsPerPageChange={(event) =>
                   handleChangeRowsPerPage(
                     (event.target as HTMLInputElement).value

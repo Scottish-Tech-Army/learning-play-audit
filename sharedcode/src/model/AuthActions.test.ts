@@ -114,7 +114,7 @@ describe("simple methods", () => {
 
 describe("checkContact", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(REGISTER, undefined));
+    authDispatch(setAuthState(REGISTER));
   });
 
   it("verified + unverified = verified contact", async () => {
@@ -181,7 +181,7 @@ describe("checkContact", () => {
 
 describe("signIn", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(REGISTER, undefined));
+    authDispatch(setAuthState(REGISTER));
 
     mockVerifiedContact.mockImplementation(() => Promise.resolve({}));
   });
@@ -474,7 +474,7 @@ describe("resendConfirmCode", () => {
 
 describe("confirmRegistration", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(CONFIRM_REGISTRATION, undefined));
+    authDispatch(setAuthState(CONFIRM_REGISTRATION));
 
     mockVerifiedContact.mockImplementation(() => Promise.resolve({}));
   });
@@ -658,7 +658,7 @@ describe("confirmRegistration", () => {
 
 describe("register", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(REGISTER, undefined));
+    authDispatch(setAuthState(REGISTER));
 
     mockVerifiedContact.mockImplementation(() => Promise.resolve({}));
   });
@@ -997,7 +997,7 @@ describe("signOut", () => {
 
 describe("forgotPasswordRequest", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(FORGOT_PASSWORD_REQUEST, undefined));
+    authDispatch(setAuthState(FORGOT_PASSWORD_REQUEST));
 
     mockForgotPassword.mockImplementation(() => Promise.resolve({}));
   });
@@ -1079,7 +1079,7 @@ describe("forgotPasswordSubmit", () => {
 
 describe("signInCurrentUser", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(FORGOT_PASSWORD_SUBMIT, undefined));
+    authDispatch(setAuthState(FORGOT_PASSWORD_SUBMIT));
 
     mockCurrentAuthenticatedUser.mockImplementation(() =>
       Promise.resolve(TEST_COGNITO_USER)
@@ -1116,7 +1116,7 @@ describe("signInCurrentUser", () => {
 
 describe("getTOTPSetupQrCode", () => {
   beforeEach(() => {
-    authDispatch(setAuthState(REGISTER, undefined));
+    authDispatch(setAuthState(REGISTER));
 
     mockSetupTOTP.mockImplementation((user) =>
       Promise.resolve("secret key for " + user.getUsername())

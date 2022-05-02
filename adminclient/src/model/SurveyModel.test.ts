@@ -226,12 +226,6 @@ describe("surveyReducer", () => {
 });
 
 describe("surveyReducer using authReducer", () => {
-  it("initial state - empty", () => {
-    expect(surveyReducer(undefined, {} as AnyAction)).toStrictEqual(
-      EMPTY_STATE
-    );
-  });
-
   it("action SET_AUTH_ERROR", () => {
     expect(
       surveyReducer(STATE_WITHOUT_AUTH_ERROR, {
@@ -506,7 +500,7 @@ describe("retrievePhotosForSurveys", () => {
       return { Body: arrayToReadableStream(IMAGE_DATA, key) };
     }
 
-    mockS3ClientSend.mockImplementation((input) => {
+    mockS3ClientSend.mockImplementation(() => {
       return Promise.resolve(s3PhotoResponse(getLastGetObjectCommandKey()));
     });
   });

@@ -190,12 +190,12 @@ export function retrieveSummaryResponses(): AppThunk {
         dispatch({
           type: SET_SUMMARY_RESPONSES,
           responses: result.Items!.map((item) => {
-            const result = unmarshall(item) as SurveySummary;
+            const unmarshalledResult = unmarshall(item) as SurveySummary;
             // Add localised timestamp
-            result.timestampString = new Date(
-              result.createdAt
+            unmarshalledResult.timestampString = new Date(
+              unmarshalledResult.createdAt
             ).toLocaleString();
-            return result;
+            return unmarshalledResult;
           }),
         });
       })

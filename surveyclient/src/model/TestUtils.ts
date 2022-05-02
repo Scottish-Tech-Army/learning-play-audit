@@ -189,7 +189,7 @@ function createTestState(): SurveyStoreState {
 
   function populateSectionAnswers(section: SectionAnswers) {
     const result = { ...section };
-    Object.keys(result).forEach((item, i) => {
+    Object.keys(result).forEach((item) => {
       if (result[item].hasOwnProperty("answer")) {
         result[item] = {
           answer: "test " + item,

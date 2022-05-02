@@ -137,7 +137,7 @@ export const EMPTY_ANSWERS = {
 
 function populateSectionAnswers(section) {
   const result = { ...section };
-  Object.keys(result).forEach((item, i) => {
+  Object.keys(result).forEach((item) => {
     if (result[item].answer !== undefined) {
       result[item] = {
         answer: "b",
@@ -160,7 +160,7 @@ function populateSectionAnswers(section) {
 
 function populateAnswers() {
   const result = { ...EMPTY_ANSWERS };
-  Object.keys(result).forEach((item, i) => {
+  Object.keys(result).forEach((item) => {
     if (item !== "surveyVersion") {
       result[item] = populateSectionAnswers(result[item]);
     }

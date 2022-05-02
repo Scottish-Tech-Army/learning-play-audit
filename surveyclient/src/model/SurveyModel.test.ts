@@ -1004,7 +1004,7 @@ describe("refreshState", () => {
   it("write failed - continue to refresh state", async () => {
     mockLocalForageGetItem(null, null);
 
-    (localforage.setItem as jest.Mock).mockImplementation((itemId, value) => {
+    (localforage.setItem as jest.Mock).mockImplementation((itemId) => {
       return Promise.reject(new Error("SetItem failed " + itemId));
     });
 

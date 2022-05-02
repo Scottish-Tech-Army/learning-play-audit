@@ -1,7 +1,6 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Provider } from "react-redux";
 import { render } from "@testing-library/react";
-import { ReactNode } from "react";
 import { authStore } from "../../setupTests";
 import userEvent from "@testing-library/user-event";
 

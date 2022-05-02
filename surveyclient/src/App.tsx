@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   AuthCurrentUser,
   Authenticator,
+  getAuthState,
   isAuthenticating,
 } from "learning-play-audit-shared";
 import { sectionsContent } from "learning-play-audit-survey";
@@ -24,7 +25,6 @@ import { Amplify } from "@aws-amplify/core";
 import { menuButtonSvg } from "./components/SvgUtils";
 import { GALLERY, INTRODUCTION, RESULTS, SUBMIT } from "./model/SurveySections";
 import "./App.css";
-import { getAuthState } from "learning-play-audit-shared";
 
 // Configure these properties in .env.local
 const AWS_CLIENT_API_ENDPOINT = process.env.REACT_APP_AWS_CLIENT_API_ENDPOINT!;

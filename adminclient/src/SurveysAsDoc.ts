@@ -47,7 +47,7 @@ export function exportSurveysAsDocx(
   const responses = surveys.map((survey) => survey.surveyResponse);
 
   const paragraphs = sectionsContent
-    .map((section, i) => {
+    .map((section) => {
       const sectionResponses = responses.map(
         (response) => response[section.id]
       );
@@ -256,7 +256,7 @@ function renderQuestionTypeUserSelect(
     }
   }
 
-  function labelTitle(response: QuestionAnswer): String {
+  function labelTitle(response: QuestionAnswer): string {
     switch (response.answer) {
       case "a":
         return "Position";
