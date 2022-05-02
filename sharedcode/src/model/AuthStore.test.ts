@@ -52,19 +52,19 @@ describe("authReducer", () => {
           ...INPUT_STATE,
           errorMessage: "new error",
           authState: SIGN_IN,
-          surveyUser: { username: "test user" },
+          surveyUser: { email: "test@example.com" },
         },
         {
           type: SET_AUTH_STATE,
           authState: "new auth state",
-          surveyUser: { username: "new user" },
+          surveyUser: { email: "new@example.com" },
         }
       )
     ).toStrictEqual({
       ...INPUT_STATE,
       errorMessage: "",
       authState: "new auth state",
-      surveyUser: { username: "new user" },
+      surveyUser: { email: "new@example.com" },
     });
   });
 
@@ -72,7 +72,7 @@ describe("authReducer", () => {
     expect(
       authReducer(INPUT_STATE, {
         type: SET_AUTH_STATE,
-        user: "new user",
+        surveyUser: "new user",
       })
     ).toStrictEqual(INPUT_STATE);
   });
@@ -86,17 +86,17 @@ const EMPTY_STATE: AuthStoreState = {
 const INPUT_STATE: AuthStoreState = {
   errorMessage: "",
   authState: SIGNED_IN,
-  surveyUser: { username: "test user", email: "test@example.com" },
+  surveyUser: { email: "test@example.com" },
 };
 
 const STATE_WITH_AUTH_ERROR: AuthStoreState = {
   errorMessage: "new error",
   authState: SIGN_IN,
-  surveyUser: { username: "test user" },
+  surveyUser: { email: "test@example.com" },
 };
 
 const STATE_WITHOUT_AUTH_ERROR: AuthStoreState = {
   errorMessage: "",
   authState: SIGN_IN,
-  surveyUser: { username: "test user" },
+  surveyUser: { email: "test@example.com" },
 };

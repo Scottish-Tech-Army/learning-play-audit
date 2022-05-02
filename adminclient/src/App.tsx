@@ -180,7 +180,7 @@ export default function App() {
                 onClose={() => setUserMenuOpen(false)}
               >
                 <MenuItem disabled={true}>
-                  {user && user.email ? user.email : ""}
+                  {user?.email ? user.email : ""}
                 </MenuItem>
                 <MenuItem
                   onClick={() => {

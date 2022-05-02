@@ -24,7 +24,7 @@ import {
 import { renderWithStore } from "./TestUtils";
 import { authStore } from "../../setupTests";
 
-const TEST_USER = "test@example.com";
+const TEST_EMAIL = "test@example.com";
 
 jest.mock("../../model/AuthActions");
 
@@ -33,7 +33,7 @@ describe("component Authenticator", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: REGISTER,
-      surveyUser: { username: TEST_USER, cognitoUser: {} },
+      surveyUser: { email: TEST_EMAIL, cognitoUser: {} },
     });
 
     (signInCurrentUser as jest.Mock).mockImplementation(
@@ -49,7 +49,7 @@ describe("component Authenticator", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGNED_OUT,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
     const { container } = renderWithStore(<Authenticator />);
     expect(authenticatorSection(container)).toBeNull();
@@ -59,7 +59,7 @@ describe("component Authenticator", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGNED_IN,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
     const { container } = renderWithStore(<Authenticator />);
     expect(authenticatorSection(container)).toBeNull();
@@ -106,7 +106,7 @@ describe("component Authenticator", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState,
-      surveyUser: { username: TEST_USER, cognitoUser: {} },
+      surveyUser: { email: TEST_EMAIL, cognitoUser: {} },
     });
     const { container } = renderWithStore(<Authenticator />);
     expect(authenticatorSection(container)).not.toBeNull();

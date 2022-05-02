@@ -30,8 +30,8 @@ const backendStack = new CdkBackendStack(
   resourcePrefixName + "-Backend-" + envStageName,
   {
     environment: envStageName,
-    surveyEmailBcc: surveyEmailBcc,
-    surveyEmailFrom: surveyEmailFrom,
+    surveyEmailBcc,
+    surveyEmailFrom,
     resourcePrefix: resourcePrefixName + "-" + envStageName,
   }
 );

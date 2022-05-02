@@ -7,7 +7,7 @@ import { renderWithStore } from "./TestUtils";
 import { authStore } from "../../setupTests";
 import { waitFor } from "@testing-library/react";
 
-const TEST_USER = "test@example.com";
+const TEST_EMAIL = "test@example.com";
 
 jest.mock("../../model/AuthActions");
 
@@ -16,7 +16,7 @@ describe("component RequireNewPassword", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: RESET_PASSWORD,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
 
     (completeNewPassword as jest.Mock).mockImplementation(
@@ -68,7 +68,7 @@ describe("component RequireNewPassword", () => {
 
     expect(completeNewPassword).toHaveBeenCalledTimes(1);
     expect(completeNewPassword).toHaveBeenCalledWith(
-      { username: TEST_USER },
+      { email: TEST_EMAIL },
       "new password"
     );
     expect(changeButton).toBeDisabled();
@@ -80,7 +80,7 @@ describe("component RequireNewPassword", () => {
     await user.click(getByRole("button", { name: "Back to Sign In" }));
 
     expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGN_IN, { username: TEST_USER });
+    expect(setAuthState).toHaveBeenCalledWith(SIGN_IN, { email: TEST_EMAIL });
   });
 
   it("end loading spinner on auth state update", async () => {
@@ -97,7 +97,7 @@ describe("component RequireNewPassword", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
-      user: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
     await waitFor(() => expect(changeButton).not.toBeDisabled());
   });

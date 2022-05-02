@@ -711,21 +711,21 @@ describe("surveyReducer using authReducer", () => {
           ...INPUT_STATE,
           errorMessage: "test error",
           authState: SIGN_IN,
-          surveyUser: { username: "test user" },
+          surveyUser: { email: "test@example.com" },
           hasSeenSplashPage: true,
           hasEverLoggedIn: false,
         },
         {
           type: SET_AUTH_STATE,
           authState: REGISTER,
-          surveyUser: { username: "new user" },
+          surveyUser: { email: "new@example.com" },
         }
       )
     ).toStrictEqual({
       ...INPUT_STATE,
       errorMessage: "",
       authState: REGISTER,
-      surveyUser: { username: "new user" },
+      surveyUser: { email: "new@example.com" },
       hasSeenSplashPage: true,
       hasEverLoggedIn: false,
     });
@@ -749,21 +749,21 @@ describe("surveyReducer using authReducer", () => {
           ...INPUT_STATE,
           errorMessage: "test error",
           authState: SIGN_IN,
-          surveyUser: { username: "test user" },
+          surveyUser: { email: "test@example.com" },
           hasSeenSplashPage: true,
           hasEverLoggedIn: false,
         },
         {
           type: SET_AUTH_STATE,
           authState: SIGNED_IN,
-          surveyUser: { username: "new user" },
+          surveyUser: { email: "new@example.com" },
         }
       )
     ).toStrictEqual({
       ...INPUT_STATE,
       errorMessage: "",
       authState: SIGNED_IN,
-      surveyUser: { username: "new user" },
+      surveyUser: { email: "new@example.com" },
       hasSeenSplashPage: false,
       hasEverLoggedIn: false,
     });
@@ -784,7 +784,7 @@ describe("surveyReducer using authReducer", () => {
     expect(
       surveyReducer(INPUT_STATE, {
         type: SET_AUTH_STATE,
-        user: "new user",
+        surveyUser: "new user",
       })
     ).toStrictEqual(INPUT_STATE);
 
@@ -1038,8 +1038,8 @@ describe("loadPhotos", () => {
   const IMAGEDATA2 = "test image data2";
   const IMAGEDATA1_BASE64 = Buffer.from(IMAGEDATA1).toString("base64");
   const IMAGEDATA2_BASE64 = Buffer.from(IMAGEDATA2).toString("base64");
-  const INPUT_FILE1 = new Blob([IMAGEDATA1], { type: "mimeType" });
-  const INPUT_FILE2 = new Blob([IMAGEDATA2], { type: "mimeType" });
+  const INPUT_FILE1 = new Blob([Buffer.from(IMAGEDATA1)], { type: "mimeType" });
+  const INPUT_FILE2 = new Blob([Buffer.from(IMAGEDATA2)], { type: "mimeType" });
 
   beforeEach(() => {
     surveyDispatch({ type: REFRESH_STATE, state: INPUT_STATE });

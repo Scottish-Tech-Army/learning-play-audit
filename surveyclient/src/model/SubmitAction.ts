@@ -99,7 +99,7 @@ function submitSurvey(
 ): AxiosPromise<SubmitSurveyResponse> {
   console.debug("POST survey"); //, headers, body);
   return axios
-    .post(endpoint + "/survey", JSON.stringify(body), { headers: headers })
+    .post(endpoint + "/survey", JSON.stringify(body), { headers })
     .catch((error) => {
       console.error(error);
       throw error;
@@ -119,7 +119,7 @@ function confirmsurvey(
   console.debug("POST confirmsurvey", headers, body);
   return axios
     .post(endpoint + "/confirmsurvey", JSON.stringify(body), {
-      headers: headers,
+      headers,
     })
     .catch((error) => {
       console.error(error);
@@ -147,7 +147,7 @@ export function uploadResults(
     setProgressValue(Math.round((progress * 100) / maxProgressCount));
   };
 
-  const { username, email } = state.surveyUser!;
+  const { email } = state.surveyUser!;
 
   const uuid = uuidv4();
   let confirmId: string;
@@ -158,26 +158,26 @@ export function uploadResults(
   setProgressValue(0);
   setSubmitState(SUBMITTING_START);
   return Auth.currentSession()
-  .then((session) => {
-    headers.Authorization = `Bearer ${session.getIdToken().getJwtToken()}`;
-    
-    if (!username || !email) {
-      throw new Error("User email missing");
-    }
-    const submitRequest = {
-      uuid: uuid,
-      survey: state.answers,
-      photoDetails: state.photoDetails,
-      surveyVersion: state.surveyVersion,
-    };
-    submitRequest.survey.background.email = {
-      answer: email,
-      comments: "",
-    };
-    
-    return submitSurvey(endpoint, headers, submitRequest);
-  })
-  .then((response) => {
+    .then((session) => {
+      headers.Authorization = `Bearer ${session.getIdToken().getJwtToken()}`;
+
+      if (!email) {
+        throw new Error("User email missing");
+      }
+      const submitRequest = {
+        uuid,
+        survey: state.answers,
+        photoDetails: state.photoDetails,
+        surveyVersion: state.surveyVersion,
+      };
+      submitRequest.survey.background.email = {
+        answer: email,
+        comments: "",
+      };
+
+      return submitSurvey(endpoint, headers, submitRequest);
+    })
+    .then((response) => {
       console.debug("submitSurvey complete", response);
       if (
         response.status !== 200 ||
@@ -198,8 +198,8 @@ export function uploadResults(
       console.debug("uploadPhotos complete", response);
       setSubmitState(SUBMITTING_CONFIRM);
       return confirmsurvey(endpoint, headers, {
-        uuid: uuid,
-        confirmId: confirmId,
+        uuid,
+        confirmId,
       });
     })
     .then((response) => {

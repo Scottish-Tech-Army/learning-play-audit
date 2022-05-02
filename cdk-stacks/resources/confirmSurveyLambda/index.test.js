@@ -1,5 +1,5 @@
 import { handler } from "./index";
-const { s3Client, dynamodbClient, emailClient } = require("./aws");
+const { dynamodbClient } = require("./aws");
 
 jest.mock("./aws");
 
@@ -131,7 +131,6 @@ describe("handler", () => {
               goodimpression: EMPTY_SCALE_AND_COMMENT,
             },
           },
-          surveyVersion: { S: "0.9.0" },
           learning: {
             M: {
               technologies: EMPTY_SCALE_AND_COMMENT,
@@ -196,7 +195,7 @@ describe("handler", () => {
       updatedAt: { S: "2021-01-12T10:32:05.769Z" },
       schoolName: { S: "" },
       createdAt: { S: "2021-01-12T10:32:03.162Z" },
-      surveyVersion: { S: "0.9.0" },
+      surveyVersion: { S: "0.10.0" },
       state: { S: "Complete" },
     },
   };

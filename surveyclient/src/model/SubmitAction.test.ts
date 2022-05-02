@@ -13,6 +13,7 @@ import {
 import { Buffer } from "buffer/";
 import { surveyStore, SurveyStoreState } from "./SurveyModel";
 import { REFRESH_STATE } from "./ActionTypes";
+import { SurveyUser } from "learning-play-audit-shared";
 
 const TEST_ENDPOINT = "http://localhost:9999/testEndpoint";
 
@@ -115,7 +116,7 @@ describe("uploadResults", () => {
   it("user.email not set", async () => {
     const inputState: SurveyStoreState = {
       ...INPUT_STATE,
-      surveyUser: { username: "test user" },
+      surveyUser: {} as SurveyUser,
     };
     surveyStore.dispatch({ type: REFRESH_STATE, state: inputState });
 

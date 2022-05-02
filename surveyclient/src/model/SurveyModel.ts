@@ -27,6 +27,7 @@ import {
 import localforage from "localforage";
 import getPhotoUuid from "./SurveyPhotoUuid";
 import { INTRODUCTION } from "./SurveySections";
+import { Buffer } from "buffer/";
 
 // eslint-disable-next-line jest/require-hook
 localforage.config({
@@ -139,7 +140,7 @@ function initialState(): SurveyStoreState {
     hasEverLoggedIn: false,
     initialisingState: true,
     currentSectionId: INTRODUCTION,
-    surveyVersion: SURVEY_VERSION
+    surveyVersion: SURVEY_VERSION,
   };
 }
 
@@ -231,7 +232,6 @@ function surveyAnswersReducer(
       return newState;
 
     default:
-      console.log("Unknown action: ", action);
       return state;
   }
 }
@@ -265,14 +265,14 @@ export function loadPhotos(
   return function (dispatch) {
     return Promise.allSettled(
       files.map((file) =>
-        readFileAsync(file).then((data) => {
+        readFileAsync(file).then((data) =>
           dispatch({
             type: ADD_PHOTO,
             imageData: Buffer.from(data).toString("base64"),
-            sectionId: sectionId,
-            questionId: questionId,
-          });
-        })
+            sectionId,
+            questionId,
+          })
+        )
       )
     );
   };
@@ -288,7 +288,7 @@ function readFileAsync(file: Blob): Promise<ArrayBuffer> {
     };
     reader.onerror = reject;
 
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
   });
 }
 
@@ -354,7 +354,7 @@ const writeAnswers = ({
   hasSeenSplashPage,
   hasEverLoggedIn,
   initialisingState,
-  surveyVersion
+  surveyVersion,
 }: SurveyStoreState) => {
   console.debug("writeAnswers");
   if (initialisingState) {
@@ -367,7 +367,7 @@ const writeAnswers = ({
     photoDetails,
     hasSeenSplashPage,
     hasEverLoggedIn,
-    surveyVersion
+    surveyVersion,
   });
 };
 const readAnswers = (): Promise<SurveyStoreState | null> =>
@@ -379,7 +379,7 @@ const writePhotos = ({ photos, initialisingState }: SurveyStoreState) => {
     console.debug("Still initialisingState, skipping writePhotos");
     return Promise.resolve();
   }
-  return localforage.setItem("photos", { photos: photos });
+  return localforage.setItem("photos", { photos });
 };
 const readPhotos = (): Promise<SurveyStoreState | null> =>
   localforage.getItem("photos");

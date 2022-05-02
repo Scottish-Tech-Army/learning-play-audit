@@ -7,7 +7,7 @@ import { renderWithStore } from "./TestUtils";
 import { authStore } from "../../setupTests";
 import { waitFor } from "@testing-library/react";
 
-const TEST_USER = "test@example.com";
+const TEST_EMAIL = "test@example.com";
 
 const EMAIL_LABEL = "Email Address*";
 const PASSWORD_LABEL = "Password (minimum 8 characters)*";
@@ -19,7 +19,7 @@ describe("component Register", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: REGISTER,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
 
     (register as jest.Mock).mockImplementation(() => () => "dummy action");
@@ -42,7 +42,7 @@ describe("component Register", () => {
     expect(registerButton).toBeDisabled();
 
     // Form complete
-    await user.type(emailInput, TEST_USER);
+    await user.type(emailInput, TEST_EMAIL);
     await user.type(passwordInput, "12345678");
     await user.click(tncCheck);
     await user.click(gdprCheck);
@@ -53,7 +53,7 @@ describe("component Register", () => {
     expect(registerButton).toBeDisabled();
 
     // Restore
-    await user.type(emailInput, TEST_USER);
+    await user.type(emailInput, TEST_EMAIL);
     expect(registerButton).not.toBeDisabled();
 
     // Password empty
@@ -93,14 +93,14 @@ describe("component Register", () => {
   it("confirm success", async () => {
     const { container, getByLabelText, user } = renderWithStore(<Register />);
     const registerButton = container.querySelector("#register-button")!;
-    await user.type(getByLabelText(EMAIL_LABEL), TEST_USER);
+    await user.type(getByLabelText(EMAIL_LABEL), TEST_EMAIL);
     await user.type(getByLabelText(PASSWORD_LABEL), "12345678");
     await user.click(container.querySelector("#tnc-check")!);
     await user.click(container.querySelector("#gdpr-check")!);
     await user.click(registerButton);
 
     expect(register).toHaveBeenCalledTimes(1);
-    expect(register).toHaveBeenCalledWith(TEST_USER, "12345678");
+    expect(register).toHaveBeenCalledWith(TEST_EMAIL, "12345678");
     expect(registerButton).toBeDisabled();
   });
 
@@ -115,7 +115,7 @@ describe("component Register", () => {
   it("end loading spinner on auth state update", async () => {
     const { container, getByLabelText, user } = renderWithStore(<Register />);
     const registerButton = container.querySelector("#register-button")!;
-    await user.type(getByLabelText(EMAIL_LABEL), TEST_USER);
+    await user.type(getByLabelText(EMAIL_LABEL), TEST_EMAIL);
     await user.type(getByLabelText(PASSWORD_LABEL), "12345678");
     await user.click(container.querySelector("#tnc-check")!);
     await user.click(container.querySelector("#gdpr-check")!);
@@ -126,7 +126,7 @@ describe("component Register", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
     await waitFor(() => expect(registerButton).not.toBeDisabled());
   });
@@ -134,7 +134,7 @@ describe("component Register", () => {
   it("end loading spinner on auth error", async () => {
     const { container, getByLabelText, user } = renderWithStore(<Register />);
     const registerButton = container.querySelector("#register-button")!;
-    await user.type(getByLabelText(EMAIL_LABEL), TEST_USER);
+    await user.type(getByLabelText(EMAIL_LABEL), TEST_EMAIL);
     await user.type(getByLabelText(PASSWORD_LABEL), "12345678");
     await user.click(container.querySelector("#tnc-check")!);
     await user.click(container.querySelector("#gdpr-check")!);

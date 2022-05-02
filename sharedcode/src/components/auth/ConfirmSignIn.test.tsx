@@ -13,7 +13,7 @@ import { authStore } from "../../setupTests";
 import { renderWithStore } from "./TestUtils";
 import { waitFor } from "@testing-library/dom";
 
-const TEST_USER = "test@example.com";
+const TEST_EMAIL = "test@example.com";
 const TEST_CODE = "65431";
 
 jest.mock("../../model/AuthActions");
@@ -23,7 +23,7 @@ describe("component ConfirmSignIn", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: CONFIRM_SIGN_IN,
-      surveyUser: { username: TEST_USER, cognitoUser: {} },
+      surveyUser: { email: TEST_EMAIL, cognitoUser: {} },
     });
 
     (confirmSignIn as jest.Mock).mockImplementation(() => () => "dummy action");
@@ -51,7 +51,7 @@ describe("component ConfirmSignIn", () => {
       type: SET_AUTH_STATE,
       authState: CONFIRM_SIGN_IN,
       surveyUser: {
-        username: TEST_USER,
+        email: TEST_EMAIL,
         cognitoUser: { challengeName: SOFTWARE_TOKEN_MFA },
       },
     });
@@ -80,7 +80,7 @@ describe("component ConfirmSignIn", () => {
 
     expect(confirmSignIn).toHaveBeenCalledTimes(1);
     expect(confirmSignIn).toHaveBeenCalledWith(
-      { username: TEST_USER, cognitoUser: {} },
+      { email: TEST_EMAIL, cognitoUser: {} },
       TEST_CODE,
       MFA_OPTION_SMS
     );
@@ -92,7 +92,7 @@ describe("component ConfirmSignIn", () => {
       type: SET_AUTH_STATE,
       authState: CONFIRM_SIGN_IN,
       surveyUser: {
-        username: TEST_USER,
+        email: TEST_EMAIL,
         cognitoUser: { challengeName: SOFTWARE_TOKEN_MFA },
       },
     });
@@ -106,7 +106,7 @@ describe("component ConfirmSignIn", () => {
     expect(confirmSignIn).toHaveBeenCalledTimes(1);
     expect(confirmSignIn).toHaveBeenCalledWith(
       {
-        username: TEST_USER,
+        email: TEST_EMAIL,
         cognitoUser: { challengeName: SOFTWARE_TOKEN_MFA },
       },
       TEST_CODE,
@@ -121,7 +121,7 @@ describe("component ConfirmSignIn", () => {
 
     expect(setAuthState).toHaveBeenCalledTimes(1);
     expect(setAuthState).toHaveBeenCalledWith(SIGN_IN, {
-      username: TEST_USER,
+      email: TEST_EMAIL,
       cognitoUser: {},
     });
   });
@@ -138,7 +138,7 @@ describe("component ConfirmSignIn", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
-      surveyUser: { username: TEST_USER, cognitoUser: {} },
+      surveyUser: { email: TEST_EMAIL, cognitoUser: {} },
     });
     await waitFor(() => expect(confirmButton).not.toBeDisabled());
   });

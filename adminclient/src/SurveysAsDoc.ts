@@ -136,7 +136,7 @@ export function exportSurveysAsDocx(
     ],
   });
 
-  const doc = new Document({ sections: sections });
+  const doc = new Document({ sections });
 
   Packer.toBlob(doc).then((blob) => {
     saveAs(blob, "SurveyReport.docx");
@@ -170,11 +170,13 @@ function renderQuestionText(
   });
 }
 
+const GREY = "bfbfbf";
+
 const GREY_BORDER = {
-  top: { color: "bfbfbf", style: BorderStyle.SINGLE },
-  bottom: { color: "bfbfbf", style: BorderStyle.SINGLE },
-  left: { color: "bfbfbf", style: BorderStyle.SINGLE },
-  right: { color: "bfbfbf", style: BorderStyle.SINGLE },
+  top: { color: GREY, style: BorderStyle.SINGLE },
+  bottom: { color: GREY, style: BorderStyle.SINGLE },
+  left: { color: GREY, style: BorderStyle.SINGLE },
+  right: { color: GREY, style: BorderStyle.SINGLE },
 };
 
 function tableRow(...cellsContent: string[]) {

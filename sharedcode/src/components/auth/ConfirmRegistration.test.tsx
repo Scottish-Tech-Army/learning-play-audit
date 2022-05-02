@@ -11,7 +11,7 @@ import { authStore } from "../../setupTests";
 import { renderWithStore } from "./TestUtils";
 import { waitFor } from "@testing-library/dom";
 
-const TEST_USER = "test@example.com";
+const TEST_EMAIL = "test@example.com";
 const TEST_CODE = "65431";
 const TEST_PASSWORD = "test password";
 
@@ -25,7 +25,7 @@ describe("component ConfirmRegistration", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: CONFIRM_REGISTRATION,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
 
     (resendConfirmCode as jest.Mock).mockImplementation(
@@ -41,7 +41,7 @@ describe("component ConfirmRegistration", () => {
     const { container, getByLabelText, user } = renderWithStore(
       <ConfirmRegistration />
     );
-    expect(getByLabelText("Email Address")).toHaveDisplayValue(TEST_USER);
+    expect(getByLabelText("Email Address")).toHaveDisplayValue(TEST_EMAIL);
 
     const codeInput = getByLabelText(CODE_LABEL);
     const confirmButton = container.querySelector("#confirm-button");
@@ -64,7 +64,7 @@ describe("component ConfirmRegistration", () => {
 
     expect(confirmRegistration).toHaveBeenCalledTimes(1);
     expect(confirmRegistration).toHaveBeenCalledWith(
-      { username: TEST_USER },
+      { email: TEST_EMAIL },
       TEST_CODE
     );
     expect(confirmButton).toBeDisabled();
@@ -75,7 +75,7 @@ describe("component ConfirmRegistration", () => {
       type: SET_AUTH_STATE,
       authState: CONFIRM_REGISTRATION,
       surveyUser: {
-        username: TEST_USER,
+        email: TEST_EMAIL,
         signUpAttrs: { password: TEST_PASSWORD },
       },
     });
@@ -89,7 +89,7 @@ describe("component ConfirmRegistration", () => {
 
     expect(confirmRegistration).toHaveBeenCalledTimes(1);
     expect(confirmRegistration).toHaveBeenCalledWith(
-      { username: TEST_USER, signUpAttrs: { password: TEST_PASSWORD } },
+      { email: TEST_EMAIL, signUpAttrs: { password: TEST_PASSWORD } },
       TEST_CODE
     );
     expect(confirmButton).toBeDisabled();
@@ -100,7 +100,7 @@ describe("component ConfirmRegistration", () => {
     await user.click(getByRole("button", { name: "Resend Code" }));
 
     expect(resendConfirmCode).toHaveBeenCalledTimes(1);
-    expect(resendConfirmCode).toHaveBeenCalledWith({ username: TEST_USER });
+    expect(resendConfirmCode).toHaveBeenCalledWith({ email: TEST_EMAIL });
   });
 
   it("back to sign in", async () => {
@@ -108,7 +108,7 @@ describe("component ConfirmRegistration", () => {
     await user.click(getByRole("button", { name: "Back to Sign In" }));
 
     expect(setAuthState).toHaveBeenCalledTimes(1);
-    expect(setAuthState).toHaveBeenCalledWith(SIGN_IN, { username: TEST_USER });
+    expect(setAuthState).toHaveBeenCalledWith(SIGN_IN, { email: TEST_EMAIL });
   });
 
   it("end loading spinner on auth state update", async () => {
@@ -123,7 +123,7 @@ describe("component ConfirmRegistration", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
     await waitFor(() => expect(confirmButton).not.toBeDisabled());
   });

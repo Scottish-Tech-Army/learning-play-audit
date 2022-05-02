@@ -47,7 +47,7 @@ export function checkContact(surveyUser: SurveyUser): AppThunk {
         console.log("verifiedContact", data);
 
         if (!isEmpty(data.verified) || isEmpty(data.unverified)) {
-          dispatch(checkHasEmail(surveyUser));
+          dispatch(setAuthState(SIGNED_IN, surveyUser));
         } else {
           console.error("Unverified contact: ", surveyUser, data);
           throw new Error("Unverified contact");
@@ -59,42 +59,14 @@ export function checkContact(surveyUser: SurveyUser): AppThunk {
   };
 }
 
-function checkHasEmail(surveyUser: SurveyUser): AppThunk {
-  console.debug("checkHasEmail");
-  return function (dispatch) {
-    if (surveyUser.email) {
-      dispatch(setAuthState(SIGNED_IN, surveyUser));
-    } else {
-      return Auth.userAttributes(surveyUser.cognitoUser)
-        .then((attributeArray) => {
-          const emailAttribute = attributeArray.find(
-            (attribute) => attribute.Name === "email"
-          );
-          if (!emailAttribute) {
-            throw new Error("User does not have email attribute");
-          }
-
-          dispatch(
-            setAuthState(SIGNED_IN, {
-              ...surveyUser,
-              email: emailAttribute.Value,
-            })
-          );
-        })
-        .catch((error) => {
-          dispatch(setAuthError(error));
-        });
-    }
-  };
-}
-
-export function signIn(username: string, password: string): AppThunk {
+export function signIn(email: string, password: string): AppThunk {
   console.debug("signIn");
   return function (dispatch) {
-    return Auth.signIn(username, password)
+    // We use email address as the username
+    return Auth.signIn(email, password)
       .then((cognitoUser: FixedCognitoUser) => {
         logger.debug(cognitoUser);
-        const surveyUser = { cognitoUser, username };
+        const surveyUser = { cognitoUser, email };
         if (cognitoUser.challengeName === "NEW_PASSWORD_REQUIRED") {
           logger.debug("require new password");
           dispatch(setAuthState(RESET_PASSWORD, surveyUser));
@@ -115,10 +87,10 @@ export function signIn(username: string, password: string): AppThunk {
         dispatch(setAuthError(error));
         if (error.code === "UserNotConfirmedException") {
           logger.debug("the user is not confirmed");
-          dispatch(setAuthState(CONFIRM_REGISTRATION, { username }));
+          dispatch(setAuthState(CONFIRM_REGISTRATION, { email }));
         } else if (error.code === "PasswordResetRequiredException") {
           logger.debug("the user requires a new password");
-          dispatch(setAuthState(FORGOT_PASSWORD_REQUEST, { username }));
+          dispatch(setAuthState(FORGOT_PASSWORD_REQUEST, { email }));
         }
       });
   };
@@ -127,7 +99,7 @@ export function signIn(username: string, password: string): AppThunk {
 export function resendConfirmCode(surveyUser: SurveyUser): AppThunk {
   console.debug("resendConfirmCode");
   return function (dispatch) {
-    return Auth.resendSignUp(surveyUser.username)
+    return Auth.resendSignUp(surveyUser.email)
       .then(() => {
         dispatch(setAuthState(CONFIRM_REGISTRATION, surveyUser));
       })
@@ -141,14 +113,14 @@ export function confirmRegistration(
 ): AppThunk {
   console.debug("confirmRegistration");
   return function (dispatch) {
-    return Auth.confirmSignUp(surveyUser.username, code)
+    return Auth.confirmSignUp(surveyUser.email, code)
       .then((result) => {
         if (!result) {
           throw new Error("Confirm Sign Up Failed");
         }
         if (surveyUser.password) {
           // Auto sign in user if password is available from previous workflow
-          return dispatch(signIn(surveyUser.username, surveyUser.password));
+          return dispatch(signIn(surveyUser.email, surveyUser.password));
         } else {
           dispatch(setAuthState(SIGN_IN, surveyUser));
         }
@@ -174,22 +146,23 @@ export function confirmSignIn(
   };
 }
 
-export function register(username: string, password: string): AppThunk {
+export function register(email: string, password: string): AppThunk {
   console.debug("register");
   return function (dispatch) {
-    return Auth.signUp({ username, password })
+    // We use email address as the username
+    return Auth.signUp({ username: email, password })
       .then((result) => {
         if (!result) {
           throw new Error("Sign Up Failed");
         }
         if (result.userConfirmed) {
           // Auto sign in user if pre-confirmed
-          return dispatch(signIn(username, password));
+          return dispatch(signIn(email, password));
         } else {
           dispatch(
             setAuthState(CONFIRM_REGISTRATION, {
               cognitoUser: result.user,
-              username,
+              email,
               password,
             })
           );
@@ -231,23 +204,24 @@ export function signOut(): AppThunk {
   };
 }
 
-export function forgotPasswordRequest(username: string): AppThunk {
+export function forgotPasswordRequest(email: string): AppThunk {
   console.debug("forgotPasswordRequest");
   return function (dispatch) {
-    return Auth.forgotPassword(username)
-      .then(() => dispatch(setAuthState(FORGOT_PASSWORD_SUBMIT, { username })))
+    return Auth.forgotPassword(email)
+      .then(() => dispatch(setAuthState(FORGOT_PASSWORD_SUBMIT, { email })))
       .catch((error) => dispatch(setAuthError(error)));
   };
 }
 
 export function forgotPasswordSubmit(
-  username: string,
+  email: string,
   code: string,
   newPassword: string
 ): AppThunk {
   console.debug("forgotPasswordSubmit");
   return function (dispatch) {
-    return Auth.forgotPasswordSubmit(username, code, newPassword)
+    // We use email address as the username
+    return Auth.forgotPasswordSubmit(email, code, newPassword)
       .then(() => dispatch(setAuthState(SIGN_IN)))
       .catch((error) => dispatch(setAuthError(error)));
   };
@@ -259,7 +233,10 @@ export function signInCurrentUser(): AppThunk {
     return Auth.currentAuthenticatedUser()
       .then((cognitoUser) =>
         dispatch(
-          checkHasEmail({ cognitoUser, username: cognitoUser.getUsername() })
+          setAuthState(SIGNED_IN, {
+            cognitoUser,
+            email: cognitoUser.getUsername(),
+          })
         )
       )
       .catch(() => {
@@ -274,7 +251,7 @@ export function getTOTPSetupQrCode(surveyUser: SurveyUser) {
   return Auth.setupTOTP(surveyUser.cognitoUser).then((secretKey) =>
     Promise.resolve(
       toDataURL(
-        `otpauth://totp/AWSCognito:${surveyUser.username}?secret=${secretKey}&issuer=AWSCognito`
+        `otpauth://totp/AWSCognito:${surveyUser.email}?secret=${secretKey}&issuer=AWSCognito`
       )
     )
   );

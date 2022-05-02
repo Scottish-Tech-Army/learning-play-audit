@@ -31,7 +31,7 @@ export default function ForgotPasswordSubmit() {
 
   function submit() {
     setLoading(true);
-    dispatch(forgotPasswordSubmit(surveyUser!.username, code, password));
+    dispatch(forgotPasswordSubmit(surveyUser!.email, code, password));
   }
 
   return (
@@ -43,7 +43,7 @@ export default function ForgotPasswordSubmit() {
         <input
           id={EMAIL_ID}
           type="email"
-          value={surveyUser?.username || ""}
+          value={surveyUser!.email}
           readOnly={true}
         />
         <label htmlFor={CODE_ID}>Verification code</label>

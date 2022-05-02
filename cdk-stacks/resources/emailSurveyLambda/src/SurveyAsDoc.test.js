@@ -9,8 +9,8 @@ import {
 import exportSurveyAsDocx, {
   renderQuestionText,
   renderSubsectionTitle,
-} from "./SurveysAsDoc";
-import { INPUT_STATE } from "./TestUtils";
+} from "./SurveyAsDoc";
+import { TEST_ANSWERS } from "./TestUtils";
 import fs from "fs";
 
 describe("exportSurveyAsDocx", () => {
@@ -39,7 +39,7 @@ describe("exportSurveyAsDocx", () => {
         description: "test photo2",
       },
     ],
-    surveyResponse: INPUT_STATE.answers,
+    surveyResponse: TEST_ANSWERS,
     responderEmail: "ltluserdev@demonsoft.org",
     updatedAt: "2022-02-11T08:53:54.350Z",
     schoolName: "",

@@ -30,8 +30,8 @@ export default function QuestionSelectWithComment({
   function handleClick(newValue: string) {
     dispatch({
       type: SET_ANSWER,
-      sectionId: sectionId,
-      questionId: questionId,
+      sectionId,
+      questionId,
       field: "answer",
       value: questionAnswer.answer === newValue ? "" : newValue,
     });

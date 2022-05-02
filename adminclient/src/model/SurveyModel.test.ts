@@ -26,6 +26,7 @@ import {
   SET_AUTH_ERROR,
   CLEAR_AUTH_ERROR,
   CONFIRM_SIGN_IN,
+  SurveyUser,
 } from "learning-play-audit-shared";
 import rfdc from "rfdc";
 import { Auth } from "@aws-amplify/auth";
@@ -88,6 +89,12 @@ process.env.REACT_APP_AWS_REGION = "eu-west-2";
 process.env.REACT_APP_AWS_SURVEY_RESOURCES_S3_BUCKET = PHOTOS_BUCKET;
 process.env.REACT_APP_AWS_SURVEY_RESPONSES_TABLE = DB_TABLE;
 process.env.REACT_APP_AWS_SURVEY_RESPONSES_SUMMARY_INDEX = DB_TABLE_INDEX;
+
+const TEST_EMAIL = "test@example.com";
+
+const TEST_USER: SurveyUser = {
+  email: TEST_EMAIL,
+};
 
 describe("surveyReducer", () => {
   it("initial state - empty", () => {
@@ -263,21 +270,21 @@ describe("surveyReducer using authReducer", () => {
       surveyReducer(
         {
           ...INPUT_STATE,
-          surveyUser: { username: "test user" },
+          surveyUser: { email: "test@example.com" },
           authState: SIGN_IN,
           errorMessage: "new error",
         },
         {
           type: SET_AUTH_STATE,
           authState: CONFIRM_SIGN_IN,
-          surveyUser: { username: "new user" },
+          surveyUser: { email: "new@example.com" },
         }
       )
     ).toStrictEqual({
       ...INPUT_STATE,
       errorMessage: "",
       authState: CONFIRM_SIGN_IN,
-      surveyUser: { username: "new user" },
+      surveyUser: { email: "new@example.com" },
     });
   });
 
@@ -285,7 +292,7 @@ describe("surveyReducer using authReducer", () => {
     expect(
       surveyReducer(INPUT_STATE, {
         type: SET_AUTH_STATE,
-        user: "new user",
+        surveyUser: "new user",
       })
     ).toStrictEqual(INPUT_STATE);
   });
@@ -807,7 +814,7 @@ function checkStoredPhotos(expectedPhotoKeys: string[]) {
   expectedPhotoKeys.forEach((key) => {
     expectedPhotos[key] = {
       data: imageDataToUint8Array(IMAGE_DATA, key),
-      key: key,
+      key,
     };
   });
   expect(adminStore.getState().photos).toStrictEqual(expectedPhotos);
@@ -827,7 +834,7 @@ const SIGNEDIN_EMPTY_STATE: AdminStoreState = {
   photos: {},
   authState: SIGNED_IN,
   errorMessage: "",
-  surveyUser: { username: "test user" },
+  surveyUser: TEST_USER,
 };
 
 const TEST_FULL_RESPONSE1: SurveyResponse = {
@@ -1147,13 +1154,13 @@ const INPUT_STATE: AdminStoreState = {
 const STATE_WITH_AUTH_ERROR: AdminStoreState = {
   ...INPUT_STATE,
   errorMessage: "new error",
-  surveyUser: { username: "test user" },
+  surveyUser: TEST_USER,
   authState: SIGN_IN,
 };
 
 const STATE_WITHOUT_AUTH_ERROR: AdminStoreState = {
   ...INPUT_STATE,
   errorMessage: "",
-  surveyUser: { username: "test user" },
+  surveyUser: TEST_USER,
   authState: SIGN_IN,
 };

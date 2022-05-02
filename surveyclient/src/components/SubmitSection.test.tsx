@@ -32,7 +32,7 @@ jest.mock("../model/SubmitAction");
 const TEST_STATE: SurveyStoreState = {
   ...INPUT_STATE,
   authState: SIGNED_IN,
-  surveyUser: { username: "test user", email: "test@example.com" },
+  surveyUser: { email: "test@example.com" },
   currentSectionId: SUBMIT,
 };
 

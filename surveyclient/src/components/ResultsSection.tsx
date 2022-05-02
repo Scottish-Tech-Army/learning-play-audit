@@ -220,10 +220,10 @@ function ResultsSection() {
           indexAxis: small ? "x" : "y",
         },
         data: {
-          labels: labels,
+          labels,
           datasets: [
             {
-              data: data,
+              data,
               backgroundColor: barColour,
               borderColor: barColour,
               hoverBackgroundColor: barColour,

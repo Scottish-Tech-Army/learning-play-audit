@@ -7,7 +7,7 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const { Packer } = require("docx");
 var mimemessage = require("mimemessage");
 const { s3Client, dynamodbClient, emailClient } = require("./aws");
-const { default: exportSurveyAsDocx } = require("./SurveysAsDoc");
+const { default: exportSurveyAsDocx } = require("./SurveyAsDoc");
 const sharp = require("sharp");
 
 const MAX_DOCUMENT_SIZE = 9 * 1024 * 1024; // 9Mb

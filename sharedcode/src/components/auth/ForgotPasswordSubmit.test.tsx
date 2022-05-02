@@ -7,7 +7,7 @@ import { renderWithStore } from "./TestUtils";
 import { authStore } from "../../setupTests";
 import { waitFor } from "@testing-library/dom";
 
-const TEST_USER = "test@example.com";
+const TEST_EMAIL = "test@example.com";
 
 jest.mock("../../model/AuthActions");
 
@@ -16,7 +16,7 @@ describe("component ForgotPasswordSubmit", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: FORGOT_PASSWORD_SUBMIT,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
 
     (forgotPasswordSubmit as jest.Mock).mockImplementation(
@@ -29,7 +29,7 @@ describe("component ForgotPasswordSubmit", () => {
     const { container, getByLabelText, user } = renderWithStore(
       <ForgotPasswordSubmit />
     );
-    expect(getByLabelText("Email Address")).toHaveDisplayValue(TEST_USER);
+    expect(getByLabelText("Email Address")).toHaveDisplayValue(TEST_EMAIL);
 
     const codeInput = getByLabelText("Verification code");
     const passwordInput = getByLabelText("New password");
@@ -70,28 +70,6 @@ describe("component ForgotPasswordSubmit", () => {
     expect(submitButton).not.toBeDisabled();
   });
 
-  it("render missing email field", () => {
-    authStore.dispatch({
-      type: SET_AUTH_STATE,
-      authState: FORGOT_PASSWORD_SUBMIT,
-      surveyUser: {},
-    });
-    const { getByLabelText } = renderWithStore(<ForgotPasswordSubmit />);
-
-    expect(getByLabelText("Email Address")).toHaveDisplayValue("");
-  });
-
-  it("render missing user", () => {
-    authStore.dispatch({
-      type: SET_AUTH_STATE,
-      authState: FORGOT_PASSWORD_SUBMIT,
-      surveyUser: undefined,
-    });
-    const { getByLabelText } = renderWithStore(<ForgotPasswordSubmit />);
-
-    expect(getByLabelText("Email Address")).toHaveDisplayValue("");
-  });
-
   it("confirm success", async () => {
     const { container, getByLabelText, user } = renderWithStore(
       <ForgotPasswordSubmit />
@@ -104,7 +82,7 @@ describe("component ForgotPasswordSubmit", () => {
 
     expect(forgotPasswordSubmit).toHaveBeenCalledTimes(1);
     expect(forgotPasswordSubmit).toHaveBeenCalledWith(
-      TEST_USER,
+      TEST_EMAIL,
       "123456",
       "12345678"
     );
@@ -133,7 +111,7 @@ describe("component ForgotPasswordSubmit", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
-      surveyUser: { username: TEST_USER },
+      surveyUser: { email: TEST_EMAIL },
     });
     await waitFor(() => expect(submitButton).not.toBeDisabled());
   });

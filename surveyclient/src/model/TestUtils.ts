@@ -226,7 +226,7 @@ function createTestState(): SurveyStoreState {
     initialisingState: false,
     authState: SIGNED_IN,
     errorMessage: "",
-    surveyUser: { username: "test@example.com", email: "test@example.com" },
+    surveyUser: { email: "test@example.com" },
     photos: {
       testPhotoId1: {
         imageData: Buffer.from("image data1").toString("base64"),

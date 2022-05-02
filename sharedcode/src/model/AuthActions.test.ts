@@ -47,29 +47,25 @@ import { ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 import { authStore } from "../setupTests";
 
-const TEST_USERNAME = "test user";
 const TEST_EMAIL = "test@example.com";
 const TEST_PASSWORD = "test password";
 
 const TEST_COGNITO_USER = {
-  getUsername: () => TEST_USERNAME,
+  getUsername: () => TEST_EMAIL,
 } as unknown as CognitoUser;
 
 const TEST_USER: SurveyUser = {
   email: TEST_EMAIL,
-  username: TEST_USERNAME,
 };
 const TEST_USER_WITH_PASSWORD: SurveyUser = {
   email: TEST_EMAIL,
-  username: TEST_USERNAME,
   password: TEST_PASSWORD,
 };
 const TEST_USER_WITH_COGNITO: SurveyUser = {
   email: TEST_EMAIL,
-  username: TEST_USERNAME,
   cognitoUser: TEST_COGNITO_USER,
 };
-const TEST_SIGNUP_ATTRS = { username: TEST_USERNAME, password: TEST_PASSWORD };
+const TEST_SIGNUP_ATTRS = { username: TEST_EMAIL, password: TEST_PASSWORD };
 
 const authDispatch: ThunkDispatch<AuthStoreState, any, AnyAction> =
   authStore.dispatch;
@@ -88,7 +84,6 @@ const mockCompleteNewPassword = Auth.completeNewPassword as jest.Mock;
 const mockCurrentAuthenticatedUser = Auth.currentAuthenticatedUser as jest.Mock;
 const mockForgotPassword = Auth.forgotPassword as jest.Mock;
 const mockForgotPasswordSubmit = Auth.forgotPasswordSubmit as jest.Mock;
-const mockUserAttributes = Auth.userAttributes as jest.Mock;
 const mockSetupTOTP = Auth.setupTOTP as jest.Mock;
 const mockGetPreferredMFA = Auth.getPreferredMFA as jest.Mock;
 const mockSetPreferredMFA = Auth.setPreferredMFA as jest.Mock;
@@ -133,7 +128,6 @@ describe("checkContact", () => {
     await authDispatch(checkContact(TEST_USER_WITH_COGNITO));
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(mockUserAttributes).not.toHaveBeenCalled();
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGNED_IN,
@@ -147,43 +141,10 @@ describe("checkContact", () => {
     await authDispatch(checkContact(TEST_USER_WITH_COGNITO));
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(mockUserAttributes).not.toHaveBeenCalled();
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGNED_IN,
       surveyUser: TEST_USER_WITH_COGNITO,
-    });
-  });
-
-  it("verified contact without email", async () => {
-    mockVerifiedContact.mockImplementation(() =>
-      Promise.resolve({
-        verified: { email: TEST_EMAIL },
-        unverified: { email: TEST_EMAIL },
-      })
-    );
-    mockUserAttributes.mockImplementation(() =>
-      Promise.resolve([{ Name: "email", Value: TEST_EMAIL }])
-    );
-
-    await authDispatch(
-      checkContact({
-        username: TEST_USERNAME,
-        cognitoUser: TEST_COGNITO_USER,
-      })
-    );
-    expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
-    expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(mockUserAttributes).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(authStore.getState()).toStrictEqual({
-      errorMessage: "",
-      authState: SIGNED_IN,
-      surveyUser: {
-        email: TEST_EMAIL,
-        username: TEST_USERNAME,
-        cognitoUser: TEST_COGNITO_USER,
-      },
     });
   });
 
@@ -228,17 +189,11 @@ describe("signIn", () => {
   it("signIn success", async () => {
     mockSignIn.mockImplementation(() => Promise.resolve(TEST_COGNITO_USER));
 
-    mockUserAttributes.mockImplementation(() =>
-      Promise.resolve([{ Name: "email", Value: TEST_EMAIL }])
-    );
-
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(mockUserAttributes).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).toHaveBeenCalledWith(TEST_COGNITO_USER);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGNED_IN,
@@ -248,73 +203,73 @@ describe("signIn", () => {
 
   it("new password needed", async () => {
     const cognitoUser = {
-      getUsername: () => TEST_USERNAME,
+      getUsername: () => TEST_EMAIL,
       challengeName: "NEW_PASSWORD_REQUIRED",
     } as unknown as CognitoUser;
 
     mockSignIn.mockImplementation(() => Promise.resolve(cognitoUser));
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: RESET_PASSWORD,
-      surveyUser: { username: TEST_USERNAME, cognitoUser },
+      surveyUser: { email: TEST_EMAIL, cognitoUser },
     });
   });
 
   it("confirm signin SMS", async () => {
     const cognitoUser = {
-      getUsername: () => TEST_USERNAME,
+      getUsername: () => TEST_EMAIL,
       challengeName: SMS_MFA,
     } as unknown as CognitoUser;
 
     mockSignIn.mockImplementation(() => Promise.resolve(cognitoUser));
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_SIGN_IN,
-      surveyUser: { username: TEST_USERNAME, cognitoUser },
+      surveyUser: { email: TEST_EMAIL, cognitoUser },
     });
   });
 
   it("confirm signin TOTP", async () => {
     const cognitoUser = {
-      getUsername: () => TEST_USERNAME,
+      getUsername: () => TEST_EMAIL,
       challengeName: SOFTWARE_TOKEN_MFA,
     } as unknown as CognitoUser;
 
     mockSignIn.mockImplementation(() => Promise.resolve(cognitoUser));
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_SIGN_IN,
-      surveyUser: { username: TEST_USERNAME, cognitoUser },
+      surveyUser: { email: TEST_EMAIL, cognitoUser },
     });
   });
 
   it("mfa TOTP setup", async () => {
     const cognitoUser = {
-      getUsername: () => TEST_USERNAME,
+      getUsername: () => TEST_EMAIL,
       challengeName: "MFA_SETUP",
     } as unknown as CognitoUser;
 
     mockSignIn.mockImplementation(() => Promise.resolve(cognitoUser));
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: TOTP_SETUP,
-      surveyUser: { username: TEST_USERNAME, cognitoUser },
+      surveyUser: { email: TEST_EMAIL, cognitoUser },
     });
   });
 
@@ -326,13 +281,13 @@ describe("signIn", () => {
       })
     );
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_REGISTRATION,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -344,13 +299,13 @@ describe("signIn", () => {
       })
     );
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: FORGOT_PASSWORD_REQUEST,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -359,9 +314,9 @@ describe("signIn", () => {
       Promise.reject(new Error("test error"))
     );
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: REGISTER,
@@ -375,9 +330,9 @@ describe("signIn", () => {
       Promise.reject(new Error("test error"))
     );
 
-    await authDispatch(signIn(TEST_USERNAME, "password"));
+    await authDispatch(signIn(TEST_EMAIL, "password"));
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, "password");
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, "password");
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_USER);
     expect(authStore.getState()).toStrictEqual({
@@ -493,7 +448,7 @@ describe("resendConfirmCode", () => {
 
     await authDispatch(resendConfirmCode(TEST_USER));
     expect(mockResendSignUp).toHaveBeenCalledTimes(1);
-    expect(mockResendSignUp).toHaveBeenCalledWith(TEST_USERNAME);
+    expect(mockResendSignUp).toHaveBeenCalledWith(TEST_EMAIL);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_REGISTRATION,
@@ -508,7 +463,7 @@ describe("resendConfirmCode", () => {
 
     await authDispatch(resendConfirmCode(TEST_USER));
     expect(mockResendSignUp).toHaveBeenCalledTimes(1);
-    expect(mockResendSignUp).toHaveBeenCalledWith(TEST_USERNAME);
+    expect(mockResendSignUp).toHaveBeenCalledWith(TEST_EMAIL);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: REGISTER,
@@ -529,7 +484,7 @@ describe("confirmRegistration", () => {
 
     await authDispatch(confirmRegistration(TEST_USER, "passcode"));
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGN_IN,
@@ -540,21 +495,16 @@ describe("confirmRegistration", () => {
   it("confirm and signIn success", async () => {
     mockConfirmSignUp.mockImplementation(() => Promise.resolve(true));
     mockSignIn.mockImplementation(() => Promise.resolve(TEST_COGNITO_USER));
-    mockUserAttributes.mockImplementation(() =>
-      Promise.resolve([{ Name: "email", Value: TEST_EMAIL }])
-    );
 
     await authDispatch(
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(mockUserAttributes).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).toHaveBeenCalledWith(TEST_COGNITO_USER);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGNED_IN,
@@ -574,13 +524,13 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: RESET_PASSWORD,
-      surveyUser: { cognitoUser, username: TEST_USERNAME },
+      surveyUser: { cognitoUser, email: TEST_EMAIL },
     });
   });
 
@@ -597,13 +547,13 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_REGISTRATION,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -620,13 +570,13 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: FORGOT_PASSWORD_REQUEST,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -640,9 +590,9 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: CONFIRM_REGISTRATION,
@@ -661,9 +611,9 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_USER);
     expect(authStore.getState()).toStrictEqual({
@@ -680,7 +630,7 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "Confirm Sign Up Failed",
       authState: CONFIRM_REGISTRATION,
@@ -697,7 +647,7 @@ describe("confirmRegistration", () => {
       confirmRegistration(TEST_USER_WITH_PASSWORD, "passcode")
     );
     expect(mockConfirmSignUp).toHaveBeenCalledTimes(1);
-    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_USERNAME, "passcode");
+    expect(mockConfirmSignUp).toHaveBeenCalledWith(TEST_EMAIL, "passcode");
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: CONFIRM_REGISTRATION,
@@ -718,14 +668,14 @@ describe("register", () => {
       Promise.resolve({ user: TEST_COGNITO_USER })
     );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_REGISTRATION,
       surveyUser: {
-        username: TEST_USERNAME,
+        email: TEST_EMAIL,
         password: TEST_PASSWORD,
         cognitoUser: TEST_COGNITO_USER,
       },
@@ -737,19 +687,14 @@ describe("register", () => {
       Promise.resolve({ user: TEST_USER, userConfirmed: true })
     );
     mockSignIn.mockImplementation(() => Promise.resolve(TEST_COGNITO_USER));
-    mockUserAttributes.mockImplementation(() =>
-      Promise.resolve([{ Name: "email", Value: TEST_EMAIL }])
-    );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_COGNITO_USER);
-    expect(mockUserAttributes).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).toHaveBeenCalledWith(TEST_COGNITO_USER);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGNED_IN,
@@ -767,15 +712,15 @@ describe("register", () => {
     );
     mockSignIn.mockImplementation(() => Promise.resolve(cognitoUser));
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: RESET_PASSWORD,
-      surveyUser: { username: TEST_USERNAME, cognitoUser },
+      surveyUser: { email: TEST_EMAIL, cognitoUser },
     });
   });
 
@@ -790,15 +735,15 @@ describe("register", () => {
       })
     );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: CONFIRM_REGISTRATION,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -813,15 +758,15 @@ describe("register", () => {
       })
     );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: FORGOT_PASSWORD_REQUEST,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -833,11 +778,11 @@ describe("register", () => {
       Promise.reject(new Error("test error"))
     );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: REGISTER,
@@ -854,11 +799,11 @@ describe("register", () => {
       Promise.reject(new Error("test error"))
     );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(mockSignIn).toHaveBeenCalledTimes(1);
-    expect(mockSignIn).toHaveBeenCalledWith(TEST_USERNAME, TEST_PASSWORD);
+    expect(mockSignIn).toHaveBeenCalledWith(TEST_EMAIL, TEST_PASSWORD);
     expect(mockVerifiedContact).toHaveBeenCalledTimes(1);
     expect(mockVerifiedContact).toHaveBeenCalledWith(TEST_USER);
     expect(authStore.getState()).toStrictEqual({
@@ -871,7 +816,7 @@ describe("register", () => {
   it("signUp failed - return empty result", async () => {
     mockSignUp.mockImplementation(() => Promise.resolve());
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(authStore.getState()).toStrictEqual({
@@ -886,7 +831,7 @@ describe("register", () => {
       Promise.reject(new Error("test error"))
     );
 
-    await authDispatch(register(TEST_USERNAME, TEST_PASSWORD));
+    await authDispatch(register(TEST_EMAIL, TEST_PASSWORD));
     expect(mockSignUp).toHaveBeenCalledTimes(1);
     expect(mockSignUp).toHaveBeenCalledWith(TEST_SIGNUP_ATTRS);
     expect(authStore.getState()).toStrictEqual({
@@ -1058,13 +1003,13 @@ describe("forgotPasswordRequest", () => {
   });
 
   it("success", async () => {
-    await authDispatch(forgotPasswordRequest(TEST_USERNAME));
+    await authDispatch(forgotPasswordRequest(TEST_EMAIL));
     expect(mockForgotPassword).toHaveBeenCalledTimes(1);
-    expect(mockForgotPassword).toHaveBeenCalledWith(TEST_USERNAME);
+    expect(mockForgotPassword).toHaveBeenCalledWith(TEST_EMAIL);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: FORGOT_PASSWORD_SUBMIT,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 
@@ -1073,9 +1018,9 @@ describe("forgotPasswordRequest", () => {
       Promise.reject(new Error("test error"))
     );
 
-    await authDispatch(forgotPasswordRequest(TEST_USERNAME));
+    await authDispatch(forgotPasswordRequest(TEST_EMAIL));
     expect(mockForgotPassword).toHaveBeenCalledTimes(1);
-    expect(mockForgotPassword).toHaveBeenCalledWith(TEST_USERNAME);
+    expect(mockForgotPassword).toHaveBeenCalledWith(TEST_EMAIL);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: FORGOT_PASSWORD_REQUEST,
@@ -1087,7 +1032,7 @@ describe("forgotPasswordRequest", () => {
 describe("forgotPasswordSubmit", () => {
   beforeEach(() => {
     authDispatch(
-      setAuthState(FORGOT_PASSWORD_SUBMIT, { username: TEST_USERNAME })
+      setAuthState(FORGOT_PASSWORD_SUBMIT, { email: TEST_EMAIL })
     );
 
     mockForgotPasswordSubmit.mockImplementation(() => Promise.resolve({}));
@@ -1095,11 +1040,11 @@ describe("forgotPasswordSubmit", () => {
 
   it("success", async () => {
     await authDispatch(
-      forgotPasswordSubmit(TEST_USERNAME, "12345", TEST_PASSWORD)
+      forgotPasswordSubmit(TEST_EMAIL, "12345", TEST_PASSWORD)
     );
     expect(mockForgotPasswordSubmit).toHaveBeenCalledTimes(1);
     expect(mockForgotPasswordSubmit).toHaveBeenCalledWith(
-      TEST_USERNAME,
+      TEST_EMAIL,
       "12345",
       TEST_PASSWORD
     );
@@ -1116,18 +1061,18 @@ describe("forgotPasswordSubmit", () => {
     );
 
     await authDispatch(
-      forgotPasswordSubmit(TEST_USERNAME, "12345", TEST_PASSWORD)
+      forgotPasswordSubmit(TEST_EMAIL, "12345", TEST_PASSWORD)
     );
     expect(mockForgotPasswordSubmit).toHaveBeenCalledTimes(1);
     expect(mockForgotPasswordSubmit).toHaveBeenCalledWith(
-      TEST_USERNAME,
+      TEST_EMAIL,
       "12345",
       TEST_PASSWORD
     );
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "test error",
       authState: FORGOT_PASSWORD_SUBMIT,
-      surveyUser: { username: TEST_USERNAME },
+      surveyUser: { email: TEST_EMAIL },
     });
   });
 });
@@ -1139,22 +1084,15 @@ describe("signInCurrentUser", () => {
     mockCurrentAuthenticatedUser.mockImplementation(() =>
       Promise.resolve(TEST_COGNITO_USER)
     );
-
-    mockUserAttributes.mockImplementation(() =>
-      Promise.resolve([{ Name: "email", Value: TEST_EMAIL }])
-    );
   });
 
   it("success", async () => {
     await authDispatch(signInCurrentUser());
     expect(mockCurrentAuthenticatedUser).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).toHaveBeenCalledWith(TEST_COGNITO_USER);
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: SIGNED_IN,
       surveyUser: {
-        username: TEST_USERNAME,
         email: TEST_EMAIL,
         cognitoUser: TEST_COGNITO_USER,
       },
@@ -1168,7 +1106,6 @@ describe("signInCurrentUser", () => {
 
     await authDispatch(signInCurrentUser());
     expect(mockCurrentAuthenticatedUser).toHaveBeenCalledTimes(1);
-    expect(mockUserAttributes).not.toHaveBeenCalled();
     expect(authStore.getState()).toStrictEqual({
       errorMessage: "",
       authState: FORGOT_PASSWORD_SUBMIT,
@@ -1194,9 +1131,9 @@ describe("getTOTPSetupQrCode", () => {
   it("success", () => {
     const expectedData =
       "image data with otpauth://totp/AWSCognito:" +
-      TEST_USERNAME +
+      TEST_EMAIL +
       "?secret=secret key for " +
-      TEST_USERNAME +
+      TEST_EMAIL +
       "&issuer=AWSCognito";
     return getTOTPSetupQrCode(TEST_USER_WITH_COGNITO).then((result) => {
       expect(result).toStrictEqual(expectedData);

@@ -11,8 +11,8 @@ import { authStore } from "../../setupTests";
 import { renderWithStore } from "./TestUtils";
 import { waitFor } from "@testing-library/react";
 
-const TEST_USERNAME = "test@example.com";
-const TEST_USER = { username: TEST_USERNAME };
+const TEST_EMAIL = "test@example.com";
+const TEST_USER = { email: TEST_EMAIL };
 const TEST_CODE = "65431";
 
 jest.mock("../../model/AuthActions");
@@ -83,7 +83,7 @@ describe("component TOTPSetup", () => {
     authStore.dispatch({
       type: SET_AUTH_STATE,
       authState: SIGN_IN,
-      user: TEST_USER,
+      surveyUser: TEST_USER,
     });
     await waitFor(() =>
       expect(container.querySelector("#confirm-button")).not.toBeDisabled()

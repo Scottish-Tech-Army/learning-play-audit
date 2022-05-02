@@ -64,10 +64,7 @@ describe("component RestartButton", () => {
       authState: SIGNED_IN,
       hasEverLoggedIn: true,
       hasSeenSplashPage: true,
-      surveyUser: {
-        email: "test@example.com",
-        username: "test@example.com",
-      },
+      surveyUser: { email: "test@example.com" },
     });
   });
 

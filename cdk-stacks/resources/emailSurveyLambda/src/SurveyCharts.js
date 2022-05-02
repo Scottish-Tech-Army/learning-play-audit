@@ -9,7 +9,7 @@ import {
   sectionsContent,
   SCALE_WITH_COMMENT,
 } from "learning-play-audit-survey";
-import { ChartJSNodeCanvas } from "chartjs-node-canvas"; 
+import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 
 // eslint-disable-next-line jest/require-hook
 Chart.register(BarController, BarElement, CategoryScale, LinearScale);
@@ -163,8 +163,7 @@ function getChartConfiguration(labels, data, barColour) {
     type: "bar",
     options: {
       plugins: {
-        legend: { display: false,
-        }
+        legend: { display: false },
       },
       borderWidth: 10,
       scales: {
@@ -174,10 +173,10 @@ function getChartConfiguration(labels, data, barColour) {
       indexAxis: "y",
     },
     data: {
-      labels: labels,
+      labels,
       datasets: [
         {
-          data: data,
+          data,
           backgroundColor: barColour,
           borderColor: barColour,
           hoverBackgroundColor: barColour,
@@ -188,39 +187,44 @@ function getChartConfiguration(labels, data, barColour) {
       ],
     },
   };
-
 }
 
 export async function getCharts(answers) {
-  const learningChart = await largeChartJSNodeCanvas.renderToBuffer(getChartConfiguration(
-    [
-      "For Learning",
-      "For Play",
-      "For Wellbeing",
-      "For Sustainability",
-      ["For Community", "& Participation"],
-    ],
-    chartDataAnswers(answers),
-    "#2d6a89"
-  ));
+  const learningChart = await largeChartJSNodeCanvas.renderToBuffer(
+    getChartConfiguration(
+      [
+        "For Learning",
+        "For Play",
+        "For Wellbeing",
+        "For Sustainability",
+        ["For Community", "& Participation"],
+      ],
+      chartDataAnswers(answers),
+      "#2d6a89"
+    )
+  );
 
-  const greenspaceChart = await largeChartJSNodeCanvas.renderToBuffer(getChartConfiguration(
-    [
-      "For Accessibility",
-      "For Frequent Use",
-      "For Wildlife",
-      ["For Learning", "& Play"],
-      ["For Ease of", "Change"],
-    ],
-    chartDataGreenspaceAnswers(answers),
-    "#2d6a89"
-  ));
+  const greenspaceChart = await largeChartJSNodeCanvas.renderToBuffer(
+    getChartConfiguration(
+      [
+        "For Accessibility",
+        "For Frequent Use",
+        "For Wildlife",
+        ["For Learning", "& Play"],
+        ["For Ease of", "Change"],
+      ],
+      chartDataGreenspaceAnswers(answers),
+      "#2d6a89"
+    )
+  );
 
-  const practiceChart = await smallChartJSNodeCanvas.renderToBuffer(getChartConfiguration(
-    ["Learning", "Play"],
-    chartDataPracticeAnswers(answers),
-    "#2d6a89"
-  ));
+  const practiceChart = await smallChartJSNodeCanvas.renderToBuffer(
+    getChartConfiguration(
+      ["Learning", "Play"],
+      chartDataPracticeAnswers(answers),
+      "#2d6a89"
+    )
+  );
 
   return { learningChart, greenspaceChart, practiceChart };
 }

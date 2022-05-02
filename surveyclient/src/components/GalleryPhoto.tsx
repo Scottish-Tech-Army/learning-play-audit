@@ -20,13 +20,13 @@ function GalleryPhoto({ photoId }: GalleryPhotoProps) {
   ) => {
     dispatch({
       type: UPDATE_PHOTO_DESCRIPTION,
-      photoId: photoId,
+      photoId,
       description: event.target.value,
     });
   };
 
   const deletePhoto = () => {
-    dispatch({ type: DELETE_PHOTO, photoId: photoId });
+    dispatch({ type: DELETE_PHOTO, photoId });
   };
 
   if (!photo || !photoDetails) {

@@ -45,7 +45,7 @@ export default function ConfirmRegistration() {
       <input
         id={EMAIL_ID}
         type="email"
-        value={surveyUser?.username || ""}
+        value={surveyUser!.email}
         readOnly={true}
       />
 

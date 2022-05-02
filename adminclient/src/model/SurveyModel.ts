@@ -176,7 +176,7 @@ export function retrieveSummaryResponses(): AppThunk {
       .then((credentials) => {
         const dynamodbClient = new DynamoDBClient({
           region: REGION,
-          credentials: credentials,
+          credentials,
         });
         const params = {
           TableName: SURVEY_RESPONSES_TABLE,
@@ -227,7 +227,7 @@ export function retrieveFullSurveyResponses(surveyIds: string[]): AppThunk {
       .then((credentials) => {
         const dynamodbClient = new DynamoDBClient({
           region: REGION,
-          credentials: credentials,
+          credentials,
         });
         const params: BatchGetItemCommandInput = {
           RequestItems: {},
