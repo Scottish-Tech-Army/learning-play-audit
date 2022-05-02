@@ -186,8 +186,8 @@ describe("component NavDrawer", () => {
     });
   }
 
-  function checkPopupVisible(checkPopupVisible: boolean) {
-    if (checkPopupVisible) {
+  function checkPopupVisible(expectPopupVisible: boolean) {
+    if (expectPopupVisible) {
       expect(popupNavMenu()).not.toHaveClass("hidden");
     } else {
       expect(popupNavMenu()).toHaveClass("hidden");

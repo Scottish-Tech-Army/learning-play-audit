@@ -19,7 +19,7 @@ export default function ForgotPasswordSubmit() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
 
-  const surveyUser = useSelector(getSurveyUser);
+  const surveyUser = useSelector(getSurveyUser)!;
   const authState = useSelector(getAuthState);
   const authError = useSelector(getAuthError);
 
@@ -31,7 +31,7 @@ export default function ForgotPasswordSubmit() {
 
   function submit() {
     setLoading(true);
-    dispatch(forgotPasswordSubmit(surveyUser!.email, code, password));
+    dispatch(forgotPasswordSubmit(surveyUser.email, code, password));
   }
 
   return (
@@ -43,7 +43,7 @@ export default function ForgotPasswordSubmit() {
         <input
           id={EMAIL_ID}
           type="email"
-          value={surveyUser!.email}
+          value={surveyUser.email}
           readOnly={true}
         />
         <label htmlFor={CODE_ID}>Verification code</label>

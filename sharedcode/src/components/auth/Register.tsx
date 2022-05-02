@@ -54,7 +54,7 @@ for any other purpose.`;
         <span
           id={id}
           className={"checkmark" + (value ? " checked" : "")}
-          onClick={() => setValue((value) => !value)}
+          onClick={() => setValue((oldValue) => !oldValue)}
         ></span>
         <label>{labelText}</label>
       </div>

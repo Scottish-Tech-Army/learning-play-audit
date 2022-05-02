@@ -17,7 +17,7 @@ const CODE_ID = "codeInput";
 
 export default function TOTPSetup() {
   const dispatch = useDispatch();
-  const user = useSelector(getSurveyUser);
+  const user = useSelector(getSurveyUser)!;
   const authState = useSelector(getAuthState);
   const authError = useSelector(getAuthError);
 
@@ -30,7 +30,7 @@ export default function TOTPSetup() {
   }, [authState, authError, qrCodeImageSource]);
 
   useEffect(() => {
-    getTOTPSetupQrCode(user!)
+    getTOTPSetupQrCode(user)
       .then((qrCode) => setQrCodeImageSource(qrCode))
       .catch((error) => {
         console.error(error);
@@ -40,7 +40,7 @@ export default function TOTPSetup() {
 
   function handleConfirm() {
     setLoading(true);
-    dispatch(verifyTOTPSetup(user!, code));
+    dispatch(verifyTOTPSetup(user, code));
   }
 
   return (

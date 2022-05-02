@@ -17,7 +17,7 @@ const CODE_ID = "codeInput";
 
 export default function ConfirmRegistration() {
   const dispatch = useDispatch();
-  const surveyUser = useSelector(getSurveyUser);
+  const surveyUser = useSelector(getSurveyUser)!;
   const authState = useSelector(getAuthState);
   const authError = useSelector(getAuthError);
 
@@ -29,12 +29,12 @@ export default function ConfirmRegistration() {
   }, [authState, authError]);
 
   function handleResend() {
-    dispatch(resendConfirmCode(surveyUser!));
+    dispatch(resendConfirmCode(surveyUser));
   }
 
   function handleConfirm() {
     setLoading(true);
-    dispatch(confirmRegistration(surveyUser!, code));
+    dispatch(confirmRegistration(surveyUser, code));
   }
 
   return (
@@ -45,7 +45,7 @@ export default function ConfirmRegistration() {
       <input
         id={EMAIL_ID}
         type="email"
-        value={surveyUser!.email}
+        value={surveyUser.email}
         readOnly={true}
       />
 

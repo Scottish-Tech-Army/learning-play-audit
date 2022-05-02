@@ -17,7 +17,7 @@ const CODE_ID = "codeInput";
 
 export default function ConfirmSignIn() {
   const dispatch = useDispatch();
-  const user = useSelector(getSurveyUser);
+  const user = useSelector(getSurveyUser)!;
   const authState = useSelector(getAuthState);
   const authError = useSelector(getAuthError);
 
@@ -25,7 +25,7 @@ export default function ConfirmSignIn() {
   const [loading, setLoading] = useState(false);
 
   const mfaOption =
-    user!.cognitoUser!.challengeName === SOFTWARE_TOKEN_MFA
+    user.cognitoUser!.challengeName === SOFTWARE_TOKEN_MFA
       ? MFA_OPTION_TOTP
       : MFA_OPTION_SMS;
 
@@ -35,7 +35,7 @@ export default function ConfirmSignIn() {
 
   function handleConfirm() {
     setLoading(true);
-    dispatch(confirmSignIn(user!, code, mfaOption));
+    dispatch(confirmSignIn(user, code, mfaOption));
   }
 
   return (

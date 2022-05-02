@@ -13,7 +13,7 @@ const MIN_PASSWORD_LENGTH = 8;
 
 export default function RequireNewPassword() {
   const dispatch = useDispatch();
-  const user = useSelector(getSurveyUser);
+  const user = useSelector(getSurveyUser)!;
   const authState = useSelector(getAuthState);
   const authError = useSelector(getAuthError);
 
@@ -26,7 +26,7 @@ export default function RequireNewPassword() {
 
   function handleComplete() {
     setLoading(true);
-    dispatch(completeNewPassword(user!, password));
+    dispatch(completeNewPassword(user, password));
   }
 
   return (

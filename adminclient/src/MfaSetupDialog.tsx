@@ -64,7 +64,7 @@ export default function MfaSetupDialog({ handleClose }:MfaSetupDialogProps) {
   const classes = useStyles();
 
   const dispatch = useDispatch();
-  const user = useSelector(getSurveyUser);
+  const user = useSelector(getSurveyUser)!;
   const errorMessage = useSelector(getAuthError);
 
   const [setupTOTP, setSetupTOTP] = useState(false);
@@ -79,7 +79,7 @@ export default function MfaSetupDialog({ handleClose }:MfaSetupDialogProps) {
   function handleConfirm() {
     console.debug("Called handleConfirm");
     setLoading(true);
-    dispatch(verifyTOTPSetup(user!, code))
+    dispatch(verifyTOTPSetup(user, code))
       .then(() => {
         setSetupTOTP(false);
         setLoading(false);
@@ -111,7 +111,7 @@ export default function MfaSetupDialog({ handleClose }:MfaSetupDialogProps) {
             <button
               id="reset-totp-button"
               onClick={() => {
-                getTOTPSetupQrCode(user!)
+                getTOTPSetupQrCode(user)
                   .then((qrCode) => {
                     setQrCodeImageSource(qrCode);
                     setSetupTOTP(true);
