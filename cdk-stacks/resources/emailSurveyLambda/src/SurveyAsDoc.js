@@ -73,10 +73,7 @@ export async function exportSurveyAsDocx(
   if (photosDetails?.length > 0) {
     const photosTable = new Table({
       rows: photosDetails.map((photoRef) =>
-        renderPhotoRow(
-          photoRef.fullsize.key,
-          photoRef.description,
-        )
+        renderPhotoRow(photoRef.fullsize.key, photoRef.description)
       ),
       width: { size: 100, type: WidthType.PERCENTAGE },
     });
@@ -207,9 +204,9 @@ export async function exportSurveyAsDocx(
     console.log("renderPhoto params", photoKey, description);
     const photoData = photosData?.[photoKey];
     if (photoData?.data) {
-      const {height, width} = photoData.info;
+      const { height, width } = photoData.info;
       console.log("renderPhoto dimensions", height, width);
-     
+
       return new TableRow({
         children: [
           new TableCell({
@@ -461,21 +458,21 @@ function renderQuestionTypeText(question, questionNumber, response) {
 }
 
 function renderQuestionTypeTextWithYear(question, questionNumber, response) {
-  function yearAnswerRow(response, answerKey, yearKey) {
-    const answer = response[answerKey] != null ? response[answerKey] : "";
-    const year = response[yearKey] != null ? response[yearKey] : "";
-
-    return answer && year
-      ? new Paragraph({
-          text: year + "\t" + answer,
-          tabStops: [{ type: TabStopType.LEFT, position: 500 }],
-          indent: { start: 500, hanging: 500 },
-        })
-      : year
-      ? new Paragraph({ text: year })
-      : answer
-      ? new Paragraph({ text: answer })
-      : null;
+  function yearAnswerRow(answer, year) {
+    if (answer && year) {
+      return new Paragraph({
+        text: year + "\t" + answer,
+        tabStops: [{ type: TabStopType.LEFT, position: 500 }],
+        indent: { start: 500, hanging: 500 },
+      });
+    }
+    if (answer) {
+      return new Paragraph({ text: answer });
+    }
+    if (year) {
+      return new Paragraph({ text: year });
+    }
+    return null;
   }
 
   function hasValue(value) {
@@ -497,9 +494,9 @@ function renderQuestionTypeTextWithYear(question, questionNumber, response) {
     renderQuestionText(questionNumber, question.text),
     ...(questionAnswered(response)
       ? [
-          yearAnswerRow(response, "answer1", "year1"),
-          yearAnswerRow(response, "answer2", "year2"),
-          yearAnswerRow(response, "answer3", "year3"),
+          yearAnswerRow(response.answer1 || "", response.year1 || ""),
+          yearAnswerRow(response.answer2 || "", response.year2 || ""),
+          yearAnswerRow(response.answer3 || "", response.year3 || ""),
         ].filter(Boolean)
       : [new Paragraph({ text: "Not answered" })]),
   ];
