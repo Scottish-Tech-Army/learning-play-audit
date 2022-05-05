@@ -180,14 +180,9 @@ function getChartConfiguration(
   return {
     type: "bar",
     options: {
-      plugins: {
-        legend: { display: false },
-      },
+      plugins: { legend: { display: false } },
       layout: { padding: 10 },
-      scales: {
-        x: valueAxis,
-        y: categoryAxis,
-      },
+      scales: { x: valueAxis, y: categoryAxis },
       indexAxis: "y",
     },
     data: {
