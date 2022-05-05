@@ -6,12 +6,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "jest",
-    "build": "esbuild src/index.js --bundle --platform=node --target=node14 --outfile=dist/index.js --external:canvas --external:sharp --external:chartjs-node-canvas --external:./node_modules/chartjs"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
+    "tsc": "tsc",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node14 --outfile=dist/index.js --external:canvas --external:sharp --external:chartjs-node-canvas --external:./node_modules/chartjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.48.0",
@@ -32,12 +28,19 @@
   "devDependencies": {
     "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.5",
-    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/plugin-transform-runtime": "^7.17.10",
     "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.5.0",
+    "@types/sharp": "^0.30.2",
     "babel-jest": "^27.5.1",
     "esbuild": "^0.14.29",
+    "eslint": "^8.14.0",
+    "eslint-plugin-jest": "^26.1.5",
     "file-saver": "^2.0.5",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "typescript": "^4.6.4"
   },
   "jest": {
     "transform": {
@@ -48,7 +51,15 @@
             "@babel/plugin-transform-runtime"
           ],
           "presets": [
-            "@babel/preset-env"
+            "@babel/preset-env",
+            [
+              "@babel/preset-typescript",
+              {
+                "parserOpts": {
+                  "strictMode": true
+                }
+              }
+            ]
           ]
         }
       ]

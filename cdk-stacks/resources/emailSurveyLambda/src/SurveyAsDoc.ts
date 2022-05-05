@@ -5,6 +5,9 @@ import {
   TEXT_FIELD,
   TEXT_WITH_YEAR,
   USER_TYPE_WITH_COMMENT,
+  Section,
+  Markup,
+  Question,
 } from "learning-play-audit-survey";
 import {
   Document,
@@ -32,6 +35,14 @@ import {
   REPORT_HEADER_BASE64,
 } from "./reportImagesBase64";
 import { getCharts } from "./SurveyCharts";
+import {
+  DatedQuestionAnswer,
+  PhotoDetails,
+  PhotosData,
+  QuestionAnswer,
+  SectionAnswers,
+  SurveyAnswers,
+} from "./SurveyModel";
 
 const IMAGE_NOT_FOUND = "[Image not found]";
 
@@ -59,9 +70,9 @@ const PHOTO_TABLE_CELL_OPTIONS = {
 };
 
 export async function exportSurveyAsDocx(
-  surveyResponse,
-  photosDetails,
-  photosData
+  surveyResponse: SurveyAnswers,
+  photosDetails: PhotoDetails[],
+  photosData: PhotosData
 ) {
   const surveyQuestionParagraphs = sectionsContent
     .map((section) => {
@@ -69,7 +80,7 @@ export async function exportSurveyAsDocx(
     })
     .flat();
 
-  let photosParagraphs = [];
+  let photosParagraphs: (Paragraph | Table)[] = [];
   if (photosDetails?.length > 0) {
     const photosTable = new Table({
       rows: photosDetails.map((photoRef) =>
@@ -194,13 +205,13 @@ export async function exportSurveyAsDocx(
     }),
   };
 
-  function getScaledPhotoDimensions(height, width) {
+  function getScaledPhotoDimensions(height: number, width: number) {
     const MAX_PHOTO_WIDTH = 290;
     const scaledHeight = (height * MAX_PHOTO_WIDTH) / width;
     return { height: scaledHeight, width: MAX_PHOTO_WIDTH };
   }
 
-  function renderPhotoRow(photoKey, description) {
+  function renderPhotoRow(photoKey: string, description: string) {
     console.log("renderPhoto params", photoKey, description);
     const photoData = photosData?.[photoKey];
     if (photoData?.data) {
@@ -295,18 +306,23 @@ export async function exportSurveyAsDocx(
   });
 }
 
-export function renderQuestionText(questionNumber, questionText) {
+export function renderQuestionText(
+  questionNumber: number,
+  questionText: Markup | Markup[]
+) {
   const nodes = questionText instanceof Array ? questionText : [questionText];
 
-  let children = nodes.map((node) => {
-    if (typeof node === "string") {
-      return new TextRun({ text: node });
-    }
+  let children = nodes
+    .map((node) => {
+      if (typeof node === "string") {
+        return new TextRun({ text: node });
+      }
 
-    if (typeof node === "object" && node && node.tag === "b") {
-      return new TextRun({ text: node.content, bold: true });
-    }
-  });
+      if (typeof node === "object" && node && node.tag === "b") {
+        return new TextRun({ text: node.content as string, bold: true });
+      }
+    })
+    .filter(Boolean) as TextRun[];
 
   return new Paragraph({
     children: [
@@ -323,7 +339,12 @@ export function renderQuestionText(questionNumber, questionText) {
   });
 }
 
-function renderSubsectionParagraph({ tag, content }) {
+function renderSubsectionParagraph(markup: Markup) {
+  if (typeof markup === "string") {
+    return new Paragraph({ text: markup });
+  }
+
+  const { tag, content } = markup;
   if (tag === "h2" && typeof content === "string") {
     return new Paragraph({ text: content, heading: HeadingLevel.HEADING_2 });
   }
@@ -331,32 +352,34 @@ function renderSubsectionParagraph({ tag, content }) {
   if (tag === "p") {
     const nodes = content instanceof Array ? content : [content];
 
-    let children = nodes.map((node) => {
-      if (typeof node === "string") {
-        return new TextRun({ text: node });
-      }
+    let children = nodes
+      .map((node) => {
+        if (typeof node === "string") {
+          return new TextRun({ text: node });
+        }
 
-      if (typeof node === "object" && node && node.tag === "b") {
-        return new TextRun({ text: node.content, bold: true });
-      }
-    });
+        if (typeof node === "object" && node && node.tag === "b") {
+          return new TextRun({ text: node.content as string, bold: true });
+        }
+      })
+      .filter(Boolean) as TextRun[];
 
     return new Paragraph({ children });
   }
 }
 
-export function renderSubsectionTitle(title) {
+export function renderSubsectionTitle(title: Markup | Markup[]) {
   return title instanceof Array
     ? title.map(renderSubsectionParagraph)
     : [renderSubsectionParagraph(title)];
 }
 
 function renderQuestionTypeSelectWithComment(
-  question,
-  questionNumber,
-  response
+  question: Question,
+  questionNumber: number,
+  response: QuestionAnswer
 ) {
-  function getAnswer(response) {
+  function getAnswer(response: QuestionAnswer) {
     switch (response.answer) {
       case "a":
         return "Strongly agree";
@@ -396,8 +419,12 @@ function renderQuestionTypeSelectWithComment(
   ];
 }
 
-function renderQuestionTypeUserSelect(question, questionNumber, response) {
-  function getAnswer(response) {
+function renderQuestionTypeUserSelect(
+  question: Question,
+  questionNumber: number,
+  response: QuestionAnswer
+) {
+  function getAnswer(response: QuestionAnswer) {
     switch (response.answer) {
       case "a":
         return "Teacher";
@@ -415,7 +442,7 @@ function renderQuestionTypeUserSelect(question, questionNumber, response) {
     }
   }
 
-  function labelTitle(response) {
+  function labelTitle(response: QuestionAnswer) {
     switch (response.answer) {
       case "a":
         return "Position";
@@ -450,15 +477,23 @@ function renderQuestionTypeUserSelect(question, questionNumber, response) {
   ];
 }
 
-function renderQuestionTypeText(question, questionNumber, response) {
+function renderQuestionTypeText(
+  question: Question,
+  questionNumber: number,
+  response: QuestionAnswer
+) {
   return [
     renderQuestionText(questionNumber, question.text),
     new Paragraph({ text: response?.answer || "Not answered" }),
   ];
 }
 
-function renderQuestionTypeTextWithYear(question, questionNumber, response) {
-  function yearAnswerRow(answer, year) {
+function renderQuestionTypeTextWithYear(
+  question: Question,
+  questionNumber: number,
+  response: DatedQuestionAnswer
+): Paragraph[] {
+  function yearAnswerRow(answer: string, year: string) {
     if (answer && year) {
       return new Paragraph({
         text: year + "\t" + answer,
@@ -475,11 +510,11 @@ function renderQuestionTypeTextWithYear(question, questionNumber, response) {
     return null;
   }
 
-  function hasValue(value) {
+  function hasValue(value: string) {
     return value != null && value.length > 0;
   }
 
-  function questionAnswered(response) {
+  function questionAnswered(response: DatedQuestionAnswer) {
     return (
       hasValue(response.answer1) ||
       hasValue(response.answer2) ||
@@ -493,54 +528,70 @@ function renderQuestionTypeTextWithYear(question, questionNumber, response) {
   return [
     renderQuestionText(questionNumber, question.text),
     ...(questionAnswered(response)
-      ? [
+      ? ([
           yearAnswerRow(response.answer1 || "", response.year1 || ""),
           yearAnswerRow(response.answer2 || "", response.year2 || ""),
           yearAnswerRow(response.answer3 || "", response.year3 || ""),
-        ].filter(Boolean)
+        ].filter(Boolean) as Paragraph[])
       : [new Paragraph({ text: "Not answered" })]),
   ];
 }
 
 function renderQuestion(
-  { type, id, text },
-  questionIndex,
-  sectionResponses,
-  paragraphs
+  question: Question,
+  questionIndex: number,
+  sectionResponses: SectionAnswers,
+  paragraphs: Paragraph[]
 ) {
-  const question = { id, text };
+  const { type, id } = question;
   const response = sectionResponses[id];
 
   if (SCALE_WITH_COMMENT === type) {
     paragraphs.splice(
       paragraphs.length,
       0,
-      ...renderQuestionTypeSelectWithComment(question, questionIndex, response)
+      ...renderQuestionTypeSelectWithComment(
+        question,
+        questionIndex,
+        response as QuestionAnswer
+      )
     );
   } else if (USER_TYPE_WITH_COMMENT === type) {
     paragraphs.splice(
       paragraphs.length,
       0,
-      ...renderQuestionTypeUserSelect(question, questionIndex, response)
+      ...renderQuestionTypeUserSelect(
+        question,
+        questionIndex,
+        response as QuestionAnswer
+      )
     );
   } else if (TEXT_AREA === type || TEXT_FIELD === type) {
     paragraphs.splice(
       paragraphs.length,
       0,
-      ...renderQuestionTypeText(question, questionIndex, response)
+      ...renderQuestionTypeText(
+        question,
+        questionIndex,
+        response as QuestionAnswer
+      )
     );
   } else if (TEXT_WITH_YEAR === type) {
     paragraphs.splice(
       paragraphs.length,
       0,
-      ...renderQuestionTypeTextWithYear(question, questionIndex, response)
+      ...renderQuestionTypeTextWithYear(
+        question,
+        questionIndex,
+        response as DatedQuestionAnswer
+      )
     );
   } else {
     throw new Error("unknown question type: " + type);
   }
 }
 
-function renderSection(section, sectionResponses) {
+function renderSection(section: Section, sectionResponses: SectionAnswers) {
   const docQuestions = [
     new Paragraph({
       text: "Section " + section.number + " - " + section.title,
@@ -552,8 +603,8 @@ function renderSection(section, sectionResponses) {
 
   section.subsections.forEach((subsection) => {
     subsection.title &&
-      renderSubsectionTitle(subsection.title).forEach((paragraph) =>
-        docQuestions.push(paragraph)
+      renderSubsectionTitle(subsection.title).forEach(
+        (paragraph) => paragraph && docQuestions.push(paragraph)
       );
     subsection.questions.forEach((question) => {
       questionIndex++;

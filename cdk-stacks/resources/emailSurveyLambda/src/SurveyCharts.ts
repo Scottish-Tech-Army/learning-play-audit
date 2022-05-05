@@ -4,19 +4,22 @@ import {
   CategoryScale,
   LinearScale,
   Chart,
+  ChartConfiguration,
+  ScaleOptions,
 } from "chart.js";
 import {
   sectionsContent,
   SCALE_WITH_COMMENT,
 } from "learning-play-audit-survey";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
+import { AnswerWeights, QuestionAnswer, SurveyAnswers } from "./SurveyModel";
 
 // eslint-disable-next-line jest/require-hook
 Chart.register(BarController, BarElement, CategoryScale, LinearScale);
 
 function createAnswerWeights() {
   return sectionsContent.reduce((sections, section) => {
-    var questions = {};
+    var questions: Record<string, number> = {};
     sections[section.id] = questions;
     section.subsections.forEach((subsection) =>
       subsection.questions.forEach(
@@ -25,11 +28,11 @@ function createAnswerWeights() {
       )
     );
     return sections;
-  }, {});
+  }, {} as AnswerWeights);
 }
 const answerWeights = createAnswerWeights();
 
-const ANSWER_VALUES = { a: 1, b: 0.7, c: 0.3, d: 0 };
+const ANSWER_VALUES: Record<string, number> = { a: 1, b: 0.7, c: 0.3, d: 0 };
 
 const width = 600; //px
 const backgroundColour = "white";
@@ -44,13 +47,18 @@ const smallChartJSNodeCanvas = new ChartJSNodeCanvas({
   backgroundColour,
 });
 
-function getSingleAnswer(answers, answerWeights, sectionId, questionId) {
-  const answer = answers[sectionId][questionId];
-  const answerWeight = answerWeights[sectionId][questionId];
+function getSingleAnswer(
+  answers: SurveyAnswers,
+  answerWeights: AnswerWeights,
+  sectionId: string,
+  questionId: string
+) {
   var answerValue = 0;
-  if (answer === null || answer === undefined) {
+  if (!answers[sectionId][questionId]) {
     throw new Error("Unknown question: " + sectionId + ":" + questionId);
   }
+  const answer = answers[sectionId][questionId] as QuestionAnswer;
+  const answerWeight = answerWeights[sectionId][questionId];
   if (
     answer.answer !== undefined &&
     ANSWER_VALUES[answer.answer] !== undefined
@@ -60,7 +68,12 @@ function getSingleAnswer(answers, answerWeights, sectionId, questionId) {
   return { value: answerValue * answerWeight, maxValue: answerWeight };
 }
 
-function calcMultipleAnswers(answers, answerWeights, sectionId, questionIds) {
+function calcMultipleAnswers(
+  answers: SurveyAnswers,
+  answerWeights: AnswerWeights,
+  sectionId: string,
+  questionIds: string[]
+) {
   var totalValue = 0;
   var totalMaxValue = 0;
   questionIds.forEach((questionId) => {
@@ -76,12 +89,21 @@ function calcMultipleAnswers(answers, answerWeights, sectionId, questionIds) {
   return (totalValue * 100) / totalMaxValue;
 }
 
-function calcSectionAnswers(answers, answerWeights, sectionId) {
+function calcSectionAnswers(
+  answers: SurveyAnswers,
+  answerWeights: AnswerWeights,
+  sectionId: string
+) {
   const questionIds = Object.keys(answers[sectionId]);
   return calcMultipleAnswers(answers, answerWeights, sectionId, questionIds);
 }
 
-function calcAnswer(answers, answerWeights, sectionId, questionId) {
+function calcAnswer(
+  answers: SurveyAnswers,
+  answerWeights: AnswerWeights,
+  sectionId: string,
+  questionId: string
+) {
   const { value, maxValue } = getSingleAnswer(
     answers,
     answerWeights,
@@ -91,7 +113,7 @@ function calcAnswer(answers, answerWeights, sectionId, questionId) {
   return (value * 100) / maxValue;
 }
 
-function chartDataGreenspaceAnswers(answers) {
+function chartDataGreenspaceAnswers(answers: SurveyAnswers) {
   return [
     calcAnswer(answers, answerWeights, "greenspace", "accessible"),
     calcAnswer(answers, answerWeights, "greenspace", "frequentuse"),
@@ -101,7 +123,7 @@ function chartDataGreenspaceAnswers(answers) {
   ];
 }
 
-function chartDataAnswers(answers) {
+function chartDataAnswers(answers: SurveyAnswers) {
   return [
     calcSectionAnswers(answers, answerWeights, "learning"),
     calcSectionAnswers(answers, answerWeights, "play"),
@@ -111,7 +133,7 @@ function chartDataAnswers(answers) {
   ];
 }
 
-function chartDataPracticeAnswers(answers) {
+function chartDataPracticeAnswers(answers: SurveyAnswers) {
   return [
     calcMultipleAnswers(answers, answerWeights, "practice", [
       "developingcurriculum",
@@ -135,28 +157,24 @@ function chartDataPracticeAnswers(answers) {
   ];
 }
 
-function getChartConfiguration(labels, data, barColour) {
-  const valueAxis = {
+function getChartConfiguration(
+  labels: (string | string[])[],
+  data: number[],
+  barColour: string
+): ChartConfiguration {
+  const valueAxis: ScaleOptions = {
     type: "linear",
     grid: { color: "#807d7d", z: 1 },
     min: 0,
     max: 100,
-    ticks: {
-      beginAtZero: true,
-      fontSize: 14,
-    },
+    beginAtZero: true,
+    ticks: { font: { size: 14 } },
   };
 
-  const categoryAxis = {
+  const categoryAxis: ScaleOptions = {
     type: "category",
-    grid: {
-      color: "#807d7d",
-      z: 1,
-    },
-    ticks: {
-      fontSize: 16,
-      fontStyle: "bold",
-    },
+    grid: { color: "#807d7d", z: 1 },
+    ticks: { font: { size: 16, weight: "bold" } },
   };
 
   return {
@@ -165,7 +183,7 @@ function getChartConfiguration(labels, data, barColour) {
       plugins: {
         legend: { display: false },
       },
-      borderWidth: 10,
+      layout: { padding: 10 },
       scales: {
         x: valueAxis,
         y: categoryAxis,
@@ -189,7 +207,7 @@ function getChartConfiguration(labels, data, barColour) {
   };
 }
 
-export async function getCharts(answers) {
+export async function getCharts(answers: SurveyAnswers) {
   const learningChart = await largeChartJSNodeCanvas.renderToBuffer(
     getChartConfiguration(
       [

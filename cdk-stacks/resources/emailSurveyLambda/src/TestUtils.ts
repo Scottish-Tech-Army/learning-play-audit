@@ -1,4 +1,6 @@
-export const EMPTY_ANSWERS = {
+import { SectionAnswers, SurveyAnswers } from "./SurveyModel";
+
+export const EMPTY_ANSWERS: SurveyAnswers = {
   background: {
     contactname: { answer: "", comments: "" },
     localauthority: { answer: "", comments: "" },
@@ -135,16 +137,15 @@ export const EMPTY_ANSWERS = {
   },
 };
 
-function populateSectionAnswers(section) {
+function populateSectionAnswers(section: SectionAnswers) {
   const result = { ...section };
   Object.keys(result).forEach((item) => {
-    if (result[item].answer !== undefined) {
+    if (result[item].hasOwnProperty("answer")) {
       result[item] = {
         answer: "b",
         comments: "test comment " + item,
       };
-    }
-    if (result[item].answer1 !== undefined) {
+    } else {
       result[item] = {
         answer1: "test1 " + item,
         answer2: "test2 " + item,

@@ -12,6 +12,8 @@ import exportSurveyAsDocx, {
 } from "./SurveyAsDoc";
 import { TEST_ANSWERS } from "./TestUtils";
 import fs from "fs";
+import { PhotosData } from "./SurveyModel";
+import { OutputInfo } from "sharp";
 
 describe("exportSurveyAsDocx", () => {
   const SURVEY = {
@@ -49,16 +51,16 @@ describe("exportSurveyAsDocx", () => {
     id: "5909e7e2-84ab-4ce3-9446-ceaefcd672cc",
   };
 
-  const PHOTODATA = {
+  const PHOTODATA: PhotosData = {
     "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-aaaaaaaaaaaa":
       {
         data: fs.readFileSync("src/testImage.jpg"),
-        info: { width: 81, height: 117 },
+        info: { width: 81, height: 117 } as OutputInfo,
       },
     "surveys/ba80fbb1-d612-4b54-ae4c-203d1b122f4c/photos/48d6dd87-0df1-4a26-a033-bbbbbbbbbbbb":
       {
         data: fs.readFileSync("src/testImage.jpg"),
-        info: { width: 81, height: 117 },
+        info: { width: 81, height: 117 } as OutputInfo,
       },
   };
 

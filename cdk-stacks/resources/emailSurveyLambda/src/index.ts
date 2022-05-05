@@ -1,18 +1,21 @@
+import { PhotoDetails, PhotosData, SurveyResponse } from "./SurveyModel";
+
 require("es6-promise").polyfill();
 require("isomorphic-fetch");
-const { GetObjectCommand } = require("@aws-sdk/client-s3");
-const { GetItemCommand } = require("@aws-sdk/client-dynamodb");
-const { SendRawEmailCommand } = require("@aws-sdk/client-ses");
-const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
-const { Packer } = require("docx");
-var mimemessage = require("mimemessage");
-const { s3Client, dynamodbClient, emailClient } = require("./aws");
-const { default: exportSurveyAsDocx } = require("./SurveyAsDoc");
-const sharp = require("sharp");
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { SendRawEmailCommand } from "@aws-sdk/client-ses";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { Packer } from "docx";
+import mimemessage from "mimemessage";
+import { s3Client, dynamodbClient, emailClient } from "./aws";
+import { exportSurveyAsDocx } from "./SurveyAsDoc";
+import sharp from "sharp";
+import { Readable } from "stream";
 
 const MAX_DOCUMENT_SIZE = 9 * 1024 * 1024; // 9Mb
 
-function getSurveyResponse(surveyId) {
+function getSurveyResponse(surveyId: string): Promise<SurveyResponse> {
   console.log("getSurveyResponse", surveyId);
 
   var params = {
@@ -22,13 +25,13 @@ function getSurveyResponse(surveyId) {
 
   return dynamodbClient.send(new GetItemCommand(params)).then((result) => {
     console.log("Retrieved item:", result);
-    const survey = unmarshall(result.Item);
+    const survey = unmarshall(result.Item!) as SurveyResponse;
     console.log("Retrieved survey:", survey);
     return survey;
   });
 }
 
-function getPhoto(photo) {
+function getPhoto(photo: PhotoDetails): Promise<Readable> {
   console.log("getPhoto", photo);
 
   const key = photo.fullsize.key;
@@ -41,11 +44,11 @@ function getPhoto(photo) {
     .send(new GetObjectCommand({ Bucket: photo.bucket, Key: key }))
     .then((result) => {
       console.log("get result", result);
-      return Promise.resolve(result.Body);
+      return Promise.resolve(result.Body! as Readable);
     });
 }
 
-function resizePhoto(photoData) {
+function resizePhoto(photoData: Readable) {
   console.log("resizePhoto", photoData);
   try {
     const pipeline = sharp()
@@ -64,17 +67,19 @@ function resizePhoto(photoData) {
   }
 }
 
-async function getPhotos(survey) {
-  const result = {};
+async function getPhotos(survey: SurveyResponse) {
+  const result: PhotosData = {};
   await Promise.allSettled(
     survey.photos.map((photo) =>
       getPhoto(photo)
         .then((photoData) =>
-          resizePhoto(photoData).toBuffer({ resolveWithObject: true })
+          resizePhoto(photoData)?.toBuffer({ resolveWithObject: true })
         )
         .then((resizedPhoto) => {
           console.log("resizedPhoto", resizedPhoto);
-          result[photo.fullsize.key] = resizedPhoto;
+          if (resizedPhoto) {
+            result[photo.fullsize.key] = resizedPhoto;
+          }
           return Promise.resolve();
         })
     )
@@ -83,7 +88,7 @@ async function getPhotos(survey) {
   return result;
 }
 
-async function sendSurveyConfirmationEmail(survey) {
+async function sendSurveyConfirmationEmail(survey: SurveyResponse) {
   const photosData = await getPhotos(survey);
   let surveyResultsDoc = await exportSurveyAsDocx(
     survey.surveyResponse,
@@ -94,7 +99,7 @@ async function sendSurveyConfirmationEmail(survey) {
 
   if (surveyResultsDocBase64.length > MAX_DOCUMENT_SIZE) {
     // Report including photos is too large to email - create one without photos
-    surveyResultsDoc = await exportSurveyAsDocx(survey.surveyResponse, []);
+    surveyResultsDoc = await exportSurveyAsDocx(survey.surveyResponse, [], {});
     surveyResultsDocBase64 = await Packer.toBase64String(surveyResultsDoc);
   }
 
@@ -191,7 +196,7 @@ to scan attachments (if any). Thank you.</font></p>`,
   console.log("Send email result", sendEmailResponse);
 }
 
-exports.handler = async (event) => {
+export async function handler(event: { surveyId: string }) {
   console.log("Incoming request", event);
 
   const survey = await getSurveyResponse(event.surveyId);
@@ -207,4 +212,4 @@ exports.handler = async (event) => {
     },
     body: JSON.stringify({ result: "Survey email sent" }),
   };
-};
+}

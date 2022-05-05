@@ -1,5 +1,5 @@
 import { handler } from "./index";
-const { dynamodbClient } = require("./aws");
+import { dynamodbClient } from "./aws";
 
 jest.mock("./aws");
 
@@ -201,7 +201,7 @@ describe("handler", () => {
   };
 
   it("invoke", async () => {
-    dynamodbClient.send.mockResolvedValue(DB_RESPONSE);
+    (dynamodbClient.send as jest.Mock).mockResolvedValue(DB_RESPONSE);
 
     const response = await handler({
       surveyId: "ba80fbb1-d612-4b54-ae4c-203d1b122f4c",
