@@ -10,11 +10,16 @@ import {
   Section,
 } from "learning-play-audit-survey";
 import { saveAs } from "file-saver";
-import { DatedQuestionAnswer, QuestionAnswer, SectionAnswers, SurveyResponse } from "./model/SurveyModel";
+import {
+  DatedQuestionAnswer,
+  QuestionAnswer,
+  SectionAnswers,
+  SurveyResponse,
+} from "./model/SurveyModel";
 
 const headerRows = [[""], [""], ["Id"]];
 
-export function exportSurveysAsCsv(surveys:SurveyResponse[] = []) {
+export function exportSurveysAsCsv(surveys: SurveyResponse[] = []) {
   if (surveys.length === 0) {
     console.log("No surveys to export");
   }
@@ -48,11 +53,11 @@ export function exportSurveysAsCsv(surveys:SurveyResponse[] = []) {
   saveAs(blob, "export.csv");
 }
 
-function renderSectionHeader(data:string[][], section:Section) {
+function renderSectionHeader(data: string[][], section: Section) {
   // Contains question and question part headers
-  var questionData:string[][] = [[], []];
+  var questionData: string[][] = [[], []];
 
-  function addQuestion({type, id}:Question) {
+  function addQuestion({ type, id }: Question) {
     if (SCALE_WITH_COMMENT === type) {
       questionData[0].push(id, "");
       questionData[1].push("answer", "comment");
@@ -87,9 +92,13 @@ function renderSectionHeader(data:string[][], section:Section) {
   data[2].push(...questionData[1]);
 }
 
-function renderSectionAnswers(rowData:string[], section:Section, sectionResponse:SectionAnswers) {
-  function addQuestion({type, id}:Question) {
-    const response = sectionResponse[id] || {answer: "", comments:""};
+function renderSectionAnswers(
+  rowData: string[],
+  section: Section,
+  sectionResponse: SectionAnswers
+) {
+  function addQuestion({ type, id }: Question) {
+    const response = sectionResponse[id] || { answer: "", comments: "" };
 
     if (SCALE_WITH_COMMENT === type || USER_TYPE_WITH_COMMENT === type) {
       const simpleResponse = response as QuestionAnswer;
@@ -115,10 +124,12 @@ function renderSectionAnswers(rowData:string[], section:Section, sectionResponse
   sectionQuestions(section).forEach(addQuestion);
 }
 
-function addAnswers(rowData:string[], ...answers:string[]) {
+function addAnswers(rowData: string[], ...answers: string[]) {
   rowData.push(...answers.map(escapeString));
 }
 
-function escapeString(input:string):string {
-  return input === null || input.length === 0 ? "" : '"' + input.replace(/"/g, '""') + '"';
+function escapeString(input: string): string {
+  return input === null || input.length === 0
+    ? ""
+    : '"' + input.replace(/"/g, '""') + '"';
 }

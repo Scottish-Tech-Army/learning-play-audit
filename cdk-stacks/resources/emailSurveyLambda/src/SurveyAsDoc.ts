@@ -306,13 +306,8 @@ export async function exportSurveyAsDocx(
   });
 }
 
-export function renderQuestionText(
-  questionNumber: number,
-  questionText: Markup | Markup[]
-) {
-  const nodes = questionText instanceof Array ? questionText : [questionText];
-
-  let children = nodes
+function getTextRuns(nodes: Markup[]) {
+  return nodes
     .map((node) => {
       if (typeof node === "string") {
         return new TextRun({ text: node });
@@ -323,6 +318,13 @@ export function renderQuestionText(
       }
     })
     .filter(Boolean) as TextRun[];
+}
+
+export function renderQuestionText(
+  questionNumber: number,
+  questionText: Markup | Markup[]
+) {
+  const nodes = questionText instanceof Array ? questionText : [questionText];
 
   return new Paragraph({
     children: [
@@ -330,7 +332,7 @@ export function renderQuestionText(
         text: questionNumber + ":\t",
         bold: true,
       }),
-      ...children,
+      ...getTextRuns(nodes),
     ],
     tabStops: [{ type: TabStopType.LEFT, position: 500 }],
     indent: { start: 500, hanging: 500 },
@@ -352,19 +354,7 @@ function renderSubsectionParagraph(markup: Markup) {
   if (tag === "p") {
     const nodes = content instanceof Array ? content : [content];
 
-    let children = nodes
-      .map((node) => {
-        if (typeof node === "string") {
-          return new TextRun({ text: node });
-        }
-
-        if (typeof node === "object" && node && node.tag === "b") {
-          return new TextRun({ text: node.content as string, bold: true });
-        }
-      })
-      .filter(Boolean) as TextRun[];
-
-    return new Paragraph({ children });
+    return new Paragraph({ children: getTextRuns(nodes) });
   }
 }
 
@@ -374,13 +364,32 @@ export function renderSubsectionTitle(title: Markup | Markup[]) {
     : [renderSubsectionParagraph(title)];
 }
 
+function renderAnswerWithComment(answer: string, comment: string) {
+  let text;
+  if (answer && comment) {
+    text = answer + "\t" + comment;
+  } else if (answer) {
+    text = answer;
+  } else if (comment) {
+    text = comment;
+  } else {
+    ("Not answered");
+  }
+
+  return new Paragraph({
+    text,
+    tabStops: [{ type: TabStopType.LEFT, position: 1500 }],
+    indent: { start: 1500, hanging: 1500 },
+  });
+}
+
 function renderQuestionTypeSelectWithComment(
   question: Question,
   questionNumber: number,
   response: QuestionAnswer
 ) {
-  function getAnswer(response: QuestionAnswer) {
-    switch (response.answer) {
+  function getAnswer(answer: string) {
+    switch (answer) {
       case "a":
         return "Strongly agree";
       case "b":
@@ -389,33 +398,17 @@ function renderQuestionTypeSelectWithComment(
         return "Tend to disagree";
       case "d":
         return "Strongly disagree";
-      case null:
-      case "":
-        return "";
       default:
-        return "Unknown: " + response.answer;
+        return "Unknown: " + answer;
     }
   }
 
-  let answer = response ? getAnswer(response) : "";
-  let comment = response?.comments || "";
-
-  const text =
-    answer && comment
-      ? answer + ":\t" + comment
-      : answer
-      ? answer
-      : comment
-      ? comment
-      : "Not answered";
+  const answer = response?.answer ? getAnswer(response.answer) : "";
+  const comment = response?.comments || "";
 
   return [
     renderQuestionText(questionNumber, question.text),
-    new Paragraph({
-      text,
-      tabStops: [{ type: TabStopType.LEFT, position: 1500 }],
-      indent: { start: 1500, hanging: 1500 },
-    }),
+    renderAnswerWithComment(answer, comment),
   ];
 }
 
@@ -424,8 +417,8 @@ function renderQuestionTypeUserSelect(
   questionNumber: number,
   response: QuestionAnswer
 ) {
-  function getAnswer(response: QuestionAnswer) {
-    switch (response.answer) {
+  function getAnswer(answer: string) {
+    switch (answer) {
       case "a":
         return "Teacher";
       case "b":
@@ -434,16 +427,13 @@ function renderQuestionTypeUserSelect(
         return "Pupil";
       case "d":
         return "Other";
-      case null:
-      case "":
-        return "";
       default:
-        return "Unknown: " + response.answer;
+        return "Unknown: " + answer;
     }
   }
 
-  function labelTitle(response: QuestionAnswer) {
-    switch (response.answer) {
+  function labelTitle(answer: string) {
+    switch (answer) {
       case "a":
         return "Position";
       case "c":
@@ -453,27 +443,14 @@ function renderQuestionTypeUserSelect(
     }
   }
 
-  let answer = response ? getAnswer(response) : "";
-  let comment = response?.comments
-    ? labelTitle(response) + ": " + response.comments
+  const answer = response?.answer ? getAnswer(response.answer) : "";
+  const comment = response?.comments
+    ? labelTitle(response?.answer) + ": " + response.comments
     : "";
-
-  const text =
-    answer && comment
-      ? answer + "\t" + comment
-      : answer
-      ? answer
-      : comment
-      ? comment
-      : "Not answered";
 
   return [
     renderQuestionText(questionNumber, question.text),
-    new Paragraph({
-      text,
-      tabStops: [{ type: TabStopType.LEFT, position: 1500 }],
-      indent: { start: 1500, hanging: 1500 },
-    }),
+    renderAnswerWithComment(answer, comment),
   ];
 }
 
@@ -510,24 +487,20 @@ function renderQuestionTypeTextWithYear(
     return null;
   }
 
-  function hasValue(value: string) {
-    return value != null && value.length > 0;
-  }
-
-  function questionAnswered(response: DatedQuestionAnswer) {
+  function questionAnswered() {
     return (
-      hasValue(response.answer1) ||
-      hasValue(response.answer2) ||
-      hasValue(response.answer3) ||
-      hasValue(response.year1) ||
-      hasValue(response.year2) ||
-      hasValue(response.year3)
+      response.answer1 ||
+      response.answer2 ||
+      response.answer3 ||
+      response.year1 ||
+      response.year2 ||
+      response.year3
     );
   }
 
   return [
     renderQuestionText(questionNumber, question.text),
-    ...(questionAnswered(response)
+    ...(questionAnswered()
       ? ([
           yearAnswerRow(response.answer1 || "", response.year1 || ""),
           yearAnswerRow(response.answer2 || "", response.year2 || ""),
