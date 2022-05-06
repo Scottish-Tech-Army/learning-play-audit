@@ -68,12 +68,12 @@ exports.handler = async (event) => {
   const photos = [];
   const surveyResponse = {
     id: surveyId,
-    surveyVersion: survey.surveyVersion,
+    surveyVersion: inputRequest.surveyVersion,
     surveyResponse: survey,
     schoolName: survey.background.school.answer,
     responderName: survey.background.contactname.answer,
     responderEmail: survey.background.email.answer,
-    photos: photos,
+    photos,
   };
 
   const photoUploadUrls = {};

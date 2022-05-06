@@ -171,7 +171,7 @@ class CdkBackendStack extends cdk.Stack {
     });
 
     surveyResponsesTable.grant(addSurveyLambda, "dynamodb:PutItem");
-    surveyResourcesBucket.grantPut(addSurveyLambda); // TODO restrict to uploads path?
+    surveyResourcesBucket.grantPut(addSurveyLambda);
 
     addApiGatewayMethod(
       restApi,
@@ -232,7 +232,7 @@ class CdkBackendStack extends cdk.Stack {
       "dynamodb:GetItem",
       "dynamodb:PutItem"
     );
-    surveyResourcesBucket.grantReadWrite(confirmSurveyLambda); // TODO restrict to object move?
+    surveyResourcesBucket.grantReadWrite(confirmSurveyLambda);
 
     addApiGatewayMethod(
       restApi,
@@ -351,7 +351,7 @@ class CdkBackendStack extends cdk.Stack {
       "dynamodb:Scan"
     );
 
-    surveyResourcesBucket.grantRead(adminClientAuthenticatedRole); // TODO restrict to object move?
+    surveyResourcesBucket.grantRead(adminClientAuthenticatedRole);
 
     function addApiGatewayMethod(
       restApi,
