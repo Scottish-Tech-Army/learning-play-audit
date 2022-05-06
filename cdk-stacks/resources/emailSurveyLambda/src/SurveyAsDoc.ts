@@ -373,7 +373,7 @@ function renderAnswerWithComment(answer: string, comment: string) {
   } else if (comment) {
     text = comment;
   } else {
-    ("Not answered");
+    text = "Not answered";
   }
 
   return new Paragraph({
@@ -388,8 +388,8 @@ function renderQuestionTypeSelectWithComment(
   questionNumber: number,
   response: QuestionAnswer
 ) {
-  function getAnswer(answer: string) {
-    switch (answer) {
+  function getAnswer(value: string) {
+    switch (value) {
       case "a":
         return "Strongly agree";
       case "b":
@@ -399,7 +399,7 @@ function renderQuestionTypeSelectWithComment(
       case "d":
         return "Strongly disagree";
       default:
-        return "Unknown: " + answer;
+        return "Unknown: " + value;
     }
   }
 
@@ -417,8 +417,8 @@ function renderQuestionTypeUserSelect(
   questionNumber: number,
   response: QuestionAnswer
 ) {
-  function getAnswer(answer: string) {
-    switch (answer) {
+  function getAnswer(value: string) {
+    switch (value) {
       case "a":
         return "Teacher";
       case "b":
@@ -428,12 +428,12 @@ function renderQuestionTypeUserSelect(
       case "d":
         return "Other";
       default:
-        return "Unknown: " + answer;
+        return "Unknown: " + value;
     }
   }
 
-  function labelTitle(answer: string) {
-    switch (answer) {
+  function labelTitle(value: string) {
+    switch (value) {
       case "a":
         return "Position";
       case "c":

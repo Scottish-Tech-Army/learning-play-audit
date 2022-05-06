@@ -211,6 +211,11 @@ function LTLTableHead({
     { id: FIELD_STATE, disablePadding: false, label: "Upload State" },
   ];
 
+  const orderDirectionText =
+    orderDirection === ORDER_DESCENDING
+      ? "sorted descending"
+      : "sorted ascending";
+
   return (
     <TableHead>
       <TableRow>
@@ -238,9 +243,7 @@ function LTLTableHead({
               {headCell.label}
               {orderBy === headCell.id ? (
                 <span className={classes.visuallyHidden}>
-                  {orderDirection === ORDER_DESCENDING
-                    ? "sorted descending"
-                    : "sorted ascending"}
+                  {orderDirectionText}
                 </span>
               ) : null}
             </TableSortLabel>
@@ -292,8 +295,8 @@ function SurveyResultsTable({
     setOrderBy(property);
   }
 
-  function handleChangeRowsPerPage(rowCount: string) {
-    setRowsPerPage(parseInt(rowCount, 10));
+  function handleChangeRowsPerPage(rowCountText: string) {
+    setRowsPerPage(parseInt(rowCountText, 10));
     setPage(0);
   }
 
@@ -303,12 +306,12 @@ function SurveyResultsTable({
 
   function handleCheckClick(event: MouseEvent, id: string) {
     event.stopPropagation();
-    setSelectedSurveyIds((selectedSurveyIds) => {
-      const selectedIndex = selectedSurveyIds.indexOf(id);
+    setSelectedSurveyIds((oldSelectedSurveyIds) => {
+      const selectedIndex = oldSelectedSurveyIds.indexOf(id);
       if (selectedIndex === -1) {
-        return [...selectedSurveyIds, id];
+        return [...oldSelectedSurveyIds, id];
       } else {
-        return selectedSurveyIds.filter((item) => item !== id);
+        return oldSelectedSurveyIds.filter((item) => item !== id);
       }
     });
   }

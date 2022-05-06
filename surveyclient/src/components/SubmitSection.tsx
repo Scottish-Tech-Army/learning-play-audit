@@ -16,7 +16,7 @@ export interface SubmitSectionProps {
 
 function SubmitSection({ endpoint }: SubmitSectionProps) {
   const dispatch = useDispatch();
-  const state = useSelector((state: SurveyStoreState) => state);
+  const allState = useSelector((state: SurveyStoreState) => state);
   const authState = useSelector(getAuthState);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -24,7 +24,7 @@ function SubmitSection({ endpoint }: SubmitSectionProps) {
   const [progressValue, setProgressValue] = useState(0);
 
   function handleUploadResults() {
-    uploadResults(setSubmitState, setProgressValue, state, endpoint);
+    uploadResults(setSubmitState, setProgressValue, allState, endpoint);
   }
 
   function handleCloseDialog() {

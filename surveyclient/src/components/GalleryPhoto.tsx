@@ -15,7 +15,6 @@ function GalleryPhoto({ photoId }: GalleryPhotoProps) {
   const photoDetails = useSelector(getPhotoDetails)[photoId];
 
   const handleDescriptionChange = (
-    photoId: string,
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     dispatch({
@@ -42,7 +41,7 @@ function GalleryPhoto({ photoId }: GalleryPhotoProps) {
       />
       <textarea
         className="photo-description"
-        onChange={(e) => handleDescriptionChange(photoId, e)}
+        onChange={handleDescriptionChange}
         aria-label="Photo description"
         value={photoDetails.description}
         placeholder="Add photo description"

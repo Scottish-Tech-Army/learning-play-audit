@@ -22,8 +22,8 @@ function GallerySection() {
     setShowConfirmDialog(true);
   };
 
-  function isGeneralPhoto(photoDetails: PhotoDetails) {
-    return !photoDetails.sectionId || !photoDetails.questionId;
+  function isGeneralPhoto(currentPhotoDetails: PhotoDetails) {
+    return !currentPhotoDetails.sectionId || !currentPhotoDetails.questionId;
   }
 
   function getSectionQuestionPhotoIdMap() {

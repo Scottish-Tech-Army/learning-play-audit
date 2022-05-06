@@ -19,7 +19,6 @@ import SectionBottomNavigation from "./SectionBottomNavigation";
 import {
   getAnswers,
   QuestionAnswer,
-  SurveyAnswers,
 } from "../model/SurveyModel";
 
 // eslint-disable-next-line jest/require-hook
@@ -61,12 +60,7 @@ function ResultsSection() {
   }
 
   useEffect(() => {
-    function getSingleAnswer(
-      answers: SurveyAnswers,
-      answerWeights: AnswerWeights,
-      sectionId: string,
-      questionId: string
-    ) {
+    function getSingleAnswer(sectionId: string, questionId: string) {
       const answer = answers[sectionId][questionId] as QuestionAnswer;
       const answerWeight = answerWeights[sectionId][questionId];
       var answerValue = 0;
@@ -79,79 +73,50 @@ function ResultsSection() {
       return { value: answerValue * answerWeight, maxValue: answerWeight };
     }
 
-    function calcMultipleAnswers(
-      answers: SurveyAnswers,
-      answerWeights: AnswerWeights,
-      sectionId: string,
-      questionIds: string[]
-    ) {
+    function calcMultipleAnswers(sectionId: string, questionIds: string[]) {
       var totalValue = 0;
       var totalMaxValue = 0;
       questionIds.forEach((questionId) => {
-        const { value, maxValue } = getSingleAnswer(
-          answers,
-          answerWeights,
-          sectionId,
-          questionId
-        );
+        const { value, maxValue } = getSingleAnswer(sectionId, questionId);
         totalValue += value;
         totalMaxValue += maxValue;
       });
       return (totalValue * 100) / totalMaxValue;
     }
 
-    function calcSectionAnswers(
-      answers: SurveyAnswers,
-      answerWeights: AnswerWeights,
-      sectionId: string
-    ) {
+    function calcSectionAnswers(sectionId: string) {
       const questionIds = Object.keys(answers[sectionId]);
-      return calcMultipleAnswers(
-        answers,
-        answerWeights,
-        sectionId,
-        questionIds
-      );
+      return calcMultipleAnswers(sectionId, questionIds);
     }
 
-    function calcAnswer(
-      answers: SurveyAnswers,
-      answerWeights: AnswerWeights,
-      sectionId: string,
-      questionId: string
-    ) {
-      const { value, maxValue } = getSingleAnswer(
-        answers,
-        answerWeights,
-        sectionId,
-        questionId
-      );
+    function calcAnswer(sectionId: string, questionId: string) {
+      const { value, maxValue } = getSingleAnswer(sectionId, questionId);
       return (value * 100) / maxValue;
     }
 
     function chartDataGreenspaceAnswers() {
       return [
-        calcAnswer(answers, answerWeights, "greenspace", "accessible"),
-        calcAnswer(answers, answerWeights, "greenspace", "frequentuse"),
-        calcAnswer(answers, answerWeights, "greenspace", "wildlife"),
-        calcAnswer(answers, answerWeights, "greenspace", "teaching"),
-        calcAnswer(answers, answerWeights, "greenspace", "changes"),
+        calcAnswer("greenspace", "accessible"),
+        calcAnswer("greenspace", "frequentuse"),
+        calcAnswer("greenspace", "wildlife"),
+        calcAnswer("greenspace", "teaching"),
+        calcAnswer("greenspace", "changes"),
       ];
     }
 
     function chartDataAnswers() {
       return [
-        calcSectionAnswers(answers, answerWeights, "learning"),
-        calcSectionAnswers(answers, answerWeights, "play"),
-        calcSectionAnswers(answers, answerWeights, "wellbeing"),
-        calcSectionAnswers(answers, answerWeights, "sustainability"),
-        calcSectionAnswers(answers, answerWeights, "community"),
+        calcSectionAnswers("learning"),
+        calcSectionAnswers("play"),
+        calcSectionAnswers("wellbeing"),
+        calcSectionAnswers("sustainability"),
+        calcSectionAnswers("community"),
       ];
     }
 
     function chartDataPracticeAnswers() {
       return [
-        calcMultipleAnswers(answers, answerWeights, "practice", [
+        calcMultipleAnswers("practice", [
           "developingcurriculum",
           "curriculumtopic",
           "resources",
@@ -159,7 +124,7 @@ function ResultsSection() {
           "principles",
           "growfood",
         ]),
-        calcMultipleAnswers(answers, answerWeights, "practice", [
+        calcMultipleAnswers("practice", [
           "playpolicy",
           "playrain",
           "playsnow",

@@ -9,7 +9,7 @@ export function renderMarkup(markup:Markup|Markup[], key?:number):React.ReactNod
     return <span key={key}>{markup}</span>;
   }
   if (Array.isArray(markup)) {
-    return <>{markup.map((markup, key) => renderMarkup(markup, key))}</>;
+    return <>{markup.map((markupElement, currentKey) => renderMarkup(markupElement, currentKey))}</>;
   }
   const { tag, content } = markup;
   const renderedContent = renderMarkup(content, key);

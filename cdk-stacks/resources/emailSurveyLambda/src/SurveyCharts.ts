@@ -49,7 +49,6 @@ const smallChartJSNodeCanvas = new ChartJSNodeCanvas({
 
 function getSingleAnswer(
   answers: SurveyAnswers,
-  answerWeights: AnswerWeights,
   sectionId: string,
   questionId: string
 ) {
@@ -70,72 +69,56 @@ function getSingleAnswer(
 
 function calcMultipleAnswers(
   answers: SurveyAnswers,
-  answerWeights: AnswerWeights,
   sectionId: string,
   questionIds: string[]
 ) {
   var totalValue = 0;
   var totalMaxValue = 0;
   questionIds.forEach((questionId) => {
-    const { value, maxValue } = getSingleAnswer(
-      answers,
-      answerWeights,
-      sectionId,
-      questionId
-    );
+    const { value, maxValue } = getSingleAnswer(answers, sectionId, questionId);
     totalValue += value;
     totalMaxValue += maxValue;
   });
   return (totalValue * 100) / totalMaxValue;
 }
 
-function calcSectionAnswers(
-  answers: SurveyAnswers,
-  answerWeights: AnswerWeights,
-  sectionId: string
-) {
+function calcSectionAnswers(answers: SurveyAnswers, sectionId: string) {
   const questionIds = Object.keys(answers[sectionId]);
-  return calcMultipleAnswers(answers, answerWeights, sectionId, questionIds);
+  return calcMultipleAnswers(answers, sectionId, questionIds);
 }
 
 function calcAnswer(
   answers: SurveyAnswers,
-  answerWeights: AnswerWeights,
   sectionId: string,
   questionId: string
 ) {
-  const { value, maxValue } = getSingleAnswer(
-    answers,
-    answerWeights,
-    sectionId,
-    questionId
-  );
+  const { value, maxValue } = getSingleAnswer(answers, sectionId, questionId);
   return (value * 100) / maxValue;
 }
 
 function chartDataGreenspaceAnswers(answers: SurveyAnswers) {
   return [
-    calcAnswer(answers, answerWeights, "greenspace", "accessible"),
-    calcAnswer(answers, answerWeights, "greenspace", "frequentuse"),
-    calcAnswer(answers, answerWeights, "greenspace", "wildlife"),
-    calcAnswer(answers, answerWeights, "greenspace", "teaching"),
-    calcAnswer(answers, answerWeights, "greenspace", "changes"),
+    calcAnswer(answers, "greenspace", "accessible"),
+    calcAnswer(answers, "greenspace", "frequentuse"),
+    calcAnswer(answers, "greenspace", "wildlife"),
+    calcAnswer(answers, "greenspace", "teaching"),
+    calcAnswer(answers, "greenspace", "changes"),
   ];
 }
 
 function chartDataAnswers(answers: SurveyAnswers) {
   return [
-    calcSectionAnswers(answers, answerWeights, "learning"),
-    calcSectionAnswers(answers, answerWeights, "play"),
-    calcSectionAnswers(answers, answerWeights, "wellbeing"),
-    calcSectionAnswers(answers, answerWeights, "sustainability"),
-    calcSectionAnswers(answers, answerWeights, "community"),
+    calcSectionAnswers(answers, "learning"),
+    calcSectionAnswers(answers, "play"),
+    calcSectionAnswers(answers, "wellbeing"),
+    calcSectionAnswers(answers, "sustainability"),
+    calcSectionAnswers(answers, "community"),
   ];
 }
 
 function chartDataPracticeAnswers(answers: SurveyAnswers) {
   return [
-    calcMultipleAnswers(answers, answerWeights, "practice", [
+    calcMultipleAnswers(answers, "practice", [
       "developingcurriculum",
       "curriculumtopic",
       "resources",
@@ -143,7 +126,7 @@ function chartDataPracticeAnswers(answers: SurveyAnswers) {
       "principles",
       "growfood",
     ]),
-    calcMultipleAnswers(answers, answerWeights, "practice", [
+    calcMultipleAnswers(answers, "practice", [
       "playpolicy",
       "playrain",
       "playsnow",

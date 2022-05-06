@@ -281,26 +281,23 @@ function QuestionTextWithYear({
   const classes = useStyles();
 
   function yearAnswerRow(
-    responses: DatedQuestionAnswer[],
-    responseNumber: number,
-    response: DatedQuestionAnswer,
     answerKey: DatedQuestionAnswerKey,
-    yearKey: DatedQuestionAnswerKey
+    responseNumber: number,
+    answer: string,
+    year: string
   ) {
-    if (!response[answerKey] && !response[yearKey]) {
+    if (!answer && !year) {
       return null;
     }
     return (
-      <tr key={responseNumber + answerKey}>
+      <tr key={`${responseNumber}${answerKey}`}>
         {getResponseNumberCell(responses, responseNumber)}
-        <td>{response[answerKey] || ""}</td>
-        <td className="year">{response[yearKey] || ""}</td>
+        <td>{answer || ""}</td>
+        <td className="year">{year || ""}</td>
       </tr>
     );
   }
 
-  // <Box className={classes.answer}>Improvement: {response[answerKey]}</Box>
-  // <Box className={classes.answer}>Year: {response[yearKey]}</Box>
   return (
     <div className={classes.question}>
       <Box flexDirection="row">
@@ -310,40 +307,13 @@ function QuestionTextWithYear({
       </Box>
       <table className={classes.responsesGrid}>
         <tbody>
-          {responses.map((response, i) => {
-            const result = [];
-            const answer1 = yearAnswerRow(
-              responses,
-              i + 1,
-              response,
-              "answer1",
-              "year1"
-            );
-            const answer2 = yearAnswerRow(
-              responses,
-              i + 1,
-              response,
-              "answer2",
-              "year2"
-            );
-            const answer3 = yearAnswerRow(
-              responses,
-              i + 1,
-              response,
-              "answer3",
-              "year3"
-            );
-            if (answer1 != null) {
-              result.push(answer1);
-            }
-            if (answer2 != null) {
-              result.push(answer2);
-            }
-            if (answer3 != null) {
-              result.push(answer3);
-            }
-            return result;
-          })}
+          {responses.map((response, i) =>
+            [
+              yearAnswerRow("answer1", i + 1, response.answer1, response.year1),
+              yearAnswerRow("answer2", i + 1, response.answer2, response.year2),
+              yearAnswerRow("answer3", i + 1, response.answer3, response.year3),
+            ].filter(Boolean)
+          )}
         </tbody>
       </table>
     </div>
