@@ -82,7 +82,7 @@ export interface SurveyResponse {
   responderEmail: string;
   responderName: string;
   schoolName: string;
-  state: string; // TODO typedef
+  state: string;
   surveyResponse: SurveyAnswers;
   surveyVersion: string;
   updatedAt: string;
@@ -94,7 +94,7 @@ export interface SurveySummary {
   responderEmail: string;
   responderName: string;
   schoolName: string;
-  uploadState: string; // TODO add type
+  uploadState: string;
   timestampString: string;
 }
 
@@ -421,7 +421,10 @@ export function allSurveysRetrieved(
 }
 
 // Exported for unit tests
-export function surveyReducer(state = initialState(), action: AnyAction) {
+export function surveyReducer(
+  state = initialState(),
+  action = {} as AnyAction
+) {
   return surveyAnswersReducer(
     authReducer(state, action) as AdminStoreState,
     action

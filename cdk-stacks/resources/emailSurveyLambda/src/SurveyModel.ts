@@ -64,7 +64,7 @@ export interface SurveyResponse {
   responderEmail: string;
   responderName: string;
   schoolName: string;
-  state: string; // TODO typedef
+  state: string;
   surveyResponse: SurveyAnswers;
   surveyVersion: string;
   updatedAt: string;

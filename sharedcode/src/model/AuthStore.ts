@@ -42,7 +42,7 @@ function initialState(): AuthStoreState {
   };
 }
 
-export function authReducer(state = initialState(), action: AnyAction) {
+export function authReducer(state = initialState(), action = {} as AnyAction) {
   switch (action.type) {
     case SET_AUTH_STATE:
       console.debug("SET_AUTH_STATE");

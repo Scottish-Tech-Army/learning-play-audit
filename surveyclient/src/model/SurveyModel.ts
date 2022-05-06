@@ -472,7 +472,10 @@ function setDatedImprovementsAnswer(
 }
 
 // Exported for unit tests
-export function surveyReducer(state = initialState(), action: AnyAction) {
+export function surveyReducer(
+  state = initialState(),
+  action = {} as AnyAction
+) {
   return surveyAnswersReducer(
     authReducer(state, action) as SurveyStoreState,
     action
