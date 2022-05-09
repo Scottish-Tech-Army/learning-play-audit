@@ -84,7 +84,7 @@ function IntroductionSection() {
           <div className="icon-description">
             <img
               className="add-note-icon"
-              src={"/assets/add_note.svg"}
+              src={"./assets/add_note.svg"}
               alt="add note"
             />
             Use the note icon to add any notes or comments that you want to

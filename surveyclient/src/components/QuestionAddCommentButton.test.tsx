@@ -12,8 +12,8 @@ describe("component QuestionAddCommentButton", () => {
   const QUESTION_NUMBER = 17;
   const QUESTION_TEXT = "test question text";
 
-  const IMAGE_NO_COMMENT = "/assets/add_note.svg";
-  const IMAGE_WITH_COMMENT = "/assets/add_note_ticked.svg";
+  const IMAGE_NO_COMMENT = "./assets/add_note.svg";
+  const IMAGE_WITH_COMMENT = "./assets/add_note_ticked.svg";
 
   it("initial state - no comment", () => {
     renderWithStore(

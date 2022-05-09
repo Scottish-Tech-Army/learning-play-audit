@@ -33,8 +33,11 @@ module.exports = function () {
 
     devServer: {
       port: 3000,
-      open: true,
+      open: ['/survey'],
       hot: true,
+      static: {
+        publicPath: "/survey",
+      },
     },
 
     entry: [paths.appIndexJs],
