@@ -13,7 +13,7 @@
 
 body {
   /* webpackIgnore: true */
-  background-image: url(/assets/Background_image.jpg);
+  background-image: url(/survey/assets/Background_image.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: top;
@@ -22,7 +22,7 @@ body {
 
 .background-overlay {
   /* webpackIgnore: true */
-  background-image: url(/assets/LTL_partial_logo_white.png);
+  background-image: url(/survey/assets/LTL_partial_logo_white.png);
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: bottom right;
@@ -169,7 +169,7 @@ textarea {
   width: 100%;
   z-index: 1100;
   /* webpackIgnore: true */
-  background-image: url(/assets/background-banner.jpg);
+  background-image: url(/survey/assets/background-banner.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

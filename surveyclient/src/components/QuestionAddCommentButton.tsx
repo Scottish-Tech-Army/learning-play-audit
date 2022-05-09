@@ -38,7 +38,7 @@ export default function QuestionAddCommentButton({
       >
         <img
           src={
-            hasComment ? "/assets/add_note_ticked.svg" : "/assets/add_note.svg"
+            hasComment ? "./assets/add_note_ticked.svg" : "./assets/add_note.svg"
           }
           alt="add note"
         />
